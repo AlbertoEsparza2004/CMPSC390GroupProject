@@ -43,3 +43,23 @@ Done means:
 Risks/Questions:
 • May need database schema from database developer
 • Will need to connect backend to frontend later
+
+Sprint 1 prep (Ari)
+Trello cards
+ Check up on everyone
+ Assist where needed
+ Allow changes and submit project
+ 
+ Setup steps
+  Follow steps listed in Charles document so that I can work on with him 
+ 
+ Development Plan
+  I plan to work on the most on the backend, as the group decided this may end up being what requires the most time
+  I will communicate with Charles every day, I plan to take on steps together so we can speed the progress up
+
+Risks
+ We may need the database schema, so I will check it to make sure it has everything we need, and get it to charles and myself
+ Connecting backend to frontend will require communication between Charles and Alberto, I'll coordinate meeting times
+ I need to ensure Charles and myself understand which sections we'd like to tackle, I will discuss in depth with him.
+
+ 
