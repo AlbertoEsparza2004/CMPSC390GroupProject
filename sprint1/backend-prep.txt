@@ -1,0 +1,45 @@
+Sprint 1 Backend Prep Document
+Name: Charles Zufan
+
+Responsibilities:
+• Responsible for backend setup and development for Sprint 1
+• Set up the backend project structure
+• Create the base server and test route
+• Write setup instructions for the backend
+
+My Trello cards:
+• Initialize backend project
+• Create base server and test route
+• Write backend setup guide
+
+Setup Steps:
+• Install Node.js
+• Clone the GitHub repository
+• Open the project folder in VS Code
+• Run: npm init -y
+• Install Express: npm install express
+• Create server.js file
+• Run server using: node server.js
+
+Development Plan:
+• Create backend folder and initialize project
+• Install Express and required dependencies
+• Create server.js file
+• Add a test route (/test)
+• Verify server runs without errors
+• Document setup steps
+
+Files to create:
+• server.js
+• package.json
+• backend-prep.txt
+
+Done means:
+• Backend project initialized
+• Server runs successfully
+• Test route works
+• Setup instructions are complete
+
+Risks/Questions:
+• May need database schema from database developer
+• Will need to connect backend to frontend later
