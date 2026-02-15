@@ -1,0 +1,26 @@
+1. What you are responsible for in Sprint 
+	Build Landing Page Layout
+	Begin input button on first pages
+	Add on the general text and style
+2. Setup steps
+	What I need to do is create the html file for the landing page.
+	
+	After that I will need to start configuring the general layout such as buttons and 	text. For the buttons I will add a way to send submit data. I will have text written 	on what the data desires. Additionally I will begin to segment it out to where each 	should be within the page.
+
+	After that I will also add a font that I want incorporated and general colors to make 	an appealing webpage
+
+3. Development plan
+	The way that I can make this work is to first create the landing page through Html
+	
+	After that I will add three main buttons within the center of the screen that will 	transport you to that page/html.
+	
+	I will begin to start making the page appealing to the average user by adding fonts 	headers, titles and colors.
+	
+	Each clickable button will have a created webpage. Each webpage will contain a basic 	back button to return to the landing page.
+
+	At the end what end will look like is a landing page that is appealing to an average 	user with 5 different usable buttons that will transport you to a rough webpages with 	only one button to go back. Within this 
+
+4. Risks or questions
+	One thing that might block me from completing my work is outside 	work/jobs/family/classes or not understanding how a specific cmd works.
+
+	What I need from my teammates is for them to be present, Communicate, on time
