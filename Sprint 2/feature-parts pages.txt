@@ -1,0 +1,34 @@
+feature-parts pages
+Francisco Garcia JR Sprint 2
+
+
+1. Problem Statement
+What problem does this solve?
+Parts page is user friendly and track if available or not to be selected
+   2. User Flow
+Step by step from start to finish
+Make a database to be used for the backend
+The backend must have features to use the data to display information and know when parts are available 
+front end display image of parts and pages of those parts and could click on available parts.
+      3. Technical Plan
+Frontend changes
+Backend routes
+Database changes
+Files expected to be created or modified
+Create frontend for user to select parts
+Create backend code for the page to connect to database and page features
+Database has been created, more data might be need but everything else will be done from new.
+         4. API Changes
+New routes
+Modified routes
+Request and response structure
+The feature should respond when parts are or aren’t available, changes will be responded with that database stating when a part is unuvable and the front end telling the user and won’t let the user add it to the car to prevent further mistakes.
+            5. Database Changes
+New tables
+Schema updates
+New fields
+The Database seems fine but if I can I’ll add descriptions to tell what each part is and maybe some value that can be used for when the user wants to use filters and have an easier time find a specific part
+               6. Acceptance Criteria
+Clear definition of done
+Must be testable
+It is when there are many different parts for the user to choose from: wheels, rims, paint, etc. The user must be able to scroll through and find parts that they are looking for and click on any available parts to be used for their customized car, and if any is unavailable it will display unavailable and the person can’t add it to their car so they won’t accidentally be charged for nonexistent parts.
