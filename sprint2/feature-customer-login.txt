@@ -1,0 +1,85 @@
+Customer Login
+
+User Story
+
+As a customer, I want to be able to log into my account so that I can access my features and previous data.
+
+Why this adds value to the project
+
+This adds value to the project because with login, we are allowing account access for users. Because of this, users are able to securely view and use features that are within their personal account. Example: orders, profile, customizations, etc.
+
+What layers it touches:
+
+• UI – Login page
+• Backend – login route and authentication
+• Database – user table lookup
+• External API if applicable
+
+1. Problem Statement
+
+What problem does this solve? Users need a secure authentication mechanism to access personalized features. Without login functionality, user specific data such as saved builds and profile information cannot be protected or retrieved.
+
+2. User Flow
+
+Step by step from start to finish
+
+user goes to login page
+
+user enters username or email, and password
+
+user clicks login
+
+front end sends request to backend
+
+backend executes inputs
+
+if user does not exist, then return an error
+
+backend verifies user password
+
+if password is valid within the database, then backend returns success.
+
+If password is invalid, then frontend will display an error message
+
+frontend will redirect user to homepage when login is successful
+
+3. Technical Plan
+
+Frontend changes – create login page with username and password fields. Also an enter button, and then after, I will send a request to /login and display success or an error message depending on if it works or not.
+
+Backend routes – confirm proper /login route, validate that both username and password are there, compare password, return success or error.
+
+Database changes - Using the users table, I will ensure that fields such as id, username, and password exists.
+
+Files expected to be created or modified - with the frontend, I will create a login page file and a navigation file. With the backend I will modify my server.js and db.js file.
+
+4. API Changes
+
+New routes – POST /login route
+
+Modified routes
+
+Request and response structure – the request will include username and password, and the response will include “login successful” or “invalid credentials”, or an error message if the server or database fails.
+
+5. Database Changes
+
+Database Changes – no new tables are needed, I will be using the existing tables
+
+New tables
+Schema updates
+New fields
+
+6. Acceptance Criteria
+
+Clear definition of done
+Must be testable
+
+user will submit login form
+
+the backend will check the database
+
+successful login returns dashboard
+
+unsuccessful login returns an error message
+
+making sure this is an independent feature, and can be demoed alone
