@@ -1,0 +1,63 @@
+/*--------------Below body cmds-------------------*/
+body{
+    background-color: whitesmoke;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header{
+    background-color:purple;
+}
+
+footer, .push {
+    background-color: purple;
+    height: 100px;
+}
+/*--------------Above body cmds-------------------*/
+/*--------------Below flex bot-------------------*/
+.container {/*used for the pages with 2 columns*/
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    /*align-items: center;*/
+}
+
+.section {
+    box-sizing: border-box;
+    
+}
+
+.left {
+    background-color: whitesmoke;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+}
+
+.right {
+    background-color: whitesmoke;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+}
+/*--------------above flex bot-------------------*/
+/*--------------Below text/inputs cmds-------------------*/
+h1  {
+    text-align: center;
+}
+h2 {
+    text-align: center;
+}
+
+button {
+    background-color: gray;
+    text-align: center;
+    border-radius: 10px; 
+    padding: 20px;
+    width: 300px;
+    
+}
