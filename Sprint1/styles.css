@@ -8,11 +8,11 @@ body{
 }
 
 header{
-    background-color: blue;
+    background-color:purple;
 }
 
 footer, .push {
-    background-color: blueviolet;
+    background-color: purple;
     height: 100px;
 }
 /*--------------Above body cmds-------------------*/
@@ -30,7 +30,7 @@ footer, .push {
 }
 
 .left {
-    background-color: red;
+    background-color: whitesmoke;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -38,7 +38,7 @@ footer, .push {
 }
 
 .right {
-    background-color: green;
+    background-color: whitesmoke;
     display: flex;
     flex-direction: column;
     align-items: center;
