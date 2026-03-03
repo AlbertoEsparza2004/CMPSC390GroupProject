@@ -4,7 +4,7 @@ const app = express();
 const PORT = 3000;
 const path = require("path");
 
-app.use(express.static(path.join(__dirname, "../Sprint1Alberto")));
+app.use(express.static(path.join(__dirname, "../Sprint2Alberto")));
 
 app.use(express.json());
 /* Root route */

@@ -1,0 +1,196 @@
+
+--first instance FRANCISCO 
+CREATE DATABASE IF NOT EXISTS legautocustDB;
+
+USE legautocustDB;
+
+CREATE TABLE user
+(
+  UserID INT NOT NULL,
+  FirstName VARCHAR(50) NOT NULL,
+  LastName VARCHAR(50) NOT NULL,
+  Password VARCHAR(50) NOT NULL,
+  UserName VARCHAR(50) NOT NULL,
+  ZipCode INT NOT NULL,
+  Birthdate DATE NOT NULL,
+  PRIMARY KEY (UserID)
+);
+
+
+CREATE TABLE Parts
+(
+  PartID INT NOT NULL,
+  Price INT NOT NULL,
+  Availability VARCHAR(50) NOT NULL,
+  PRIMARY KEY (PartID)
+);
+
+
+
+CREATE TABLE Customized_car
+(
+  BaseCar VARCHAR(50) NOT NULL,
+  TotalPrice INT NOT NULL,
+  PartsID INT NOT NULL,
+  UserID INT NOT NULL,
+  PRIMARY KEY (BaseCar),
+  FOREIGN KEY (PartID) REFERENCES Parts(PartID),
+  FOREIGN KEY (UserID) REFERENCES User(UserID),
+  UNIQUE (BaseCar)
+);
+
+
+INSERT INTO user (UserID, FirstName, LastName, Password, UserName, ZipCode, Birthdate)
+VALUES (
+'2120002026',
+'Good',
+'Mann',
+'Manpas303',
+'Goodman',
+'30314',
+'2000-02-12'
+);
+
+Insert into Parts (PartID, Price, Availability)
+Values(
+'800210234', 
+'65', 
+'Available'
+);
+
+Insert into CUSTOMIZED_CAR(BaseCar, TotalPrice, PartID, UserID)
+Values(
+'Toyota, SUVs, 2011',
+'0',
+'800210234',
+'2120002026'
+);
+
+--Second instance of change by FRANCISCO
+USE legautocustDB;
+
+//adding name, stock, category, and images datatypes
+
+ALTER TABLE Parts
+ADD Name VARCHAR(50),
+ADD Stock int not null,
+add category VARCHAR(100),
+add image VARCHAR(2048)
+;
+//dropping availability for stock will be used to keep track in backend
+
+ALTER TABLE Parts DROP COLUMN Availability_;
+
+//adding data into the row
+UPDATE Parts
+SET Name= 'Buffer 10 in amp 7'
+WHERE PartID=800210234;
+
+UPDATE Parts
+SET Stock= '12',
+WHERE PartID=800210234;
+
+UPDATE Parts
+SET category= 'Buffer',
+WHERE PartID=800210234;
+
+UPDATE Parts
+set image= 'https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcREb9KrzrUBrarmKe36HkxUStzTokDziBI6_Vo-Y3EDaZVqmzo4NscDLc0zGASRjWCKdNZnMXoV3vIK5dKzzuQ5z4NkKseobWqX5aswUV79I5UcdT5EOfwQ',
+WHERE PartID=800210234;
+
+SELECT * FROM Parts;
+
+
+
+
+
+
+
+//If you haven't had table parts in mysql yet use this
+//Version 2 parts table
+
+
+USE legautocustDB;
+
+CREATE TABLE Parts
+(
+  PartID INT NOT NULL,
+  Price INT NOT NULL,
+Name VARCHAR(50),
+Stock int not null,
+category VARCHAR(100),
+image VARCHAR(2048)
+  PRIMARY KEY (PartID)
+);
+
+
+Insert into Parts (PartID, Price, Name, Stock, category, image)
+Values(
+'800210234', 
+'65', 
+ 'Buffer 10 in amp 7',
+'12',
+'Buffer',
+'https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcREb9KrzrUBrarmKe36HkxUStzTokDziBI6_Vo-Y3EDaZVqmzo4NscDLc0zGASRjWCKdNZnMXoV3vIK5dKzzuQ5z4NkKseobWqX5aswUV79I5UcdT5EOfwQ'
+);
+
+
+SELECT * FROM Parts;
+
+
+--Plans of SQL I want to use but have not implementeb and will change in accordance to his sql.
+
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+    FirstName VARCHAR(25) NOT NULL,
+    LastName VARCHAR(25) NOT NULL,
+    Management BOOLEAN NOT NULL,
+    HireDate DATE NOT NULL,
+    Password VARCHAR(50) NOT NULL,
+    HourlyPay DECIMAL(5,2) NOT NULL
+);
+
+INSERT INTO Employees(EmployeeID, FirstName, LastName, Management, HireDate, Password, HourlyPay)
+Values
+(0001, 'John', 'Doe', TRUE, '2000-10-11', 'Password1', 25.00),          --MANAGER TYPE
+(0002, 'John', 'Dowtry', FALSE, '2001-11-12', 'Password2', 21.00),      --REG EMPLOYEE TYPE
+(0003, 'Jon', 'Dope', FALSE, '2015-11-13', 'Password101', 13.00);
+
+
+
+CREATE TABLE Schedule (
+    ScheduleID INT PRIMARY KEY,
+    EmployeeID INT NOT NULL,
+    WeekNum INT NOT NULL DEFAULT 1,  --52 weeks in a year
+    Mon BOOLEAN NOT NULL DEFAULT 0,
+    Tue BOOLEAN NOT NULL DEFAULT 0,
+    Wed BOOLEAN NOT NULL DEFAULT 0,
+    Thu BOOLEAN NOT NULL DEFAULT 0,
+    Fri BOOLEAN NOT NULL DEFAULT 0,
+    Sat BOOLEAN NOT NULL DEFAULT 0,
+    Sun BOOLEAN NOT NULL DEFAULT 0,
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+);
+
+INSERT INTO Schedule (ScheduleID, EmployeeID, WeekNum, Mon, Tue, Wed, Thu, Fri, Sat, Sun) 
+VALUES    --Wk M  T  W  T  F  S  S
+(1001, 0001, 1, 1, 1, 1, 1, 1, 0, 0),
+(1002, 0002, 1, 1, 0, 0, 0, 1, 1, 1),
+(1003, 0003, 1, 1, 1, 0, 0 ,0 ,0 ,0);
+
+
+
+CREATE TABLE EmployeePerformance (
+    PerformanceID INT PRIMARY KEY,
+    EmployeeID INT NOT NULL,
+    ActivelyEmployed BOOLEAN DEFAULT TRUE,
+    Points INT NOT NULL DEFAULT 0,
+    Comments TEXT,
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+);
+
+INSERT INTO EmployeePerformance (PerformanceID, EmployeeID, ActivelyEmployed, Points, Comments)
+Values
+(2001, 0001, TRUE, 0, ''),
+(2002, 0002, TRUE, 3, 'Attendance Issue.'),
+(2003, 0003, FALSE, 10, 'DO NOT REHIRE!!!');

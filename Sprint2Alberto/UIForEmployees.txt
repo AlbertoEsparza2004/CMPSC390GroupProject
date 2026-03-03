@@ -1,0 +1,17 @@
+1. Problem Statement
+This feature solves the problem of employees not being able to see their information such as schedules, pay and general information. Additionaly it gives special employees such as managers the ability to accept changes to schedules and terminate employees.
+
+2. User Flow
+The employee will enter the website and at the bottom there will be a button for the employee to sign in. After he clicks it, he will be sent to a new webpage asking for his information in the middle of the page. He will not get an option to create a user as he already has an account that was preassigned when he was hired. However he will get an option to reset his password. Once he enters his password it will be transported to an additional webpage that contains information such as paystubs, work schedules, an about page that contains hiring dates and other facts such upcoming anniversary. If a privileged employee enters they will see all the same features but will get the options to affect the database and show changes on the un privileged employee side.
+
+3. Technical Plan
+I will add new webpages for the employee user login function, Create a way for the backend to get and receive the login data and information from the tables to the frontend. Additionally create three more database tables. On the front end side I will have to create brand new webpages with forms to take in the information. I will have to add a login function to the Employee sign in page. After I will get create a brand new page with three options and each option will zoom into the clicked option. Those options will then be displayed within the same page allowing for the employees to request for days off.
+
+4. API Changes
+For the backend aspect I will have to write code so that the front end can communicate to the database. I will find a way so I can send the login information to the database and pull the relevant information. Additionally I will add a way to pull additional information from the database and toss it into the page to be displayed.
+
+5. Database Changes
+For the database I will have to create additional tables such as an employee table(EmployeeID, FN, LN, Management, HD, P, Hourly pay). EmployeePermance(PerformanceID, EmployeeID, ActivelyEmployed, Points, Comments). Schedules Table(ScheduleID, EmployeeID, WeekNum, Monday-Sunday). Two of these tables will point back to the Employee Database as EmployeeID as a FK.
+
+6. Acceptance Criteria
+The feature will be considered done once its full functionality is achieved. As in I can display individualized schedules for both employee types, I can also display individualized tax information with pay per week. Additionally when a manager can make changes to the DB through a UI instead of backend coding queries to the SQL database. 
