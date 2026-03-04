@@ -13,15 +13,32 @@
             <div>
                <h2>Employee SignIn Page</h2>
 
-                <h2>Login</h2>
+                <h2>Login</h2> <!--This comes from Lab1-->
                     <form id="loginForm">
-                    <label>Username</label><br />
-                    <input type="text" name="username" required /><br /><br />
-                    <label>Password</label><br />
-                    <input type="password" name="password" required /><br /><br />
-                    <button type="submit">Login</button>
+                        <label>EmployeeID</label><br />
+                        <input type="text" name="EmployeeID" required /><br /><br />
+                        <label>Password</label><br />
+                        <input type="password" name="password" required /><br /><br />
+                        <button type="submit">Login</button>
                     </form>
                     <p id="loginResult"></p>
+
+                    <script>
+                        const loginForm = document.getElementById('loginForm');
+                        const loginResult = document.getElementById('loginResult');
+                        loginForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(loginForm);
+                        const res = await fetch('/login', {
+                        method: 'POST',
+                        body: new URLSearchParams(formData)
+                        });
+                        const text = await res.text();
+                        loginResult.textContent = text;
+                        });
+                    </script>
+
+
 
                 <button onclick = "window.location.href='index.html'">Go back</button> 
             </div>
