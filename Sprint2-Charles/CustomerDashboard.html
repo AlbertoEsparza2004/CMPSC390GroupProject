@@ -2,24 +2,25 @@
 <html>
 <head>
     <title>Customer Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
-    <h1>Customer Dashboard</h1>
 
-    <p id="welcomeMessage"></p>
-    <p id="userIdDisplay"></p>
+<h1>Customer Dashboard</h1>
 
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const userId = params.get("userId");
+<p>Welcome to your dashboard.</p>
 
-        document.getElementById("welcomeMessage").textContent =
-            "Welcome to your dashboard.";
+<p id="userInfo"></p>
 
-        document.getElementById("userIdDisplay").textContent =
-            "Logged in User ID: " + userId;
-    </script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const userId = params.get("userId");
+
+const username = localStorage.getItem("username");
+
+document.getElementById("userInfo").innerText =
+"Logged in User: " + username + " (ID: " + userId + ")";
+</script>
+
 </body>
 </html>
