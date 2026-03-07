@@ -1,85 +1,114 @@
-Customer Login
+Customer Dashboard & Account Management
 
 User Story
+As a customer, I want to view and manage my account information and saved vehicle configurations so that I can access and interact with my personalized data after logging in.
 
-As a customer, I want to be able to log into my account so that I can access my features and previous data.
+Why This Adds Value
+This feature allows customers to interact with stored account data instead of only logging into the system. Users can view saved builds, account details, and customization information stored in the database, making the application functional beyond authentication.
 
-Why this adds value to the project
+Layers Touched
+UI – Customer dashboard page
 
-This adds value to the project because with login, we are allowing account access for users. Because of this, users are able to securely view and use features that are within their personal account. Example: orders, profile, customizations, etc.
 
-What layers it touches:
+Backend – dashboard data retrieval routes
 
-• UI – Login page
-• Backend – login route and authentication
-• Database – user table lookup
-• External API if applicable
+
+Database – user and saved configuration data
+
+
+External API – N/A
+
 
 1. Problem Statement
-
-What problem does this solve? Users need a secure authentication mechanism to access personalized features. Without login functionality, user specific data such as saved builds and profile information cannot be protected or retrieved.
+After logging in, customers currently have no centralized location to view or manage their stored information. This feature provides a dashboard that retrieves and displays user-specific data securely from the database.
 
 2. User Flow
+User logs in
 
-Step by step from start to finish
 
-user goes to login page
+User is redirected to customer dashboard
 
-user enters username or email, and password
 
-user clicks login
+Dashboard requests customer data from backend
 
-front end sends request to backend
 
-backend executes inputs
+Backend retrieves user information from database
 
-if user does not exist, then return an error
 
-backend verifies user password
+Saved configurations/account info displayed
 
-if password is valid within the database, then backend returns success.
 
-If password is invalid, then frontend will display an error message
+User can view or manage stored data
 
-frontend will redirect user to homepage when login is successful
+
+Page reload confirms persisted data
+
 
 3. Technical Plan
+Frontend
+Create CustomerDashboard page
 
-Frontend changes – create login page with username and password fields. Also an enter button, and then after, I will send a request to /login and display success or an error message depending on if it works or not.
 
-Backend routes – confirm proper /login route, validate that both username and password are there, compare password, return success or error.
+Display:
 
-Database changes - Using the users table, I will ensure that fields such as id, username, and password exists.
 
-Files expected to be created or modified - with the frontend, I will create a login page file and a navigation file. With the backend I will modify my server.js and db.js file.
+account information
+
+
+saved vehicle builds
+
+
+customization details
+
+
+Backend
+Create route:
+
+ GET /customer/dashboard
+
+
+Validate authenticated user
+
+
+Query database for customer data
+
+
+Database
+Use existing:
+
+
+users table
+
+
+saved configurations table
+
+
+Files Created / Modified
+Frontend:
+CustomerDashboard.js
+
+
+Navigation update
+
+
+Backend:
+server.js
+
+
+dashboard route file
+
+
+db.js queries
 
 4. API Changes
-
-New routes – POST /login route
-
-Modified routes
-
-Request and response structure – the request will include username and password, and the response will include “login successful” or “invalid credentials”, or an error message if the server or database fails.
+New Routes
+GET /customer/dashboard
+Response Example
+{
+ user: {...},
+ savedBuilds: [...]
+}
 
 5. Database Changes
-
-Database Changes – no new tables are needed, I will be using the existing tables
-
-New tables
-Schema updates
-New fields
-
-6. Acceptance Criteria
-
-Clear definition of done
-Must be testable
-
-user will submit login form
-
-the backend will check the database
-
-successful login returns dashboard
-
-unsuccessful login returns an error message
-
-making sure this is an independent feature, and can be demoed alone
+No new tables required.
+ Existing customer and configuration data will be retrieved and displayed.
