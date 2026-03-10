@@ -1,0 +1,23 @@
+﻿database-prep.txt
+
+
+1. 3 task
+Convert erd into schema 
+Make the tables and test data
+1 core quarry or more if possible
+
+
+2. Setup steps
+Using MYSQL
+
+
+3. Development plan
+Generate the entities into schema for tables 
+Setup those tables and insert data to test with
+These will be sql quarry so the stack can be use on the website
+Folders will hold the stack
+Work will be done when one successful quarry stack is made and works on the website
+
+
+4. The only issues are if diagram wasn’t done right
+I would like feedback from my team mates to know if my work worked on the website
