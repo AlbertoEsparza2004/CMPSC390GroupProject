@@ -1,11 +1,10 @@
 {
-  "name": "serverexample",
+  "name": "sprint-2",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "serverparts.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
@@ -13,7 +12,8 @@
   "type": "commonjs",
   "dependencies": {
     "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
     "express": "^5.2.1",
-    "mysql2": "^3.16.1"
+    "mysql2": "^3.18.2"
   }
 }
