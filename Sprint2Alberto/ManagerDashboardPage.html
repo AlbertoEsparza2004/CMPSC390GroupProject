@@ -14,23 +14,22 @@
                 <div class = "left section">
                     <h2 id="welcome">Hello Manager</h2>
 
-                    <button onclick = "window.location.href='index.html'">Schedule</button>
+                    <button onclick ="loadSchedule()">Schedule</button>
                     <br>
-                    <button onclick = "window.location.href='index.html'">Attendance</button>
+                    <button onclick = "loadAttendance()">Attendance</button>
                     <br>
-                    <button onclick = "window.location.href='index.html'">Tax Info.</button>
+                    <button onclick = "loadTaxInfo()">Tax Info.</button>
                     <br>
-                    <button onclick = "window.location.href='index.html'">Employee Recognition</button>
+                    <button onclick = "loadEmployeeRecognition()">Employee Recognition</button>
                     <br>
-                    <button onclick = "window.location.href='index.html'">Employee Options</button>
+                    <button onclick = "loadEmployeeOptions()">Employee Options</button>
                     <br>
-                    <button onclick = "window.location.href='index.html'">Disciplinary Actions</button>
-                    
+                    <button onclick = "loadDisplinaryActions()">Disciplinary Action</button>
+                    <br>
+                    <button onclick = "loadContactInfo()">Contact Info.</button>
                 </div>
                 
-                <div class = "right section">
-
-                </div>
+                <div class = "right section" id="InteractiveDisplay"></div>
                  
             
         </div>
@@ -40,11 +39,234 @@
                 window.onload = function(){
                     const params = new URLSearchParams(window.location.search);
                     const name = params.get("name");
+                    const employeeID = params.get("EmployeeID");
                     console.log(name);
+                    console.log(employeeID);
                     if (name){
                         document.getElementById("welcome").textContent = "Hello " + name;
                     }
-                };    
+                };
+
+                /*Schedule button*/
+                async function loadSchedule(){  /*Creates a calender personalized to the logged in user*/
+                    const params = new URLSearchParams(window.location.search);
+                    const employeeID = params.get("EmployeeID");
+                    const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
+                    const data = await res.json();
+                    const employeeName = data[0].FirstName + " " + data[0].LastName;
+
+                    console.log(data);
+                    let html = `<h2>${employeeName} Schedule</h2> <table border = "1"> <tr> <th>Month</th> <th>Week</th>   <th>Mon</th>    <th>Tue</th>    <th>Wed</th>    <th>Thu</th>    <th>Fri</th>    <th>Sat</th>    <th>Sun</th>    </tr>`;
+                    data.forEach(employee => {
+                        html += `
+                        <tr>
+                            <td>${employee.MonthNum}</td>
+                            <td>${employee.WeekNum}</td>
+                            <td>${employee.Mon ? "✅" : "❌"}</td>
+                            <td>${employee.Tue ? "✅" : "❌"}</td>
+                            <td>${employee.Wed ? "✅" : "❌"}</td>
+                            <td>${employee.Thu ? "✅" : "❌"}</td>
+                            <td>${employee.Fri ? "✅" : "❌"}</td>
+                            <td>${employee.Sat ? "✅" : "❌"}
+                            <td>${employee.Sun ? "✅" : "❌"}</td>
+                        </tr>`;
+                    });
+                    html += "</table>";
+                    document.getElementById("InteractiveDisplay").innerHTML = html;
+                }
+
+                /*Attendance Buttons*/
+                async function loadAttendance(){    /*Essentially all the html to make it appear additionally form submission*/
+                    const params = new URLSearchParams(window.location.search);
+                    const employeeID = params.get("EmployeeID");
+                    const res = await fetch(`/getPoints?EmployeeID=${employeeID}`);
+                    const data = await res.json();
+
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                        <h2>Attendance</h2>
+                        <div id="calendar"></div>   <!--Calender div is where it will show-->
+                        <br>
+                        <p>Attendace Points: ${data.Points}</p>
+                        <br>
+                        <h3>Request Day Off</h3>
+                        <form id="dayOffForm">
+                            <input type="hidden" name="EmployeeID" value="${employeeID}">
+
+                            <label>Month</label><br>
+                            <input type="number" name="MonthNum" required><br><br>
+
+                            <label>Week</label><br>
+                            <input type="number" name="WeekNum" required><br><br>
+                            
+                            <label>Day</label><br>
+                            <select name="DayOfWeek">
+                                <option value="Mon">Monday</option>
+                                <option value="Tue">Tuesday</option>
+                                <option value="Wed">Wednesday</option>
+                                <option value="Thu">Thursday</option>
+                                <option value="Fri">Friday</option>
+                                <option value="Sat">Saturday</option>
+                                <option value="Sun">Sunday</option>
+                            </select><br><br>
+
+                            <label>Reason</label><br>
+                            <textarea name="Reason"></textarea><br><br>
+                            
+                            <button type="submit">Submit Request</button>
+                        </form>
+                        <p id="requestResult"></p>
+                    `;
+
+                    /*Submits the form at the bottom calls calendar() */
+                    document.getElementById("dayOffForm").addEventListener("submit", async function(e){
+                        e.preventDefault();
+                        const formData = new FormData(this);
+                        const res = await fetch("/request-dayoff", {
+                            method: "POST",
+                            body: new URLSearchParams(formData)
+                        });
+                        const text = await res.text();
+                        document.getElementById("requestResult").textContent = text;
+                        });
+                        calendar();
+                        }
+
+                async function calendar(){ /*Same as loadschedule but deployed within loadAttendance different inner html so no reload called from loadAttendance*/
+                    const params = new URLSearchParams(window.location.search);
+                    const employeeID = params.get("EmployeeID");
+                    const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
+                    const data = await res.json();
+
+                    console.log(data);
+                    let html = `<table border="1"> <tr> <th>Month</th> <th>Week</th>   <th>Mon</th>    <th>Tue</th>    <th>Wed</th>    <th>Thu</th>    <th>Fri</th>    <th>Sat</th>    <th>Sun</th>    </tr>`;
+                    data.forEach(employee => {
+                        html += `
+                        <tr>
+                            <td>${employee.MonthNum}</td>
+                            <td>${employee.WeekNum}</td>
+                            <td>${employee.Mon ? "✅" : "❌"}</td>
+                            <td>${employee.Tue ? "✅" : "❌"}</td>
+                            <td>${employee.Wed ? "✅" : "❌"}</td>
+                            <td>${employee.Thu ? "✅" : "❌"}</td>
+                            <td>${employee.Fri ? "✅" : "❌"}</td>
+                            <td>${employee.Sat ? "✅" : "❌"}</td>
+                            <td>${employee.Sun ? "✅" : "❌"}</td>
+                        </tr>
+                        `;
+                    });
+                    html += "</table>";
+                    document.getElementById("calendar").innerHTML = html;
+                }
+
+                /*Tax Info Buttons*/
+                function loadTaxInfo(){ /*Function to load the buttons to select desired pay stub week*/
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                        <h2>Tax Information</h2>
+                        <div>
+                            <button onclick = "loadPaystub(1)" style="width:120px; height:30px">Week 1</button>
+                            <button onclick = "loadPaystub(2)" style="width:120px; height:30px">Week 2</button>
+                            <button onclick = "loadPaystub(3)" style="width:120px; height:30px">Week 3</button>
+                            <button onclick = "loadPaystub(4)" style="width:120px; height:30px">Week 4</button>
+                            <button onclick = "loadPaystub(5)" style="width:120px; height:30px">Week 5</button>
+                        </div>
+                        <br><br>
+                        <div id = "PaystubTable"></div> 
+                    `;
+                }
+                
+                async function loadPaystub(week){
+                    const params = new URLSearchParams(window.location.search);
+                    const employeeID = params.get("EmployeeID");
+                    const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
+                    const data = await res.json();
+                    const schedule = data.find(row => row.WeekNum == week);
+                    
+                    if(!schedule){
+                        document.getElementById("PaystubTable").innerHTML = "No schedule found.";
+                        return;
+                    }
+                    let daysWorked = 0;                 /*Checks how many days the employee worked*/
+                    if(schedule.Mon) daysWorked++;
+                    if(schedule.Tue) daysWorked++;
+                    if(schedule.Wed) daysWorked++;
+                    if(schedule.Thu) daysWorked++;
+                    if(schedule.Fri) daysWorked++;
+                    if(schedule.Sat) daysWorked++;
+                    if(schedule.Sun) daysWorked++;
+                    
+                    const payRes = await fetch(`/getEmployeePay?EmployeeID=${employeeID}`); /*all for the pay data*/
+                    const payData = await payRes.json();
+                    const hourlyPay = payData.HourlyPay;
+                    const hoursWorked = daysWorked * 8;
+                    const grossPay = hoursWorked * hourlyPay;
+                    const federal = grossPay * 0.12;
+                    const state = grossPay * 0.09;
+                    const social = grossPay * 0.03;
+                    const medicare = grossPay * 0.016;
+                    const totalTaxes = federal + state + social + medicare;
+                    const netPay = grossPay - totalTaxes;
+                    document.getElementById("PaystubTable").innerHTML = `
+                    
+                    <table border="1">
+                        <tr><th>Days Worked</th> <th>Hours Worked</th> <th>Hourly Pay</th> <th>Gross Pay</th> </tr>
+                        <tr>
+                            <td>${daysWorked}</td>
+                            <td>${hoursWorked}</td>
+                            <td>$${hourlyPay}</td>
+                            <td>$${grossPay.toFixed(2)}</td>
+                        </tr>
+                    </table>
+                    <table border="1">
+                        <tr> <th>Federal Income Tax</th> <th>State Income Tax</th> <th>Social Security</th> <th>Medicare</th> <th>Total Taxes</th> <th>Net Pay</th> </tr>
+                        <tr>
+                            <td>$${federal.toFixed(2)}</td>
+                            <td>$${state.toFixed(2)}</td>
+                            <td>$${social.toFixed(2)}</td>
+                            <td>$${medicare.toFixed(2)}</td>
+                            <td>$${totalTaxes.toFixed(2)}</td>
+                            <td>$${netPay.toFixed(2)}</td>
+                        </tr>
+                    </table>
+                    `;
+                }
+                
+                /**/
+                function loadEmployeeRecognition(){
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                        <h2>Employee Recognition</h2>
+                    `;
+                }
+
+                function loadEmployeeOptions(){
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                        <h2>Employee Options</h2>
+                       
+                    `;
+                }
+
+                function loadDiscplinaryActions(){
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                        <h2>Disciplinary Actions</h2>
+                    `;
+                }
+
+                /*Contact Info Button*/
+                async function loadContactInfo(){
+                    const params = new URLSearchParams(window.location.search);
+                    const employeeID = params.get("EmployeeID");
+                    const res = await fetch(`/contactInfo?EmployeeID=${employeeID}`);
+                    const data = await res.json();
+
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                    <h2>Contact Information</h2>
+                    <table> <table border="1">
+                    <tr><th>Phone Number:</th><td>${data.PhoneNumber}</td></tr>
+                    <tr><th>Emergency Phone:</th><td>${data.EmergencyPhoneNumber}</td></tr>
+                    <tr><th>Address:</th><td>${data.Address}</td></tr>
+                    <tr><th>Personal Email:</th><td>${data.PersonalEmail}</td></tr>
+                    <tr><th>Work Email:</th><td>${data.WorkEmail}</td></tr>
+                    </table>
+                    `;} 
         </script>
     </body>
 </html>
