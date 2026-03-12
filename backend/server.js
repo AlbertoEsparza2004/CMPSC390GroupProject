@@ -67,6 +67,41 @@ app.post("/login", (req, res) => {
   });
 });
 
+/* User registration */
+app.post("/customer/register", (req, res) => {
+  const { firstName, lastName, password, userName, zipCode, birthdate } = req.body;
+
+  if (!firstName || !lastName || !password || !userName || !zipCode || !birthdate) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const checkSql = "SELECT * FROM `User` WHERE UserName = ?";
+  db.query(checkSql, [userName], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error(checkErr);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (checkResults.length > 0) {
+      return res.status(409).json({ message: "Username already exists" });
+    }
+
+    const insertSql = "INSERT INTO `User` (FirstName, LastName, Password, UserName, ZipCode, Birthdate) VALUES (?, ?, ?, ?, ?, ?)";
+    db.query(insertSql, [firstName, lastName, password, userName, zipCode, birthdate], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Error creating account" });
+      }
+
+      res.json({
+        message: "Account created successfully",
+        userId: result.insertId,
+        username: userName,
+      });
+    });
+  });
+});
+
 /* Get customer by ID (for dashboard) */
 app.get("/customer/:id", (req, res) => {
   const userId = req.params.id;
