@@ -12,13 +12,23 @@
         <div class = "container" style="justify-content: center;">           
             <div>
                 <h2>Our Partners Page</h2>
-                <button onclick = "window.location.href='index.html'">Go back</button>
+                <button onclick="goBackToDashboard()">Go back</button>
             </div>
         </div>
 
         
 
         <footer><h2>This is legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and home to build your vision</h2></footer>
+        <script>
+        function goBackToDashboard() {
+            const userId = localStorage.getItem("userId");
 
+            if (userId) {
+                window.location.href = "/Sprint2-Charles/CustomerDashboard.html?userId=" + userId;
+            } else {
+                window.location.href = "/Sprint2Alberto/CustomerSingInPage.html";
+            }
+        }
+</script>
     </body>
 </html>
