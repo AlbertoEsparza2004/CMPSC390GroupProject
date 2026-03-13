@@ -6,11 +6,11 @@
   <style>
     body { font-family: Arial; padding: 20px; }
     .filters { margin-bottom: 20px; }
-    .part { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
+    .part { border: 1px solid #005296; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
     .part img { width: 100px; height: auto; object-fit: contain; }
     .info h3 { margin: 0 0 5px 0; }
     .out { color: red; }
-    #cartContainer { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+    #cartContainer { border: 1px solid #ffcf8f; padding: 10px; margin-top: 10px; }
     .cart-item { display: flex; justify-content: space-between; margin-bottom: 5px; }
     button { padding: 5px 10px; cursor: pointer; }
   </style>
@@ -23,6 +23,10 @@
   <label><input type="checkbox" id="inStockCheckbox"> In Stock Only</label>
   <label><input type="checkbox" id="bufferCheckbox"> Buffer</label>
   <label><input type="checkbox" id="paintCheckbox"> Paint</label>
+  <label><input type="checkbox" id="engineCheckbox"> Engine</label>
+  <label><input type="checkbox" id="wheelCheckbox"> Wheel</label>
+  <label><input type="checkbox" id="hornCheckbox"> Horn</label>
+  <label><input type="checkbox" id="exhaustsystemCheckbox"> Exhaust system</label>
 </div>
 
 <h2>Parts</h2>
@@ -45,6 +49,10 @@ function fetchParts() {
   if (document.getElementById("inStockCheckbox").checked) params.push("inStock=true");
   if (document.getElementById("bufferCheckbox").checked) params.push("category=buffer");
   if (document.getElementById("paintCheckbox").checked) params.push("category=paint");
+  if (document.getElementById("engineCheckbox").checked) params.push("category=engine");
+  if (document.getElementById("wheelCheckbox").checked) params.push("category=wheel");
+  if (document.getElementById("hornCheckbox").checked) params.push("category=horn");
+  if (document.getElementById("exhaustsystemCheckbox").checked) params.push("category=exhaust system");
 
   url += params.join("&");
 
