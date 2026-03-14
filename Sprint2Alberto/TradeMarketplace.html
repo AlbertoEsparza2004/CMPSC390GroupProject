@@ -16,6 +16,22 @@
 
 <h2>Trade Marketplace</h2>
 
+<h3>Create Trade</h3>
+
+<select id="partID"></select><br><br>
+
+<input id="minPrice" placeholder="Minimum Price"><br><br>
+
+<input id="maxPrice" placeholder="Maximum Price"><br><br>
+
+<input id="condition" placeholder="Condition"><br><br>
+
+<input id="imageURL" placeholder="Image URL"><br><br>
+
+<button onclick="createTrade()">Post Trade</button>
+
+<hr>
+
 <button onclick="loadTrades()">Load Available Trades</button>
 
 <div id="trades"></div>
@@ -74,6 +90,61 @@ method: "POST"
 
 }
 
+function createTrade(){
+
+fetch("/createTrade", {
+
+method: "POST",
+
+headers: {
+"Content-Type": "application/json"
+},
+
+body: JSON.stringify({
+
+OwnerUserID: 293,
+
+OfferedPartID: document.getElementById("partID").value,
+
+DesiredMinPrice: document.getElementById("minPrice").value,
+
+DesiredMaxPrice: document.getElementById("maxPrice").value,
+
+ConditionDescription: document.getElementById("condition").value,
+
+ImageURL: document.getElementById("imageURL").value
+
+})
+
+})
+
+.then(res => res.json())
+
+.then(data => alert(data.message));
+
+}
+/* Code that is used for drop down selection for part id when a trade is being created*/
+function loadParts(){
+
+fetch("/parts")
+.then(res => res.json())
+.then(data => {
+
+let options = "";
+
+data.forEach(part => {
+
+options += `<option value="${part.PartID}">Part ${part.PartID}</option>`;
+
+});
+
+document.getElementById("partID").innerHTML = options;
+
+});
+
+}
+
+loadParts();
 </script>
 
 </body>

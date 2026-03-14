@@ -114,7 +114,7 @@ app.post("/createTrade", (req, res) => {
   const sql = `
     INSERT INTO Trades
     (OwnerUserID, OfferedPartID, DesiredMinPrice, DesiredMaxPrice, ConditionDescription, ImageURL)
-    VALUES (?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
   db.query(sql, [OwnerUserID, OfferedPartID, DesiredMinPrice, DesiredMaxPrice, ConditionDescription, ImageURL], (err, results) => {
