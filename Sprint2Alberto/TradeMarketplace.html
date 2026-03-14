@@ -71,6 +71,10 @@ output += `
 
 <button onclick="submitOffer(${trade.TradeID})">Offer Trade</button>
 
+<button onclick="viewOffers(${trade.TradeID})">View Offers</button>
+
+<div id="offers${trade.TradeID}"></div>
+
 <hr>
 `;
 
@@ -174,6 +178,36 @@ OfferedPartDescription: description
 
 .then(res => res.json())
 .then(data => alert(data.message));
+
+}
+
+/*Function that allows the original poster of a trade to accept or decline what someone is requesting to trade */
+function viewOffers(tradeId){
+
+fetch("/offers/" + tradeId)
+
+.then(res => res.json())
+
+.then(data => {
+
+let output = "<h4>Offers:</h4>";
+
+data.forEach(offer => {
+
+output += `
+<p>User ${offer.OfferingUserID}</p>
+<p>${offer.OfferedPartDescription}</p>
+
+<button onclick="acceptTrade(${tradeId})">Accept Offer</button>
+
+<hr>
+`;
+
+});
+
+document.getElementById("offers" + tradeId).innerHTML = output;
+
+});
 
 }
 </script>
