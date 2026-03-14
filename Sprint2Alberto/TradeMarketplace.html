@@ -67,7 +67,10 @@ output += `
 <p>Condition: ${trade.ConditionDescription}</p>
 <p>Price Range: ${trade.DesiredMinPrice} - ${trade.DesiredMaxPrice}</p>
 
-<button onclick="acceptTrade(${trade.TradeID})">Accept Trade</button>
+<input id="offer${trade.TradeID}" placeholder="Describe your part"><br><br>
+
+<button onclick="submitOffer(${trade.TradeID})">Offer Trade</button>
+
 <hr>
 `;
 
@@ -145,6 +148,34 @@ document.getElementById("partID").innerHTML = options;
 }
 
 loadParts();
+
+/* function that allows a user to send a user (one that has posted their own trade) an offer, which the original poster can accept or decline*/
+function submitOffer(tradeId){
+
+const description = document.getElementById("offer" + tradeId).value;
+
+fetch("/createOffer", {
+
+method: "POST",
+
+headers: {
+"Content-Type": "application/json"
+},
+
+body: JSON.stringify({
+
+TradeID: tradeId,
+OfferingUserID: 293,
+OfferedPartDescription: description
+
+})
+
+})
+
+.then(res => res.json())
+.then(data => alert(data.message));
+
+}
 </script>
 
 </body>
