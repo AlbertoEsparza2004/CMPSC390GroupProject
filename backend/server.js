@@ -193,6 +193,77 @@ app.get("/offers/:tradeId", (req, res) => {
 
 });
 
+/* code that allows you to decline a trade offer*/
+app.post("/declineOffer/:id", (req, res) => {
+
+  const offerId = req.params.id;
+
+  const sql = "DELETE FROM TradeOffers WHERE OfferID = ?";
+
+  db.query(sql, [offerId], (err) => {
+
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json({ message: "Offer declined." });
+
+  });
+
+});
+
+/* code that allows you to accept a specific offer */
+app.post("/acceptOffer/:id", (req, res) => {
+
+const offerId = req.params.id;
+
+/* code that gets offer info */
+const sql = `
+SELECT TradeOffers.*, Trades.OwnerUserID
+FROM TradeOffers
+JOIN Trades ON TradeOffers.TradeID = Trades.TradeID
+WHERE OfferID = ?
+`;
+
+db.query(sql,[offerId],(err,results)=>{
+
+if(err){
+console.error(err);
+return res.status(500).json({error:"Database error"});
+}
+
+if(results.length === 0){
+return res.status(404).json({message:"Offer not found"});
+}
+
+const offer = results[0];
+
+/* code that updates trade as accepted */
+const updateTrade = "UPDATE Trades SET Status='ACCEPTED' WHERE TradeID=?";
+
+db.query(updateTrade,[offer.TradeID],(err)=>{
+
+if(err){
+console.error(err);
+return res.status(500).json({error:"Database error"});
+}
+
+/* code that deletes other offers for this trade, since one has already been selected */
+const deleteOthers = "DELETE FROM TradeOffers WHERE TradeID=? AND OfferID!=?";
+
+db.query(deleteOthers,[offer.TradeID,offerId]);
+
+res.json({
+message:
+"Trade complete! Please drop your part off at the nearest Legacy Auto location. If we do not receive your part within 30 days, you will be fined. If you dropped off a part and the other user did not, we will hold your part in storage for 90 days. You can close this message once you understand."
+});
+
+});
+
+});
+
+});
 /* Start server */
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

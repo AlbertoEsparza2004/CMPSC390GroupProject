@@ -45,6 +45,13 @@
 
 <button onclick="window.location.href='index.html'">Go back</button>
 
+<br><br>
+
+<div id="tradeMessage" style="display:none; border:1px solid black; padding:10px; background:#f5f5f5;">
+<p id="messageText"></p>
+<button onclick="closeMessage()">Close</button>
+</div>
+
 </div>
 
 </div>
@@ -217,7 +224,8 @@ output += `
 <p>User ${offer.OfferingUserID}</p>
 <p>${offer.OfferedPartDescription}</p>
 
-<button onclick="acceptTrade(${tradeId})">Accept Offer</button>
+<button onclick="acceptOffer(${offer.OfferID})">Accept Offer</button>
+<button onclick="declineOffer(${offer.OfferID})">Decline Offer</button>
 
 <hr>
 `;
@@ -230,12 +238,46 @@ document.getElementById("offers" + tradeId).innerHTML = output;
 
 }
 
+function declineOffer(offerId){
+
+fetch("/declineOffer/" + offerId, {
+method: "POST"
+})
+.then(res => res.json())
+.then(data => alert(data.message));
+
+}
+
+function acceptOffer(offerId){
+
+fetch("/acceptOffer/" + offerId,{
+method:"POST"
+})
+.then(res => res.json())
+.then(data => showTradeMessage(data.message));
+
+}
+
 function logout(){
 
 localStorage.removeItem("userId");
 localStorage.removeItem("username");
 
 window.location.href = "CustomerSingInPage.html";
+
+}
+
+function showTradeMessage(message){
+
+document.getElementById("messageText").innerText = message;
+
+document.getElementById("tradeMessage").style.display = "block";
+
+}
+
+function closeMessage(){
+
+document.getElementById("tradeMessage").style.display = "none";
 
 }
 </script>

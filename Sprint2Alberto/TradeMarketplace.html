@@ -218,6 +218,7 @@ output += `
 <p>${offer.OfferedPartDescription}</p>
 
 <button onclick="acceptTrade(${tradeId})">Accept Offer</button>
+<button onclick="declineOffer(${offer.OfferID})">Decline Offer</button>
 
 <hr>
 `;
@@ -236,6 +237,16 @@ localStorage.removeItem("userId");
 localStorage.removeItem("username");
 
 window.location.href = "CustomerSingInPage.html";
+
+}
+
+function declineOffer(offerId){
+
+fetch("/declineOffer/" + offerId, {
+method: "POST"
+})
+.then(res => res.json())
+.then(data => alert(data.message));
 
 }
 </script>
