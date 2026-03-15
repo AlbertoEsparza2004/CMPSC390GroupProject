@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Manager Dashboard Page</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    
+    <body>
+        <header><h1>Legacy Auto Company</h1></header>
+        
+        <div class = "container" style="justify-content: center;">
+            
+                <div class = "left section">
+                    <h2 id="welcome">Hello Manager</h2>
+
+                    <button onclick = "window.location.href='index.html'">Schedule</button>
+                    <br>
+                    <button onclick = "window.location.href='index.html'">Attendance</button>
+                    <br>
+                    <button onclick = "window.location.href='index.html'">Tax Info.</button>
+                    <br>
+                    <button onclick = "window.location.href='index.html'">Employee Recognition</button>
+                    <br>
+                    <button onclick = "window.location.href='index.html'">Employee Options</button>
+                    <br>
+                    <button onclick = "window.location.href='index.html'">Disciplinary Actions</button>
+                    
+                </div>
+                
+                <div class = "right section">
+
+                </div>
+                 
+            
+        </div>
+
+        <footer><h2>This is legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and hope to make your vision a reality</h2></footer>
+            <script>
+                window.onload = function(){
+                    const params = new URLSearchParams(window.location.search);
+                    const name = params.get("name");
+                    console.log(name);
+                    if (name){
+                        document.getElementById("welcome").textContent = "Hello " + name;
+                    }
+                };    
+        </script>
+    </body>
+</html>
