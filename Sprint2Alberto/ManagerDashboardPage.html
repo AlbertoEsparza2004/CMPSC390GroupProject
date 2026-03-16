@@ -23,6 +23,8 @@
                     <button onclick = "loadContactInfo()">Contact Info.</button>
                     <br><br>
                     <button onclick = "loadEmployeeOptions()">Employee Options</button>
+                    <br><br>
+                    <button onclick="loadChangePassword()">Change Password</button>
                 </div>
                 
                 <div class = "right section" id="InteractiveDisplay"></div>
@@ -504,6 +506,40 @@
                     });
                 }
                 
+                /*Password change*/
+                function loadChangePassword(){
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                        <h2>Change Password</h2>
+
+                        <label>Old Password</label><br>
+                        <input type="password" id="oldPassword">
+                        <br><br>
+                        <label>New Password</label><br>
+                        <input type="password" id="newPassword">
+                        <br><br>
+                        <button onclick="changePassword()">Update Password</button>
+
+                        <p id="passwordResult"></p>
+                    `;
+                }
+                
+                async function changePassword(){
+                    const params = new URLSearchParams(window.location.search);
+                    const EmployeeID = params.get("EmployeeID");
+                    const oldPassword = document.getElementById("oldPassword").value;
+                    const newPassword = document.getElementById("newPassword").value;
+                    const res = await fetch("/changePassword",{
+                        method:"POST",
+                        headers:{"Content-Type":"application/json"},
+                        body:JSON.stringify({
+                            EmployeeID:EmployeeID,
+                            oldPassword:oldPassword,
+                            newPassword:newPassword
+                        })
+                    });
+                    const text = await res.text();
+                    document.getElementById("passwordResult").innerText = text;
+                }
         </script>
     </body>
 </html>
