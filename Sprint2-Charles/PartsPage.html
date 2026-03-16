@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Available Parts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #f4f4f4;
+    }
+
+    header {
+      background: purple;
+      color: black;
+      text-align: center;
+      padding: 20px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .container {
+      background: white;
+      border: 2px solid black;
+      margin: 30px;
+      padding: 20px;
+    }
+
+    .part {
+      border-bottom: 1px solid black;
+      padding: 10px 0;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: 2px solid black;
+      background: #999;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    footer {
+      background: purple;
+      color: black;
+      text-align: center;
+      padding: 20px;
+      font-weight: bold;
+      margin-top: 40px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+<header>Legacy Auto Company</header>
+
+<div class="container">
+
+  <h2>Available Parts</h2>
+
+  <div id="partsList">
+    Loading parts...
+  </div>
+
+  <br>
+
+  <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">
+    Back to Dashboard
+  </button>
+
+</div>
+
+<footer>
+  This is Legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and home to build your vision
+</footer>
+
+<script>
+
+  async function loadParts() {
+
+    try {
+
+      const res = await fetch("/parts");
+      const parts = await res.json();
+
+      const container = document.getElementById("partsList");
+      container.innerHTML = "";
+
+      parts.forEach(p => {
+
+        const div = document.createElement("div");
+        div.className = "part";
+
+        div.innerHTML =
+          "<strong>Part ID:</strong> " + p.PartID +
+          "<br><strong>Price:</strong> $" + p.Price +
+          "<br><strong>Availability:</strong> " + p.Availability;
+
+        container.appendChild(div);
+
+      });
+
+    } catch (err) {
+
+      document.getElementById("partsList").innerText = "Error loading parts.";
+
+    }
+
+  }
+
+  loadParts();
+
+</script>
+
+</body>
+</html>
