@@ -29,7 +29,7 @@
                         loginForm.addEventListener('submit', async (e) => {
                             e.preventDefault();
                             const formData = new FormData(loginForm);
-                            const res = await fetch('/login', {
+                            const res = await fetch('/Employeelogin', {
                                 method: 'POST',
                                 body: new URLSearchParams(formData)
                         });
@@ -37,7 +37,6 @@
                             window.location.href = res.url;
                             return;
                         }
-
                         const text = await res.text();
                         loginResult.textContent = text;
                         });
