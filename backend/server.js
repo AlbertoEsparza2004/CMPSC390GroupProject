@@ -302,6 +302,29 @@ app.get("/contactInfo", (req, res)=>{
   });
 });
 
+/*Password Change*/
+app.post("/changePassword", (req, res) => {
+  const {EmployeeID, oldPassword, newPassword} = req.body;
+  const checkSQL = "SELECT Password FROM Employees WHERE EmployeeID = ?";
+
+  db.query(checkSQL, [EmployeeID], (err, results) => {
+    if(results.length === 0){
+        return res.send("Employee Dosen't Exist");
+    }
+    if(results[0].Password !== oldPassword){
+        return res.send("Wrong Password");
+    }
+
+    const updateSQL = "UPDATE Employees SET Password = ? WHERE EmployeeID = ?";
+    db.query(updateSQL,[newPassword,EmployeeID],(err)=>{
+        if(err){
+            return res.send("Password Change Failed");
+        }
+        res.send("Password Change Succesful");
+    });
+  });
+});
+
 /* Start server */
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
