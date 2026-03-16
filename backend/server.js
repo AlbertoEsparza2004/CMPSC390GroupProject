@@ -6,6 +6,7 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+
 /* Root route */
 app.get("/", (req, res) => {
   res.send("CMPSC390 Backend API is running (Charles - Backend).");
@@ -39,6 +40,7 @@ app.post("/login", (req, res) => {
 
   const sql = "SELECT * FROM `User` WHERE UserName = ?";
   db.query(sql, [username], (err, results) => {
+
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Database error" });
@@ -100,7 +102,6 @@ app.get("/trades", (req, res) => {
 
 });
 
-
 /* code that allows you to post a trade offer */
 app.post("/createTrade", (req, res) => {
 
@@ -124,7 +125,6 @@ app.post("/createTrade", (req, res) => {
   });
 
 });
-
 
 /* code that lets you accept a trade */
 app.post("/acceptTrade/:id", (req, res) => {
@@ -169,7 +169,6 @@ app.post("/createOffer", (req, res) => {
 
 });
 
-
 /* code that lets you view offers for your trade */
 app.get("/offers/:tradeId", (req, res) => {
 
@@ -208,64 +207,81 @@ app.post("/declineOffer/:id", (req, res) => {
 
 });
 
-/* code that allows you to accept a specific offer */
-app.post("/acceptOffer/:id", (req, res) => {
+/* ========================= */
+/* Alberto Employee System   */
+/* ========================= */
 
-const offerId = req.params.id;
-
-/* code that gets offer info */
-const sql = `
-SELECT 
-TradeOffers.*, 
-Trades.OwnerUserID,
-Trades.OfferedPartID,
-Parts.PartName
-FROM TradeOffers
-JOIN Trades ON TradeOffers.TradeID = Trades.TradeID
-JOIN Parts ON Trades.OfferedPartID = Parts.PartID
-WHERE OfferID = ?
-`;
-
-db.query(sql,[offerId],(err,results)=>{
-
-if(err){
-console.error(err);
-return res.status(500).json({error:"Database error"});
-}
-
-if(results.length === 0){
-return res.status(404).json({message:"Offer not found"});
-}
-
-const offer = results[0];
-
-/* code that updates trade as accepted */
-const updateTrade = "UPDATE Trades SET Status='ACCEPTED' WHERE TradeID=?";
-
-db.query(updateTrade,[offer.TradeID],(err)=>{
-
-if(err){
-console.error(err);
-return res.status(500).json({error:"Database error"});
-}
-
-/* code that deletes other offers for this trade, since one has already been selected */
-const deleteOthers = "DELETE FROM TradeOffers WHERE TradeID=? AND OfferID!=?";
-
-db.query(deleteOthers,[offer.TradeID,offerId]);
-
-res.json({
-message:
-`Trade complete! Original poster will send in: ${offer.PartName}. 
-Offer user will send in: ${offer.OfferedPartDescription}. 
-Please drop your part off at the nearest Legacy Auto location within 30 days or you may be fined.`
+/*Schedule*/
+app.get("/getSchedule", (req, res) => {
+    const employeeID = req.query.EmployeeID;
+    const sql = `
+    SELECT Employees.EmployeeID, Employees.FirstName, Employees.LastName, Schedule.MonthNum, Schedule.WeekNum, Schedule.Mon, Schedule.Tue, Schedule.Wed, Schedule.Thu, Schedule.Fri, Schedule.Sat, Schedule.Sun 
+    FROM Schedule 
+    JOIN Employees ON Schedule.EmployeeID = Employees.EmployeeID 
+    WHERE Schedule.EmployeeID = ?`;
+    db.query(sql, [employeeID], (err, results) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).send("Database error");
+        }
+        res.json(results);
+    });
 });
 
+/*Attendance*/
+app.get("/getPoints", (req, res) => {
+    const employeeID = req.query.EmployeeID;
+    const sql = `SELECT Points FROM EmployeePerformance WHERE EmployeeID = ?`;
+    db.query(sql, [employeeID], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("Database error");
+        }
+        if (result.length === 0) {
+            return res.json({ Points: 0 });
+        }
+        res.json(result[0]);
+    });
 });
 
+app.post("/request-dayoff", (req, res) => {
+    const { EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason } = req.body;
+    const sql = `INSERT INTO TimeOffRequests (EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason) VALUES (?, ?, ?, ?, ?)`;
+    db.query(sql, [EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason], (err) => {
+        if (err){
+            console.error(err);
+            return res.status(500).send("Request failed");
+        }
+        res.send("Request submitted!");
+    });
 });
 
+/*Tax Info.*/
+app.get("/getEmployeePay", (req,res)=>{
+    const employeeID = req.query.EmployeeID;
+    const sql = `SELECT HourlyPay FROM Employees WHERE EmployeeID = ?`;
+    db.query(sql,[employeeID],(err,results)=>{
+        if(err){
+            console.log(err);
+            return res.status(500).send("Database error");
+        }
+        res.json(results[0]);
+    });
 });
+
+/*Contact Info*/
+app.get("/contactInfo", (req, res)=>{
+  const employeeID = req.query.EmployeeID;
+  const sql = `SELECT PhoneNumber, EmergencyPhoneNumber, Address, PersonalEmail, WorkEmail FROM EmployeeContactInfo WHERE EmployeeID = ?`;
+  db.query(sql,[employeeID],(err,results)=>{
+  if(err){
+    console.log(err);
+    return res.status(500).send("Database error");
+  }
+  res.json(results[0]);
+  });
+});
+
 /* Start server */
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
