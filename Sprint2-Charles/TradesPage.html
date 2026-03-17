@@ -1,77 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Trades</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trades Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
 
-  <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      background: #f4f4f4;
-    }
+        header {
+            background-color: purple;
+            color: black;
+            text-align: center;
+            padding: 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
 
-    header {
-      background: purple;
-      color: black;
-      text-align: center;
-      padding: 20px;
-      font-size: 28px;
-      font-weight: bold;
-    }
+        .content-box {
+            background-color: white;
+            border: 2px solid black;
+            margin: 30px;
+            padding: 20px;
+        }
 
-    .container {
-      background: white;
-      border: 2px solid black;
-      margin: 30px;
-      padding: 20px;
-      text-align: center;
-    }
+        button {
+            padding: 12px 20px;
+            border: 2px solid black;
+            background-color: #999;
+            cursor: pointer;
+            margin-top: 15px;
+        }
 
-    button {
-      padding: 12px 20px;
-      border: 2px solid black;
-      background: #999;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-
-    footer {
-      background: purple;
-      color: black;
-      text-align: center;
-      padding: 20px;
-      font-weight: bold;
-      margin-top: 40px;
-    }
-  </style>
-
+        footer {
+            background-color: purple;
+            color: black;
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+            margin-top: 40px;
+        }
+    </style>
 </head>
 
 <body>
-
 <header>Legacy Auto Company</header>
 
-<div class="container">
+<div class="content-box">
+    <h2>Trades Page</h2>
+    <p>The trades feature will allow customers to trade vehicles and parts.</p>
 
-  <h2>Trades</h2>
-
-  <p>
-    The trading feature will allow customers to trade vehicles and parts.
-  </p>
-
-  <p>
-    This feature will be implemented in a future sprint.
-  </p>
-
-  <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">
-    Back to Dashboard
-  </button>
-
+    <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">
+        Back to Dashboard
+    </button>
 </div>
 
 <footer>
-  This is Legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and home to build your vision
+This is Legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and home to build your vision
 </footer>
 
 </body>

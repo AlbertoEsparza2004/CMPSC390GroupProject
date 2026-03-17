@@ -1,34 +1,65 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Our Partners Page</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    
-    <body>
-        <header><h1>Legacy Auto Company</h1></header>
-        
-        <div class = "container" style="justify-content: center;">           
-            <div>
-                <h2>Our Partners Page</h2>
-                <button onclick="goBackToDashboard()">Go back</button>
-            </div>
-        </div>
-
-        
-
-        <footer><h2>This is legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and home to build your vision</h2></footer>
-        <script>
-        function goBackToDashboard() {
-            const userId = localStorage.getItem("userId");
-
-            if (userId) {
-                window.location.href = "/Sprint2-Charles/CustomerDashboard.html?userId=" + userId;
-            } else {
-                window.location.href = "/Sprint2Alberto/CustomerSingInPage.html";
-            }
+<head>
+    <title>Our Partners Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
         }
-</script>
-    </body>
+
+        header {
+            background-color: purple;
+            color: black;
+            text-align: center;
+            padding: 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .content-box {
+            background-color: white;
+            border: 2px solid black;
+            margin: 30px;
+            padding: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: 2px solid black;
+            background-color: #999;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        footer {
+            background-color: purple;
+            color: black;
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+<header>Legacy Auto Company</header>
+
+<div class="content-box">
+    <h2>Our Partners Page</h2>
+    <p>View Legacy Auto Company partners here.</p>
+
+    <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">
+        Back to Dashboard
+    </button>
+</div>
+
+<footer>
+This is Legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and home to build your vision
+</footer>
+
+</body>
 </html>
