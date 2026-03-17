@@ -337,151 +337,155 @@ app.get("/contactInfo", (req, res)=>{
 });
 
 /*Employee Options*/
-app.get("/getTimeOffRequests",(req,res)=>{
-    const sql = `SELECT TimeOffRequests.*, Employees.FirstName, Employees.LastName FROM TimeOffRequests JOIN Employees ON TimeOffRequests.EmployeeID = Employees.EmployeeID WHERE Status = 'Pending'`;
-    db.query(sql,(err,results)=>{
-      if(err){
-            console.error(err);
-            return res.status(500).send("Database error");
-        }  
-      res.json(results);
-    });
-});
-
-app.post("/approveRequest",(req,res)=>{
-    const {RequestID} = req.body;
-    const getRequest = `SELECT EmployeeID, MonthNum, WeekNum, DayOfWeek FROM TimeOffRequests WHERE RequestID = ?`;
-    db.query(getRequest,[RequestID],(err,results)=>{
-        if(err){
-            console.error(err);
-            return res.send("Database error");
-        }
-        const request = results[0];
-        console.log("Request info:", request);
-
-        let dayColumn = request.DayOfWeek;
-
-if(dayColumn === "Monday") dayColumn = "Mon";
-if(dayColumn === "Tuesday") dayColumn = "Tue";
-if(dayColumn === "Wednesday") dayColumn = "Wed";
-if(dayColumn === "Thursday") dayColumn = "Thu";
-if(dayColumn === "Friday") dayColumn = "Fri";
-if(dayColumn === "Saturday") dayColumn = "Sat";
-if(dayColumn === "Sunday") dayColumn = "Sun";
-
-const updateSchedule = `UPDATE Schedule SET ${dayColumn} = 0 WHERE EmployeeID = ? AND MonthNum = ? AND WeekNum = ?`;
-        db.query(updateSchedule,
-        [request.EmployeeID, request.MonthNum, request.WeekNum],
-        (err)=>{
-            if(err){
-                console.error(err);
-                return res.send("Schedule update error");
-            }
-            const updateStatus = `UPDATE TimeOffRequests SET Status = 'Approved' WHERE RequestID = ?`;
-            db.query(updateStatus,[RequestID]);
-            res.send("Approved");
+    /*Aprove/deny days off*/
+        app.get("/getTimeOffRequests",(req,res)=>{
+            const sql = `SELECT TimeOffRequests.*, Employees.FirstName, Employees.LastName FROM TimeOffRequests JOIN Employees ON TimeOffRequests.EmployeeID = Employees.EmployeeID WHERE Status = 'Pending'`;
+            db.query(sql,(err,results)=>{
+              if(err){
+                    console.error(err);
+                    return res.status(500).send("Database error");
+                }  
+              res.json(results);
+            });
         });
 
-    });
+        app.post("/approveRequest",(req,res)=>{
+            const {RequestID} = req.body;
+            const getRequest = `SELECT EmployeeID, MonthNum, WeekNum, DayOfWeek FROM TimeOffRequests WHERE RequestID = ?`;
+            db.query(getRequest,[RequestID],(err,results)=>{
+                if(err){
+                    console.error(err);
+                    return res.send("Database error");
+                }
+                const request = results[0];
+                console.log("Request info:", request);
 
-});
+                let dayColumn = request.DayOfWeek;
 
-app.post("/denyRequest",(req,res)=>{
-    const {RequestID} = req.body;
-    const sql = `UPDATE TimeOffRequests SET Status = 'Denied' WHERE RequestID = ?`;
-    db.query(sql,[RequestID],()=>{
-      if(err){
-            console.error(err);
-            return res.status(500).send("Database error");
-        }
-      res.send("Denied");});
-});
+        if(dayColumn === "Monday") dayColumn = "Mon";
+        if(dayColumn === "Tuesday") dayColumn = "Tue";
+        if(dayColumn === "Wednesday") dayColumn = "Wed";
+        if(dayColumn === "Thursday") dayColumn = "Thu";
+        if(dayColumn === "Friday") dayColumn = "Fri";
+        if(dayColumn === "Saturday") dayColumn = "Sat";
+        if(dayColumn === "Sunday") dayColumn = "Sun";
 
-app.get("/getEmployeeStats",(req,res)=>{
-    const {EmployeeID} = req.query;
-    const sql = `SELECT Employees.EmployeeID, FirstName, LastName, HourlyPay, Points, Comments, ActivelyEmployed FROM Employees JOIN EmployeePerformance ON Employees.EmployeeID = EmployeePerformance.EmployeeID WHERE Employees.EmployeeID = ?`;
-    db.query(sql,[EmployeeID],(err,results)=>{
-        if(err){
-            console.error(err);
-            return res.status(500).send("Database error");
-        }
-        if(results.length === 0){
-            return res.status(404).send("Employee not found");
-        }
-        res.json(results[0]);
-    });
-});
+        const updateSchedule = `UPDATE Schedule SET ${dayColumn} = 0 WHERE EmployeeID = ? AND MonthNum = ? AND WeekNum = ?`;
+                db.query(updateSchedule,
+                [request.EmployeeID, request.MonthNum, request.WeekNum],
+                (err)=>{
+                    if(err){
+                        console.error(err);
+                        return res.send("Schedule update error");
+                    }
+                    const updateStatus = `UPDATE TimeOffRequests SET Status = 'Approved' WHERE RequestID = ?`;
+                    db.query(updateStatus,[RequestID]);
+                    res.send("Approved");
+                });
 
-app.get("/getEmployees", (req, res) => {
-    const sql = `SELECT EmployeeID, FirstName, LastName FROM Employees`;
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Database error");
-        }
-        res.json(results);
-    });
-});
+            });
 
-app.post("/addPoints",(req,res)=>{
-    const {EmployeeID, points} = req.body;
-    const sql = `UPDATE EmployeePerformance SET Points = Points + ? WHERE EmployeeID = ?`;
-    db.query(sql,[points,EmployeeID],(err)=>{
-        if(err){
-            console.error(err);
-            return res.status(500).send("Database error");
-        }
-        res.send("Points added");
-    });
-});
+        });
 
-app.post("/terminateEmployee",(req,res)=>{
-    const {EmployeeID} = req.body;
-    const sql = `UPDATE EmployeePerformance SET ActivelyEmployed = FALSE WHERE EmployeeID = ?`;
-    db.query(sql,[EmployeeID],()=>{
-        if(err){
-              console.error(err);
-              return res.status(500).send("Database error");
-          }
-        res.send("Employee terminated");
-    });
-});
+        app.post("/denyRequest",(req,res)=>{
+            const {RequestID} = req.body;
+            const sql = `UPDATE TimeOffRequests SET Status = 'Denied' WHERE RequestID = ?`;
+            db.query(sql,[RequestID],()=>{
+              if(err){
+                    console.error(err);
+                    return res.status(500).send("Database error");
+                }
+              res.send("Denied");});
+        });
 
-app.post("/giveRaise",(req,res)=>{
-    const {EmployeeID, raise} = req.body;
-    const sql = `UPDATE Employees SET HourlyPay = HourlyPay + ? WHERE EmployeeID = ?`;
-    db.query(sql,[raise,EmployeeID],()=>{
-        if(err){
-            console.error(err);
-            return res.status(500).send("Database error");
-        }
-        res.send("Raise applied");
-    });
-});
+    /*Employment stats*/
+        app.get("/getEmployeeStats",(req,res)=>{
+            const {EmployeeID} = req.query;
+            const sql = `SELECT Employees.EmployeeID, FirstName, LastName, HourlyPay, Points, Comments, ActivelyEmployed FROM Employees JOIN EmployeePerformance ON Employees.EmployeeID = EmployeePerformance.EmployeeID WHERE Employees.EmployeeID = ?`;
+            db.query(sql,[EmployeeID],(err,results)=>{
+                if(err){
+                    console.error(err);
+                    return res.status(500).send("Database error");
+                }
+                if(results.length === 0){
+                    return res.status(404).send("Employee not found");
+                }
+                res.json(results[0]);
+            });
+        });
 
-app.post("/recognitionComment",(req,res)=>{
-    const {EmployeeID, comment} = req.body;
-    const sql = `UPDATE EmployeePerformance SET Comments = ? WHERE EmployeeID = ?`;
-    db.query(sql,[comment,EmployeeID],()=>{
-        if(err){
-            console.error(err);
-            return res.status(500).send("Database error");
-        }
-        res.send("Comment saved");
-    });
-});
+        app.get("/getEmployees", (req, res) => {
+            const sql = `SELECT EmployeeID, FirstName, LastName FROM Employees`;
+            db.query(sql, (err, results) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send("Database error");
+                }
+                res.json(results);
+            });
+        });
 
-app.post("/promoteManager",(req,res)=>{
-    const {EmployeeID} = req.body;
-    const sql = `UPDATE Employees SET Management = TRUE WHERE EmployeeID = ?`;
-    db.query(sql,[EmployeeID],(err)=>{
-        if(err){
-            console.error(err);
-            return res.status(500).send("Database error");
-        }
-        res.send("Employee promoted");
-    });
-});
+    /*Employee Diciplinary*/
+        app.post("/addPoints",(req,res)=>{
+            const {EmployeeID, points} = req.body;
+            const sql = `UPDATE EmployeePerformance SET Points = Points + ? WHERE EmployeeID = ?`;
+            db.query(sql,[points,EmployeeID],(err)=>{
+                if(err){
+                    console.error(err);
+                    return res.status(500).send("Database error");
+                }
+                res.send("Points added");
+            });
+        });
+
+        app.post("/terminateEmployee",(req,res)=>{
+            const {EmployeeID} = req.body;
+            const sql = `UPDATE EmployeePerformance SET ActivelyEmployed = FALSE WHERE EmployeeID = ?`;
+            db.query(sql,[EmployeeID],()=>{
+                if(err){
+                      console.error(err);
+                      return res.status(500).send("Database error");
+                  }
+                res.send("Employee terminated");
+            });
+        });
+
+        app.post("/giveRaise",(req,res)=>{
+            const {EmployeeID, raise} = req.body;
+            const sql = `UPDATE Employees SET HourlyPay = HourlyPay + ? WHERE EmployeeID = ?`;
+            db.query(sql,[raise,EmployeeID],()=>{
+                if(err){
+                    console.error(err);
+                    return res.status(500).send("Database error");
+                }
+                res.send("Raise applied");
+            });
+        });
+
+    /*Employee Recognition*/
+        app.post("/recognitionComment",(req,res)=>{
+                    const {EmployeeID, comment} = req.body;
+                    const sql = `UPDATE EmployeePerformance SET Comments = ? WHERE EmployeeID = ?`;
+                    db.query(sql,[comment,EmployeeID],()=>{
+                        if(err){
+                            console.error(err);
+                            return res.status(500).send("Database error");
+                        }
+                        res.send("Comment saved");
+                    });
+                });
+
+        app.post("/promoteManager",(req,res)=>{
+            const {EmployeeID} = req.body;
+            const sql = `UPDATE Employees SET Management = TRUE WHERE EmployeeID = ?`;
+            db.query(sql,[EmployeeID],(err)=>{
+                if(err){
+                    console.error(err);
+                    return res.status(500).send("Database error");
+                }
+                res.send("Employee promoted");
+            });
+        });
 
 /*Password Change*/
 app.post("/changePassword", (req, res) => {
@@ -505,15 +509,6 @@ app.post("/changePassword", (req, res) => {
     });
   });
 });
-
-
-
-
-
-
-
-
-
 
 /* Start server */
 app.listen(PORT, () => {
