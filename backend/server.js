@@ -390,7 +390,7 @@ app.get("/contactInfo", (req, res)=>{
         app.post("/denyRequest",(req,res)=>{
             const {RequestID} = req.body;
             const sql = `UPDATE TimeOffRequests SET Status = 'Denied' WHERE RequestID = ?`;
-            db.query(sql,[RequestID],()=>{
+            db.query(sql,[RequestID],(err,results)=>{
               if(err){
                     console.error(err);
                     return res.status(500).send("Database error");
@@ -441,7 +441,7 @@ app.get("/contactInfo", (req, res)=>{
         app.post("/terminateEmployee",(req,res)=>{
             const {EmployeeID} = req.body;
             const sql = `UPDATE EmployeePerformance SET ActivelyEmployed = FALSE WHERE EmployeeID = ?`;
-            db.query(sql,[EmployeeID],()=>{
+            db.query(sql,[EmployeeID],(err,results)=>{
                 if(err){
                       console.error(err);
                       return res.status(500).send("Database error");
@@ -453,7 +453,7 @@ app.get("/contactInfo", (req, res)=>{
         app.post("/giveRaise",(req,res)=>{
             const {EmployeeID, raise} = req.body;
             const sql = `UPDATE Employees SET HourlyPay = HourlyPay + ? WHERE EmployeeID = ?`;
-            db.query(sql,[raise,EmployeeID],()=>{
+            db.query(sql,[raise,EmployeeID],(err,results)=>{
                 if(err){
                     console.error(err);
                     return res.status(500).send("Database error");
@@ -466,7 +466,7 @@ app.get("/contactInfo", (req, res)=>{
         app.post("/recognitionComment",(req,res)=>{
                     const {EmployeeID, comment} = req.body;
                     const sql = `UPDATE EmployeePerformance SET Comments = ? WHERE EmployeeID = ?`;
-                    db.query(sql,[comment,EmployeeID],()=>{
+                    db.query(sql,[comment,EmployeeID],(err, results)=>{
                         if(err){
                             console.error(err);
                             return res.status(500).send("Database error");
