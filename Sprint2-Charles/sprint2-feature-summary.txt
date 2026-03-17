@@ -1,0 +1,58 @@
+Feature Name:
+Customer Dashboard and Account Management
+
+Feature Summary:
+This feature allows a customer to create an account, log in, access the customer dashboard, view account information loaded from the database, view saved vehicle configurations for that user, and access parts/trades pages from the dashboard.
+
+UI Pages:
+- CustomerSingInPage.html
+- CustomerCreateAccountPage.html
+- CustomerDashboard.html
+- SavedConfigurations.html
+- PartsPage.html
+- TradesPage.html
+
+Backend Routes:
+- POST /login
+- POST /customer/register
+- GET /customer/:id
+- GET /parts
+- GET /cars/:userId
+
+Database Tables Used:
+- User
+- Parts
+- Customized_car
+
+Database Changes Made:
+- Updated User.UserID to AUTO_INCREMENT
+- Used existing User, Parts, and Customized_car tables
+- Inserted/tested users and saved vehicle data
+
+Error Handling:
+- Login failed if username/password is incorrect
+- Account creation fails if required fields are missing
+- Account creation fails if username already exists
+- Saved configurations page shows message if none exist
+- Dashboard shows fallback message if user data cannot load
+
+Independent Demo Flow:
+1. Start backend server
+2. Open Customer Sign In page
+3. Log in with Goodman account
+4. Show dashboard loading username and user ID from database
+5. Point out saved configuration count
+6. Click View under Saved Vehicle Configurations
+7. Show saved vehicle from Customized_car table
+8. Go back to dashboard
+9. Click Parts page
+10. Show parts loaded from database
+11. Log out
+12. Create a new account
+13. Log in with the new account
+14. Show that this account has no saved configurations
+15. Show error handling if needed
+
+Known Limitations:
+- Trades page is currently a placeholder for a future sprint
+- Vehicle creation and previous builds pages were standardized for UI consistency but are not the main focus of this sprint feature
