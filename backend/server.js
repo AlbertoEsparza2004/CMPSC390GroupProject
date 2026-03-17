@@ -340,7 +340,11 @@ app.get("/contactInfo", (req, res)=>{
 app.get("/getTimeOffRequests",(req,res)=>{
     const sql = `SELECT TimeOffRequests.*, Employees.FirstName, Employees.LastName FROM TimeOffRequests JOIN Employees ON TimeOffRequests.EmployeeID = Employees.EmployeeID WHERE Status = 'Pending'`;
     db.query(sql,(err,results)=>{
-        res.json(results);
+      if(err){
+            console.error(err);
+            return res.status(500).send("Database error");
+        }  
+      res.json(results);
     });
 });
 
@@ -385,16 +389,27 @@ const updateSchedule = `UPDATE Schedule SET ${dayColumn} = 0 WHERE EmployeeID = 
 app.post("/denyRequest",(req,res)=>{
     const {RequestID} = req.body;
     const sql = `UPDATE TimeOffRequests SET Status = 'Denied' WHERE RequestID = ?`;
-    db.query(sql,[RequestID],()=>{res.send("Denied");});
+    db.query(sql,[RequestID],()=>{
+      if(err){
+            console.error(err);
+            return res.status(500).send("Database error");
+        }
+      res.send("Denied");});
 });
 
 app.get("/getEmployeeStats",(req,res)=>{
     const {EmployeeID} = req.query;
     const sql = `SELECT Employees.EmployeeID, FirstName, LastName, HourlyPay, Points, Comments, ActivelyEmployed FROM Employees JOIN EmployeePerformance ON Employees.EmployeeID = EmployeePerformance.EmployeeID WHERE Employees.EmployeeID = ?`;
     db.query(sql,[EmployeeID],(err,results)=>{
+        if(err){
+            console.error(err);
+            return res.status(500).send("Database error");
+        }
+        if(results.length === 0){
+            return res.status(404).send("Employee not found");
+        }
         res.json(results[0]);
     });
-
 });
 
 app.get("/getEmployees", (req, res) => {
@@ -404,7 +419,6 @@ app.get("/getEmployees", (req, res) => {
             console.error(err);
             return res.status(500).send("Database error");
         }
-
         res.json(results);
     });
 });
@@ -412,7 +426,11 @@ app.get("/getEmployees", (req, res) => {
 app.post("/addPoints",(req,res)=>{
     const {EmployeeID, points} = req.body;
     const sql = `UPDATE EmployeePerformance SET Points = Points + ? WHERE EmployeeID = ?`;
-    db.query(sql,[points,EmployeeID],()=>{
+    db.query(sql,[points,EmployeeID],(err)=>{
+        if(err){
+            console.error(err);
+            return res.status(500).send("Database error");
+        }
         res.send("Points added");
     });
 });
@@ -421,6 +439,10 @@ app.post("/terminateEmployee",(req,res)=>{
     const {EmployeeID} = req.body;
     const sql = `UPDATE EmployeePerformance SET ActivelyEmployed = FALSE WHERE EmployeeID = ?`;
     db.query(sql,[EmployeeID],()=>{
+        if(err){
+              console.error(err);
+              return res.status(500).send("Database error");
+          }
         res.send("Employee terminated");
     });
 });
@@ -429,6 +451,10 @@ app.post("/giveRaise",(req,res)=>{
     const {EmployeeID, raise} = req.body;
     const sql = `UPDATE Employees SET HourlyPay = HourlyPay + ? WHERE EmployeeID = ?`;
     db.query(sql,[raise,EmployeeID],()=>{
+        if(err){
+            console.error(err);
+            return res.status(500).send("Database error");
+        }
         res.send("Raise applied");
     });
 });
@@ -437,6 +463,10 @@ app.post("/recognitionComment",(req,res)=>{
     const {EmployeeID, comment} = req.body;
     const sql = `UPDATE EmployeePerformance SET Comments = ? WHERE EmployeeID = ?`;
     db.query(sql,[comment,EmployeeID],()=>{
+        if(err){
+            console.error(err);
+            return res.status(500).send("Database error");
+        }
         res.send("Comment saved");
     });
 });
@@ -444,7 +474,11 @@ app.post("/recognitionComment",(req,res)=>{
 app.post("/promoteManager",(req,res)=>{
     const {EmployeeID} = req.body;
     const sql = `UPDATE Employees SET Management = TRUE WHERE EmployeeID = ?`;
-    db.query(sql,[EmployeeID],()=>{
+    db.query(sql,[EmployeeID],(err)=>{
+        if(err){
+            console.error(err);
+            return res.status(500).send("Database error");
+        }
         res.send("Employee promoted");
     });
 });
@@ -471,6 +505,15 @@ app.post("/changePassword", (req, res) => {
     });
   });
 });
+
+
+
+
+
+
+
+
+
 
 /* Start server */
 app.listen(PORT, () => {
