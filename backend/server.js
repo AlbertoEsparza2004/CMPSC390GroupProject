@@ -2,13 +2,24 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const db = require("./db");
+<<<<<<< HEAD
+
+=======
 const PORT = process.env.PORT || 3000;
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 const app = express();
 //const PORT = 3000;
 
 app.use(express.json());
+<<<<<<< HEAD
+
+// Serve static files from the project root
+// Example: http://localhost:3000/Sprint2Alberto/CustomerSingInPage.html
+app.use(express.static(path.join(__dirname, "..")));
+=======
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../Sprint2Alberto")));
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 
 /* Root route */
 app.get("/", (req, res) => {
@@ -32,6 +43,29 @@ app.get("/parts", (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+/* Get customized cars for a user */
+app.get("/cars/:userId", (req, res) => {
+
+  const userId = req.params.userId;
+
+  const sql = "SELECT * FROM Customized_car WHERE UserID = ?";
+
+  db.query(sql, [userId], (err, results) => {
+
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json(results);
+
+  });
+
+});
+
+=======
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 /* User login */
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
@@ -67,6 +101,44 @@ app.post("/login", (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+/* User registration */
+app.post("/customer/register", (req, res) => {
+  const { firstName, lastName, password, userName, zipCode, birthdate } = req.body;
+
+  if (!firstName || !lastName || !password || !userName || !zipCode || !birthdate) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const checkSql = "SELECT * FROM `User` WHERE UserName = ?";
+  db.query(checkSql, [userName], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error(checkErr);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (checkResults.length > 0) {
+      return res.status(409).json({ message: "Username already exists" });
+    }
+
+    const insertSql = "INSERT INTO `User` (FirstName, LastName, Password, UserName, ZipCode, Birthdate) VALUES (?, ?, ?, ?, ?, ?)";
+    db.query(insertSql, [firstName, lastName, password, userName, zipCode, birthdate], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Error creating account" });
+      }
+
+      res.json({
+        message: "Account created successfully",
+        userId: result.insertId,
+        username: userName,
+      });
+    });
+  });
+});
+
+=======
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 /* Get customer by ID (for dashboard) */
 app.get("/customer/:id", (req, res) => {
   const userId = req.params.id;
@@ -87,6 +159,8 @@ app.get("/customer/:id", (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+=======
 /* Code for trade listings */
 app.get("/trades", (req, res) => {
 
@@ -510,6 +584,7 @@ app.post("/changePassword", (req, res) => {
   });
 });
 
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 /* Start server */
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

@@ -1,5 +1,9 @@
 
+<<<<<<< HEAD
+--first instance FRANCISCO 
+=======
 /*first instance FRANCISCO*/ 
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 CREATE DATABASE IF NOT EXISTS legautocustDB;
 
 USE legautocustDB;
@@ -31,7 +35,11 @@ CREATE TABLE Customized_car
 (
   BaseCar VARCHAR(50) NOT NULL,
   TotalPrice INT NOT NULL,
+<<<<<<< HEAD
+  PartsID INT NOT NULL,
+=======
   PartID INT NOT NULL,
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
   UserID INT NOT NULL,
   PRIMARY KEY (BaseCar),
   FOREIGN KEY (PartID) REFERENCES Parts(PartID),
@@ -66,7 +74,11 @@ Values(
 '2120002026'
 );
 
+<<<<<<< HEAD
+--Second instance of change by FRANCISCO
+=======
 /*Second instance of change by FRANCISCO*/
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 USE legautocustDB;
 
 //adding name, stock, category, and images datatypes
@@ -137,10 +149,18 @@ Values(
 
 SELECT * FROM Parts;
 
+<<<<<<< HEAD
+
+--Plans of SQL I want to use but have not implementeb and will change in accordance to his sql.
+
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+=======
 /*Plans of SQL I want to use but have not implementeb and will change in accordance to his sql.*/
 
 CREATE TABLE Employees (
     EmployeeID VARCHAR(4) PRIMARY KEY,
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
     FirstName VARCHAR(25) NOT NULL,
     LastName VARCHAR(25) NOT NULL,
     Management BOOLEAN NOT NULL,
@@ -148,6 +168,14 @@ CREATE TABLE Employees (
     Password VARCHAR(50) NOT NULL,
     HourlyPay DECIMAL(5,2) NOT NULL
 );
+<<<<<<< HEAD
+
+INSERT INTO Employees(EmployeeID, FirstName, LastName, Management, HireDate, Password, HourlyPay)
+Values
+(0001, 'John', 'Doe', TRUE, '2000-10-11', 'Password1', 25.00),          --MANAGER TYPE
+(0002, 'John', 'Dowtry', FALSE, '2001-11-12', 'Password2', 21.00),      --REG EMPLOYEE TYPE
+(0003, 'Jon', 'Dope', FALSE, '2015-11-13', 'Password101', 13.00);
+=======
 INSERT INTO Employees(EmployeeID, FirstName, LastName, Management, HireDate, Password, HourlyPay)
 Values
 ('A001', 'Mike', 'Myers', TRUE, '2000-10-11', 'Password0001', 25.00),          
@@ -194,21 +222,39 @@ VALUES
 
 
 
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 
 
 
 CREATE TABLE Schedule (
+<<<<<<< HEAD
+    ScheduleID INT PRIMARY KEY,
+    EmployeeID INT NOT NULL,
+    WeekNum INT NOT NULL DEFAULT 1,  --52 weeks in a year
+=======
     ScheduleID VARCHAR(4) PRIMARY KEY,
     EmployeeID VARCHAR(4) NOT NULL,
     MonthNum INT NOT NULL DEFAULT 1,
     WeekNum INT NOT NULL DEFAULT 1,  /*Week in the month*/
     Sun BOOLEAN NOT NULL DEFAULT 0,
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
     Mon BOOLEAN NOT NULL DEFAULT 0,
     Tue BOOLEAN NOT NULL DEFAULT 0,
     Wed BOOLEAN NOT NULL DEFAULT 0,
     Thu BOOLEAN NOT NULL DEFAULT 0,
     Fri BOOLEAN NOT NULL DEFAULT 0,
     Sat BOOLEAN NOT NULL DEFAULT 0,
+<<<<<<< HEAD
+    Sun BOOLEAN NOT NULL DEFAULT 0,
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+);
+
+INSERT INTO Schedule (ScheduleID, EmployeeID, WeekNum, Mon, Tue, Wed, Thu, Fri, Sat, Sun) 
+VALUES    --Wk M  T  W  T  F  S  S
+(1001, 0001, 1, 1, 1, 1, 1, 1, 0, 0),
+(1002, 0002, 1, 1, 0, 0, 0, 1, 1, 1),
+(1003, 0003, 1, 1, 1, 0, 0 ,0 ,0 ,0);
+=======
     FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
 );
 INSERT INTO Schedule (ScheduleID, EmployeeID, MonthNum, WeekNum, Sun, Mon, Tue, Wed, Thu, Fri, Sat) 
@@ -277,17 +323,31 @@ VALUES         /*M  W  Su Mo Tu We Th Fr Sa*/
 
 
 
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 
 
 
 CREATE TABLE EmployeePerformance (
+<<<<<<< HEAD
+    PerformanceID INT PRIMARY KEY,
+    EmployeeID INT NOT NULL,
+=======
     PerformanceID VARCHAR(4) PRIMARY KEY,
     EmployeeID VARCHAR(4) NOT NULL,
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
     ActivelyEmployed BOOLEAN DEFAULT TRUE,
     Points INT NOT NULL DEFAULT 0,
     Comments TEXT,
     FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
 );
+<<<<<<< HEAD
+
+INSERT INTO EmployeePerformance (PerformanceID, EmployeeID, ActivelyEmployed, Points, Comments)
+Values
+(2001, 0001, TRUE, 0, ''),
+(2002, 0002, TRUE, 3, 'Attendance Issue.'),
+(2003, 0003, FALSE, 10, 'DO NOT REHIRE!!!');
+=======
 INSERT INTO EmployeePerformance (PerformanceID, EmployeeID, ActivelyEmployed, Points, Comments)
 Values
 ('BA01','A001', TRUE, 0,'Great Employee'),
@@ -352,3 +412,4 @@ FROM EmployeePerformance
 Join Employees 
 ON EmployeePerformance.EmployeeID = Employees.EmployeeID
 Where Employees.EmployeeID = 2;
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf

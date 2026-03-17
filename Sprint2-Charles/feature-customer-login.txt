@@ -1,0 +1,114 @@
+Customer Dashboard & Account Management
+
+User Story
+As a customer, I want to view and manage my account information and saved vehicle configurations so that I can access and interact with my personalized data after logging in.
+
+Why This Adds Value
+This feature allows customers to interact with stored account data instead of only logging into the system. Users can view saved builds, account details, and customization information stored in the database, making the application functional beyond authentication.
+
+Layers Touched
+UI – Customer dashboard page
+
+
+Backend – dashboard data retrieval routes
+
+
+Database – user and saved configuration data
+
+
+External API – N/A
+
+
+1. Problem Statement
+After logging in, customers currently have no centralized location to view or manage their stored information. This feature provides a dashboard that retrieves and displays user-specific data securely from the database.
+
+2. User Flow
+User logs in
+
+
+User is redirected to customer dashboard
+
+
+Dashboard requests customer data from backend
+
+
+Backend retrieves user information from database
+
+
+Saved configurations/account info displayed
+
+
+User can view or manage stored data
+
+
+Page reload confirms persisted data
+
+
+3. Technical Plan
+Frontend
+Create CustomerDashboard page
+
+
+Display:
+
+
+account information
+
+
+saved vehicle builds
+
+
+customization details
+
+
+Backend
+Create route:
+
+ GET /customer/dashboard
+
+
+Validate authenticated user
+
+
+Query database for customer data
+
+
+Database
+Use existing:
+
+
+users table
+
+
+saved configurations table
+
+
+Files Created / Modified
+Frontend:
+CustomerDashboard.js
+
+
+Navigation update
+
+
+Backend:
+server.js
+
+
+dashboard route file
+
+
+db.js queries
+
+4. API Changes
+New Routes
+GET /customer/dashboard
+Response Example
+{
+ user: {...},
+ savedBuilds: [...]
+}
+
+5. Database Changes
+No new tables required.
+ Existing customer and configuration data will be retrieved and displayed.
