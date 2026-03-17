@@ -1,0 +1,17 @@
+Sprint 1 prep
+Trello cards
+ Check up on everyone
+ Assist where needed
+ Allow changes and submit project
+
+Setup steps
+ I need to ensure mySQL is working on my machine
+
+ Dev Plan
+  I need to ensure that Francisco doesn't have any issues when completing the database
+  I'm going to commincate with him and see where I can assist.
+
+  Risks
+   I will be the primary verfier for Franciscos work.
+   When needed, I will double check to make sure everything is completed and working on the website
+   

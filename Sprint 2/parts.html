@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pick a Part</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .filters { margin-bottom: 20px; }
+    .part { border: 1px solid #005296; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
+    .part img { width: 100px; height: auto; object-fit: contain; }
+    .info h3 { margin: 0 0 5px 0; }
+    .out { color: red; }
+    #cartContainer { border: 1px solid #ffcf8f; padding: 10px; margin-top: 10px; }
+    .cart-item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    button { padding: 5px 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h1>Pick a Part</h1>
+
+<div class="filters">
+  <label><input type="checkbox" id="inStockCheckbox"> In Stock Only</label>
+  <label><input type="checkbox" id="bufferCheckbox"> Buffer</label>
+  <label><input type="checkbox" id="paintCheckbox"> Paint</label>
+  <label><input type="checkbox" id="engineCheckbox"> Engine</label>
+  <label><input type="checkbox" id="wheelCheckbox"> Wheel</label>
+  <label><input type="checkbox" id="hornCheckbox"> Horn</label>
+  <label><input type="checkbox" id="exhaustsystemCheckbox"> Exhaust system</label>
+</div>
+
+<h2>Parts</h2>
+<h5>Select the parts you want to modify your dream car</h5>
+<div id="partsContainer"></div>
+
+<h2>Cart (Going to Car)</h2>
+<div id="cartContainer"></div>
+<p><strong>Total: $<span id="cartTotal">0</span></strong></p>
+
+<script>
+let parts = [];
+let cart = [];
+
+// Fetch parts from backend
+function fetchParts() {
+  let url = "http://localhost:3000/api/parts?";
+  const params = [];
+
+  if (document.getElementById("inStockCheckbox").checked) params.push("inStock=true");
+  if (document.getElementById("bufferCheckbox").checked) params.push("category=buffer");
+  if (document.getElementById("paintCheckbox").checked) params.push("category=paint");
+  if (document.getElementById("engineCheckbox").checked) params.push("category=engine");
+  if (document.getElementById("wheelCheckbox").checked) params.push("category=wheel");
+  if (document.getElementById("hornCheckbox").checked) params.push("category=horn");
+  if (document.getElementById("exhaustsystemCheckbox").checked) params.push("category=exhaust system");
+
+  url += params.join("&");
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      parts = data;
+      displayParts();
+    })
+    .catch(err => console.error(err));
+}
+
+// Display all parts
+function displayParts() {
+  const container = document.getElementById("partsContainer");
+  container.innerHTML = "";
+
+  parts.forEach(part => {
+    const div = document.createElement("div");
+    div.className = "part";
+
+    // Image
+    const img = document.createElement("img");
+    img.src = part.image || "placeholder.png";
+    img.alt = part.name;
+
+    // Info
+    const info = document.createElement("div");
+    info.className = "info";
+
+    const name = document.createElement("h3");
+    name.textContent = part.name;
+    if (part.Stock === 0) name.classList.add("out");
+
+    const price = document.createElement("p");
+    price.textContent = "Price: $" + part.price;
+
+    const category = document.createElement("p");
+    category.textContent = "Category: " + part.category;
+
+    const Stock = document.createElement("p");
+    Stock.textContent = "Stock: " + part.Stock;
+
+    info.appendChild(name);
+    info.appendChild(price);
+    info.appendChild(category);
+    info.appendChild(Stock);
+
+    // Button
+    const button = document.createElement("button");
+    if (part.Stock === 0) {
+      button.textContent = "Out of Stock";
+      button.disabled = true;
+    } else {
+      button.textContent = "Add to Cart";
+      button.onclick = () => addToCart(part);
+    }
+
+    div.appendChild(img);
+    div.appendChild(info);
+    div.appendChild(button);
+
+    container.appendChild(div);
+  });
+}
+
+// Add part to cart
+function addToCart(part) {
+  const exists = cart.find(item => item.PartID === part.PartID);
+  if (!exists) cart.push(part);
+  displayCart();
+}
+
+// Remove part from cart
+function removeFromCart(partId) {
+  cart = cart.filter(item => item.PartID !== partId);
+  displayCart();
+}
+
+// Display cart
+function displayCart() {
+  const container = document.getElementById("cartContainer");
+  container.innerHTML = "";
+
+  let total = 0;
+
+  cart.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "cart-item";
+
+    div.textContent = item.Name + " ($" + item.price + ")";
+    total += Number(item.price);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "Remove";
+   removeBtn.onclick = () => removeFromCart(item.PartID);
+
+    div.appendChild(removeBtn);
+    container.appendChild(div);
+  });
+
+  document.getElementById("cartTotal").textContent = total.toFixed(2);
+}
+
+// Event listeners for filters
+document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.addEventListener("change", fetchParts));
+
+// Initial load
+fetchParts();
+</script>
+
+</body>
+</html>

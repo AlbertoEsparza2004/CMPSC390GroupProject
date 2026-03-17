@@ -1,0 +1,40 @@
+ALTER TABLE Parts
+ADD COLUMN price_decimal DECIMAL(10,2);
+
+UPDATE parts
+SET price_decimal = price
+WHERE price_decimal IS NULL
+LIMIT 10000;
+
+SELECT COUNT(*) 
+FROM parts
+WHERE price_decimal IS NULL;
+
+
+ALTER TABLE parts DROP COLUMN price;
+ALTER TABLE parts RENAME COLUMN price_decimal TO price;
+
+Inserting new data
+
+
+Insert into Parts (PartID, Name, Stock, category, image, Price)
+Values(
+'900810524', 
+ 'Graphite Gray Metallic Acrylic Urethane Auto Paint',
+'2',
+'paint',
+'https://m.media-amazon.com/images/I/811WKwRAdcL._AC_UF894,1000_QL80_.jpg',
+'180.99'
+);
+
+
+Insert into Parts (PartID, Name, Stock, category, image, Price)
+Values(
+'800832124', 
+ 'Ryobi 10in speed random orbit',
+'0',
+'buffer',
+'https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTQ5MXYItCWT7NJX_TNpFyaFTE_vrFNDp_gFeROtZH-rT0VIZAeBrNxBVoBPi-W5fSwja7jzlPM10qNpIqklTlsbDxoM2q9RDrhzkqTVkewLu3ZVFjCYUJufPE ',
+'59.97'
+);
+

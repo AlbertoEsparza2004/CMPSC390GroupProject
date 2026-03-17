@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Trade Marketplace</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header><h1>Legacy Auto Company</h1></header>
+
+<div class="container">
+
+<div class="left section">
+
+<h2>Trade Marketplace</h2>
+
+<h3>Create Trade</h3>
+
+<select id="partID"></select><br><br>
+
+<input id="minPrice" placeholder="Minimum Price"><br><br>
+
+<input id="maxPrice" placeholder="Maximum Price"><br><br>
+
+<input id="condition" placeholder="Condition"><br><br>
+
+<input id="imageURL" placeholder="Image URL"><br><br>
+
+<button onclick="createTrade()">Post Trade</button>
+
+<hr>
+
+<button onclick="loadTrades()">Load Available Trades</button>
+
+<div id="trades"></div>
+
+</div>
+
+<div class="right section">
+
+<button onclick="logout()">Logout</button>
+<br><br>
+
+<button onclick="window.location.href='index.html'">Go back</button>
+
+</div>
+
+</div>
+
+<footer>
+<h2>Trade parts with other users!</h2>
+</footer>
+
+<script>
+/* This redirects to the login page, as you must be logged in in order to access the trading feature*/
+if(!localStorage.getItem("userId")){
+window.location.href = "CustomerSingInPage.html";
+}
+
+function loadTrades(){
+
+fetch("/trades")
+.then(res => res.json())
+.then(data => {
+
+let output = "";
+
+data.forEach(trade => {
+
+const currentUser = localStorage.getItem("userId");
+
+output += `
+<img src="${trade.ImageURL}" width="200"><br>
+
+<p>Part ID: ${trade.OfferedPartID}</p>
+<p>Condition: ${trade.ConditionDescription}</p>
+<p>Price Range: ${trade.DesiredMinPrice} - ${trade.DesiredMaxPrice}</p>
+`;
+
+if(currentUser == trade.OwnerUserID){
+
+output += `
+<button onclick="viewOffers(${trade.TradeID})">View Offers</button>
+<div id="offers${trade.TradeID}"></div>
+`;
+
+}else{
+
+output += `
+<input id="offer${trade.TradeID}" placeholder="Describe your part"><br><br>
+
+<button onclick="submitOffer(${trade.TradeID})">Offer Trade</button>
+`;
+
+}
+
+output += `<hr>`;
+
+});
+
+document.getElementById("trades").innerHTML = output;
+
+});
+
+}
+
+function acceptTrade(id){
+
+fetch("/acceptTrade/" + id, {
+method: "POST"
+})
+.then(res => res.json())
+.then(data => alert(data.message));
+
+}
+
+function createTrade(){
+
+fetch("/createTrade", {
+
+method: "POST",
+
+headers: {
+"Content-Type": "application/json"
+},
+
+body: JSON.stringify({
+
+OwnerUserID: localStorage.getItem("userId"),
+
+OfferedPartID: document.getElementById("partID").value,
+
+DesiredMinPrice: document.getElementById("minPrice").value,
+
+DesiredMaxPrice: document.getElementById("maxPrice").value,
+
+ConditionDescription: document.getElementById("condition").value,
+
+ImageURL: document.getElementById("imageURL").value
+
+})
+
+})
+
+.then(res => res.json())
+
+.then(data => alert(data.message));
+
+}
+/* Code that is used for drop down selection for part id when a trade is being created*/
+function loadParts(){
+
+fetch("/parts")
+.then(res => res.json())
+.then(data => {
+
+let options = "";
+
+data.forEach(part => {
+
+options += `<option value="${part.PartID}">Part ${part.PartID}</option>`;
+
+});
+
+document.getElementById("partID").innerHTML = options;
+
+});
+
+}
+
+loadParts();
+
+/* function that allows a user to send a user (one that has posted their own trade) an offer, which the original poster can accept or decline*/
+function submitOffer(tradeId){
+
+const description = document.getElementById("offer" + tradeId).value;
+
+fetch("/createOffer", {
+
+method: "POST",
+
+headers: {
+"Content-Type": "application/json"
+},
+
+body: JSON.stringify({
+
+TradeID: tradeId,
+OfferingUserID: localStorage.getItem("userId"),
+OfferedPartDescription: description
+
+})
+
+})
+
+.then(res => res.json())
+.then(data => alert(data.message));
+
+}
+
+/*Function that allows the original poster of a trade to accept or decline what someone is requesting to trade */
+function viewOffers(tradeId){
+
+fetch("/offers/" + tradeId)
+
+.then(res => res.json())
+
+.then(data => {
+
+let output = "<h4>Offers:</h4>";
+
+data.forEach(offer => {
+
+output += `
+<p>User ${offer.OfferingUserID}</p>
+<p>${offer.OfferedPartDescription}</p>
+
+<button onclick="acceptTrade(${tradeId})">Accept Offer</button>
+<button onclick="declineOffer(${offer.OfferID})">Decline Offer</button>
+
+<hr>
+`;
+
+});
+
+document.getElementById("offers" + tradeId).innerHTML = output;
+
+});
+
+}
+
+function logout(){
+
+localStorage.removeItem("userId");
+localStorage.removeItem("username");
+
+window.location.href = "CustomerSingInPage.html";
+
+}
+
+function declineOffer(offerId){
+
+fetch("/declineOffer/" + offerId, {
+method: "POST"
+})
+.then(res => res.json())
+.then(data => alert(data.message));
+
+}
+</script>
+
+</body>
+</html>

@@ -13,18 +13,6 @@
             <div>
                <h2>Employee SignIn Page</h2>
 
-<<<<<<< HEAD
-                <h2>Login</h2>
-                    <form id="loginForm">
-                    <label>Username</label><br />
-                    <input type="text" name="username" required /><br /><br />
-                    <label>Password</label><br />
-                    <input type="password" name="password" required /><br /><br />
-                    <button type="submit">Login</button>
-                    </form>
-                    <p id="loginResult"></p>
-
-=======
                 <h2>Login</h2> <!--This comes from Lab1-->
                     <form id="loginForm">
                         <label>EmployeeID</label><br />
@@ -41,7 +29,7 @@
                         loginForm.addEventListener('submit', async (e) => {
                             e.preventDefault();
                             const formData = new FormData(loginForm);
-                            const res = await fetch('/Employeelogin', {
+                            const res = await fetch('/login', {
                                 method: 'POST',
                                 body: new URLSearchParams(formData)
                         });
@@ -49,6 +37,7 @@
                             window.location.href = res.url;
                             return;
                         }
+
                         const text = await res.text();
                         loginResult.textContent = text;
                         });
@@ -56,7 +45,6 @@
 
 
 
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
                 <button onclick = "window.location.href='index.html'">Go back</button> 
             </div>
             
