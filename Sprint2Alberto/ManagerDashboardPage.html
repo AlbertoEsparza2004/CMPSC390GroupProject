@@ -93,18 +93,44 @@
                         <br>
                         <p>Attendace Points: ${data.Points}</p>
                         <br>
-                        <h3>Request Day Off</h3>
+                        <h3>Schedule Request Change</h3>
                         <form id="dayOffForm">
                             <input type="hidden" name="EmployeeID" value="${employeeID}">
-
+                            
+                            <label>Request Type</label>
+                            <select id="requestType" name ="Type" required><br>
+                                <option value="off">Request Off</option>
+                                <option value="work">Request to Work</option>
+                            </select><br><br>
+                            
                             <label>Month</label><br>
-                            <input type="number" name="MonthNum" required><br><br>
+                            <select name="MonthNum" required>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select><br><br>
 
                             <label>Week</label><br>
-                            <input type="number" name="WeekNum" required><br><br>
+                            <select id="weekSelect" name="WeekNum" required>
+                                <option value="1">Week 1</option>
+                                <option value="2">Week 2</option>
+                                <option value="3">Week 3</option>
+                                <option value="4">Week 4</option>
+                                <option value="5">Week 5</option>
+                                <option value="6">Week 6</option>
+                            </select><br><br>
                             
                             <label>Day</label><br>
-                            <select name="DayOfWeek">
+                            <select name="DayOfWeek" required>
                                 <option value="Mon">Monday</option>
                                 <option value="Tue">Tuesday</option>
                                 <option value="Wed">Wednesday</option>
@@ -316,7 +342,7 @@
                             const data = await res.json();
                             let html = `<h2>Time Off Requests</h2>
                             <table border="1">
-                            <tr> <th>Employee</th> <th>Month</th> <th>Week</th> <th>Day</th> <th>Reason</th> <th>Action</th> </tr>`;
+                            <tr> <th>Employee</th> <th>Month</th> <th>Week</th> <th>Day</th> <th>Type</th> <th>Reason</th> <th>Action</th> </tr>`;
                                 data.forEach(request => {
                                     html += `
                                     <tr>
@@ -324,7 +350,9 @@
                                         <td>${request.MonthNum}</td>
                                         <td>${request.WeekNum}</td>
                                         <td>${request.DayOfWeek}</td>
+                                        <td>${request.Type}</td>
                                         <td>${request.Reason}</td>
+
                                         <td>
                                         <button onclick="approveRequest(${request.RequestID})">Approve</button>
                                         <button onclick="denyRequest(${request.RequestID})">Deny</button>
@@ -336,6 +364,8 @@
                         }
 
                         async function approveRequest(id){
+                            console.log("Approve clicked:", id);
+
                             await fetch("/approveRequest",{
                             method:"POST",
                             headers:{"Content-Type":"application/json"},

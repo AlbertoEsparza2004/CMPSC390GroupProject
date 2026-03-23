@@ -276,36 +276,6 @@ VALUES         /*M  W  Su Mo Tu We Th Fr Sa*/
 
 
 
-/*This inserts 1 into everyones shecdule for months 2-6 */
-INSERT INTO Schedule (ScheduleID, EmployeeID, MonthNum, WeekNum, Sun, Mon, Tue, Wed, Thu, Fri, Sat)
-SELECT 
-    CONCAT(prefix, month, week) AS ScheduleID,
-    empID,
-    month AS MonthNum,
-    week AS WeekNum,
-    1,1,1,1,1,1,1
-
-FROM (
-    SELECT 'AA' AS prefix, 'A001' AS empID UNION
-    SELECT 'AB', 'A002' UNION
-    SELECT 'AC', 'A003' UNION
-    SELECT 'AD', 'A004' UNION
-    SELECT 'AE', 'A005' UNION
-    SELECT 'AF', 'A006' UNION
-    SELECT 'AG', 'A007' UNION
-    SELECT 'AH', 'A008' UNION
-    SELECT 'AI', 'A009' UNION
-    SELECT 'AJ', 'A00A'
-) employees
-
-CROSS JOIN (
-    SELECT 2 AS month UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6
-) months
-
-CROSS JOIN (
-    SELECT 1 AS week UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6
-) weeks;
-
 
 
 CREATE TABLE EmployeePerformance (
@@ -344,9 +314,78 @@ CREATE TABLE TimeOffRequests (
     FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
 );
 
+/*This inserts 1 into everyones shecdule for months 2-6 */
+INSERT INTO Schedule (ScheduleID, EmployeeID, MonthNum, WeekNum, Sun, Mon, Tue, Wed, Thu, Fri, Sat)
+SELECT 
+    CONCAT(prefix, month, week) AS ScheduleID,
+    empID,
+    month AS MonthNum,
+    week AS WeekNum,
+    1,1,1,1,1,1,1
+
+FROM (
+    SELECT 'AA' AS prefix, 'A001' AS empID UNION
+    SELECT 'AB', 'A002' UNION
+    SELECT 'AC', 'A003' UNION
+    SELECT 'AD', 'A004' UNION
+    SELECT 'AE', 'A005' UNION
+    SELECT 'AF', 'A006' UNION
+    SELECT 'AG', 'A007' UNION
+    SELECT 'AH', 'A008' UNION
+    SELECT 'AI', 'A009' UNION
+    SELECT 'AJ', 'A00A'
+) employees
+
+CROSS JOIN (
+    SELECT 2 AS month UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6
+) months
+
+CROSS JOIN (
+    SELECT 1 AS week UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6
+) weeks;
+
+/*This is for the time off request to add a way to either request off or work*/
+ALTER TABLE TimeOffRequests
+ADD Type VARCHAR(10);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*DO NOT NEED TO INCLUDE THIS BOTTOM DOWN*/
 /*This returns the full name of fired employees and their comments*/
 SELECT Employees.FirstName, Employees.Lastname, EmployeePerformance.Comments
 FROM Employees

@@ -72,7 +72,6 @@
                     document.getElementById("InteractiveDisplay").innerHTML = html;
                 }
 
-                /*Attendance Buttons*/
                 async function loadAttendance(){    /*Essentially all the html to make it appear additionally form submission*/
                     const params = new URLSearchParams(window.location.search);
                     const employeeID = params.get("EmployeeID");
@@ -85,18 +84,44 @@
                         <br>
                         <p>Attendace Points: ${data.Points}</p>
                         <br>
-                        <h3>Request Day Off</h3>
+                        <h3>Schedule Request Change</h3>
                         <form id="dayOffForm">
                             <input type="hidden" name="EmployeeID" value="${employeeID}">
-
+                            
+                            <label>Request Type</label>
+                            <select id="requestType" name ="Type" required><br>
+                                <option value="off">Request Off</option>
+                                <option value="work">Request to Work</option>
+                            </select><br><br>
+                            
                             <label>Month</label><br>
-                            <input type="number" name="MonthNum" required><br><br>
+                            <select name="MonthNum" required>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select><br><br>
 
                             <label>Week</label><br>
-                            <input type="number" name="WeekNum" required><br><br>
+                            <select id="weekSelect" name="WeekNum" required>
+                                <option value="1">Week 1</option>
+                                <option value="2">Week 2</option>
+                                <option value="3">Week 3</option>
+                                <option value="4">Week 4</option>
+                                <option value="5">Week 5</option>
+                                <option value="6">Week 6</option>
+                            </select><br><br>
                             
                             <label>Day</label><br>
-                            <select name="DayOfWeek">
+                            <select name="DayOfWeek" required>
                                 <option value="Mon">Monday</option>
                                 <option value="Tue">Tuesday</option>
                                 <option value="Wed">Wednesday</option>
@@ -126,7 +151,7 @@
                         document.getElementById("requestResult").textContent = text;
                         });
                         calendar();
-                    }
+                        }
 
                 /*old calender function.
                 async function calendar(){ /*Same as loadschedule but deployed within loadAttendance different inner html so no reload called from loadAttendance
@@ -156,6 +181,13 @@
                     document.getElementById("calendar").innerHTML = html;
                 }
                 */
+                let currentDate = new Date();
+
+                function changeMonth(offset){
+                    currentDate.setMonth(currentDate.getMonth() + offset);
+                    calendar();
+                }
+
                 async function calendar() {
                     const params = new URLSearchParams(window.location.search);
                     const employeeID = params.get("EmployeeID");
