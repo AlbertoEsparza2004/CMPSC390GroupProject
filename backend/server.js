@@ -490,6 +490,18 @@ app.get("/contactInfo", (req, res)=>{
             });
         });
 
+        app.post("/rehireEmployee",(req,res)=>{
+            const {EmployeeID} = req.body;
+            const sql = `UPDATE EmployeePerformance SET ActivelyEmployed = TRUE WHERE EmployeeID = ?`;
+            db.query(sql,[EmployeeID],(err)=>{
+                if(err){
+                    console.error(err);
+                    return res.status(500).send("Database error");
+                }
+                res.send("Employee rehired");
+            });
+        });
+
 /*Password Change*/
 app.post("/changePassword", (req, res) => {
   const {EmployeeID, oldPassword, newPassword} = req.body;
