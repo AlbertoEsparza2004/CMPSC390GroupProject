@@ -78,7 +78,15 @@
 
                 function changeMonth(offset){
                     currentDate.setMonth(currentDate.getMonth() + offset);
-                    calendar();
+ 
+                    if(document.getElementById("calendar")){ /*Update calendar*/
+                        calendar();
+                    }
+                    const label = document.getElementById("monthLabel");
+                    if(label){  /*update for tax*/
+                        label.innerText = currentDate.toLocaleString("default", { month: "long" });
+                        document.getElementById("PaystubTable").innerHTML = "";
+                    }
                 }
                 
                 async function loadAttendance(){    /*Essentially all the html to make it appear additionally form submission*/
@@ -234,9 +242,15 @@
                 }
 
                 /*Tax Info Buttons*/
-                function loadTaxInfo(){ /*Function to load the buttons to select desired pay stub week*/
+                /*function loadTaxInfo(){ Function to load the buttons to select desired pay stub week
                     document.getElementById("InteractiveDisplay").innerHTML = `
                         <h2>Tax Information</h2>
+                        <div>
+                            <button onclick="changeMonth(-1)">Last Month</button>
+                            <span id="monthLabel">${currentDate.toLocaleString("default", { month: "long" })}</span>
+                            <button onclick="changeMonth(1)">Next Month</button>
+                        </div>
+                        <br><br>
                         <div>
                             <button onclick = "loadPaystub(1)" style="width:120px; height:30px">Week 1</button>
                             <button onclick = "loadPaystub(2)" style="width:120px; height:30px">Week 2</button>
@@ -247,14 +261,52 @@
                         <br><br>
                         <div id = "PaystubTable"></div> 
                     `;
+                }*/
+
+
+                async function loadTaxInfo(){
+                    const params = new URLSearchParams(window.location.search);
+                    const employeeID = params.get("EmployeeID");
+                    const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
+                    const data = await res.json();
+                    const currentMonth = currentDate.getMonth() + 1;
+
+                    const weeks = [...new Set(
+                        data
+                        .filter(row => Number(row.MonthNum) === (currentDate.getMonth() + 1))
+                        .map(row => Number(row.WeekNum))
+                    )]
+                    .filter(w => w <= 5)
+                    .sort((a, b) => a - b);
+
+                    let weekButtons = "";   /*builds the week buttons*/
+                    weeks.forEach(w => {
+                        weekButtons += `<button onclick="loadPaystub(${w})" style="width:120px;height:30px">Week ${w}</button>`;
+                    });
+
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                        <h2>Tax Information</h2>
+                        <div>
+                            <button onclick="changeMonth(-1)">Last Month</button>
+                            <span id="monthLabel">
+                                ${currentDate.toLocaleString("default", { month: "long" })}
+                            </span>
+                            <button onclick="changeMonth(1)">Next Month</button>
+                        </div>
+                        <br><br>
+                        <div>${weekButtons || "No schedule for this month"}</div>
+                        <br><br>
+                        <div id="PaystubTable"></div>
+                    `;
                 }
-                
+
                 async function loadPaystub(week){
                     const params = new URLSearchParams(window.location.search);
                     const employeeID = params.get("EmployeeID");
                     const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
                     const data = await res.json();
-                    const schedule = data.find(row => row.WeekNum == week);
+                    /*const schedule = data.find(row => row.WeekNum == week);*/
+                    const schedule = data.find(row => row.WeekNum == week && row.MonthNum == (currentDate.getMonth() + 1));
                     
                     if(!schedule){
                         document.getElementById("PaystubTable").innerHTML = "No schedule found.";
