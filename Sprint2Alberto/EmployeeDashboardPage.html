@@ -12,9 +12,9 @@
         <div class = "container" style="justify-content: center;">
             <div class = "left section">
                <h2 id = "welcome">Hello Employee</h2>
-                
-                <button onclick ="loadSchedule()">Schedule</button>
-                <br><br><br>
+                <!-- <div id="calendar"></div> -->
+                <!-- <button onclick ="loadSchedule()">Schedule</button> -->
+                <!-- <br><br><br> -->
                 <button onclick = "loadAttendance()">Attendance</button>
                 <br><br><br>
                 <button onclick = "loadTaxInfo()">Tax Info.</button>
@@ -128,7 +128,8 @@
                         calendar();
                     }
 
-                async function calendar(){ /*Same as loadschedule but deployed within loadAttendance different inner html so no reload called from loadAttendance*/
+                /*old calender function.
+                async function calendar(){ /*Same as loadschedule but deployed within loadAttendance different inner html so no reload called from loadAttendance
                     const params = new URLSearchParams(window.location.search);
                     const employeeID = params.get("EmployeeID");
                     const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
@@ -154,6 +155,78 @@
                     html += "</table>";
                     document.getElementById("calendar").innerHTML = html;
                 }
+                */
+                async function calendar() {
+                    const params = new URLSearchParams(window.location.search);
+                    const employeeID = params.get("EmployeeID");
+                    const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
+                    const data = await res.json();
+                    const calendarDiv = document.getElementById("calendar");
+                    const year = currentDate.getFullYear();
+                    const month = currentDate.getMonth();
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const lastDate = new Date(year, month + 1, 0).getDate();
+
+                    let html = `
+                        <div class="calendar-header">
+                            <button onclick="changeMonth(-1)">Previous Month</button>
+                            <h2>${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}</h2>
+                            <button onclick="changeMonth(1)">Next Month</button>
+                        </div>
+                    
+                        <div class="calendar-days">
+                            <div>Sun</div>
+                            <div>Mon</div>
+                            <div>Tue</div>
+                            <div>Wed</div>
+                            <div>Thu</div>
+                            <div>Fri</div>
+                            <div>Sat</div>
+                        </div>
+                        
+                        <div class="calendar-grid">`;
+
+                    for (let i = 0; i < 42; i++) {
+                        let dayNumber = i - firstDay + 1;
+                        let displayNumber = dayNumber;
+                        let isCurrentMonth = true;
+                        if (dayNumber <= 0) {   /*Month before*/
+                            const prevMonthLastDate = new Date(year, month, 0).getDate();
+                            displayNumber = prevMonthLastDate + dayNumber;
+                            isCurrentMonth = false;
+                        }   
+                        else if (dayNumber > lastDate) {    /*Month After*/
+                            displayNumber = dayNumber - lastDate;
+                            isCurrentMonth = false;
+                        }
+                        let worked = false;
+                        let display = "";
+
+                        if (isCurrentMonth) {
+                            const jsDay = new Date(year, month, dayNumber).getDay();
+                            const map = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+                            const dayName = map[jsDay];
+                            const week = Math.ceil((dayNumber + firstDay) / 7);
+
+                            data.forEach(emp => {
+                                if (
+                                    Number(emp.MonthNum) === (month + 1) &&
+                                    Number(emp.WeekNum) === week &&
+                                    emp[dayName]
+                                ) {worked = true;}
+                            });
+
+                            display = `<div>${displayNumber}</div>
+                                <div>${worked ? "✅" : "❌"}</div>`;
+                        } else {
+                            display = `<div>${displayNumber}</div>`;
+                        }
+                        html += `<div class="day ${!isCurrentMonth ? "inactive" : worked ? "worked" : "off"}">${display}</div>`;
+                    }
+                    html += `</div>`;
+                    calendarDiv.innerHTML = html;
+                }
+
 
                 /*Tax Info Buttons*/
                 function loadTaxInfo(){ /*Function to load the buttons to select desired pay stub week*/
