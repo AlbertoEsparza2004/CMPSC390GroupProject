@@ -76,6 +76,8 @@
                     const employeeID = params.get("EmployeeID");
                     const res = await fetch(`/getPoints?EmployeeID=${employeeID}`);
                     const data = await res.json();
+                    const defaultMonth = currentDate.getMonth() + 1;
+                    const defaultWeek = Math.min(6, Math.max(1, Math.ceil(currentDate.getDate() / 7)));
 
                     document.getElementById("InteractiveDisplay").innerHTML = `
                         <h2>Attendance</h2>
@@ -148,6 +150,9 @@
                         const text = await res.text();
                         document.getElementById("requestResult").textContent = text;
                     });
+
+                    document.querySelector('#dayOffForm select[name="MonthNum"]').value = String(defaultMonth);
+                    document.getElementById("weekSelect").value = String(defaultWeek);
                     calendar();
                 }
 

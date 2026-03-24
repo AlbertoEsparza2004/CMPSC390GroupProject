@@ -21,9 +21,8 @@ app.get("/test", (req, res) => {
   res.send("Backend server is running successfully.");
 });
 
-// Serve static files from the parent directory (supports all frontend folders).
+// Serve static files from the workspace root (supports all frontend folders).
 // Keep this after API root/test routes so those endpoints are not shadowed by index.html.
-app.use(express.static(path.join(__dirname, "../Sprint2Alberto")));
 app.use(express.static(path.join(__dirname, "..")));
 
 // ==========================================
@@ -797,10 +796,14 @@ app.post("/approveRequest", (req, res) => {
     const scheduleValue = type === "work" ? 1 : 0;
 
     const updateSchedule = `UPDATE Schedule SET ${dayColumn} = ? WHERE EmployeeID = ? AND MonthNum = ? AND WeekNum = ?`;
-    db.query(updateSchedule, [scheduleValue, request.EmployeeID, request.MonthNum, request.WeekNum], (err) => {
+    db.query(updateSchedule, [scheduleValue, request.EmployeeID, request.MonthNum, request.WeekNum], (err, scheduleResult) => {
       if (err) {
         console.error(err);
         return res.status(500).send("Schedule update error");
+      }
+
+      if (!scheduleResult || scheduleResult.affectedRows === 0) {
+        return res.status(404).send("No schedule row matched this request. Check month/week/day.");
       }
       
       const updateStatus = `UPDATE TimeOffRequests SET Status = 'Approved' WHERE RequestID = ?`;
