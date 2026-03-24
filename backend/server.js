@@ -501,7 +501,13 @@ app.post("/cars", (req, res) => {
 // ==========================================
 
 app.get("/trades", (req, res) => {
-  const sql = `SELECT Trades.*, User.UserName FROM Trades JOIN User ON Trades.OwnerUserID = User.UserID WHERE Trades.Status = 'OPEN'`;
+  const sql = `
+    SELECT Trades.*, User.UserName, Parts.Name AS PartName
+    FROM Trades
+    JOIN User ON Trades.OwnerUserID = User.UserID
+    LEFT JOIN Parts ON Trades.OfferedPartID = Parts.PartID
+    WHERE Trades.Status = 'OPEN'
+  `;
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -534,16 +540,33 @@ app.post("/createTrade", (req, res) => {
 
 app.post("/acceptTrade/:id", (req, res) => {
   const tradeId = req.params.id;
+  const userId = parseInt(req.body.userId, 10);
 
-  const sql = "UPDATE Trades SET Status = 'ACCEPTED' WHERE TradeID = ?";
-
-  db.query(sql, [tradeId], (err, results) => {
+  // Verify that the user is the trade owner
+  const verifySql = "SELECT OwnerUserID FROM Trades WHERE TradeID = ?";
+  db.query(verifySql, [tradeId], (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Database error" });
     }
 
-    res.json({ message: "Trade accepted successfully" });
+    if (!results || results.length === 0) {
+      return res.status(404).json({ message: "Trade not found" });
+    }
+
+    if (results[0].OwnerUserID !== userId) {
+      return res.status(403).json({ message: "Only the trade owner can accept trades" });
+    }
+
+    const sql = "UPDATE Trades SET Status = 'ACCEPTED' WHERE TradeID = ?";
+    db.query(sql, [tradeId], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      res.json({ message: "Trade accepted successfully" });
+    });
   });
 });
 
@@ -575,6 +598,60 @@ app.get("/offers/:tradeId", (req, res) => {
   });
 });
 
+app.post("/acceptOffer/:id", (req, res) => {
+  const offerId = req.params.id;
+  const userId = parseInt(req.body.userId, 10);
+
+  const getOfferSql = `SELECT TradeID FROM TradeOffers WHERE OfferID = ?`;
+  db.query(getOfferSql, [offerId], (offerErr, offerResults) => {
+    if (offerErr) {
+      console.error(offerErr);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (!offerResults || offerResults.length === 0) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    const tradeId = offerResults[0].TradeID;
+
+    // Verify that the user is the trade owner
+    const verifySql = "SELECT OwnerUserID FROM Trades WHERE TradeID = ?";
+    db.query(verifySql, [tradeId], (verifyErr, verifyResults) => {
+      if (verifyErr) {
+        console.error(verifyErr);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      if (!verifyResults || verifyResults.length === 0) {
+        return res.status(404).json({ message: "Trade not found" });
+      }
+
+      if (verifyResults[0].OwnerUserID !== userId) {
+        return res.status(403).json({ message: "Only the trade owner can accept offers" });
+      }
+
+      const acceptTradeSql = "UPDATE Trades SET Status = 'ACCEPTED' WHERE TradeID = ?";
+      db.query(acceptTradeSql, [tradeId], (tradeErr) => {
+        if (tradeErr) {
+          console.error(tradeErr);
+          return res.status(500).json({ error: "Database error" });
+        }
+
+        const cleanupOffersSql = "DELETE FROM TradeOffers WHERE TradeID = ?";
+        db.query(cleanupOffersSql, [tradeId], (cleanupErr) => {
+          if (cleanupErr) {
+            console.error(cleanupErr);
+            return res.status(500).json({ error: "Database error" });
+          }
+
+          res.json({ message: "Offer accepted and trade completed" });
+        });
+      });
+    });
+  });
+});
+
 app.post("/declineOffer/:id", (req, res) => {
   const offerId = req.params.id;
 
@@ -587,6 +664,29 @@ app.post("/declineOffer/:id", (req, res) => {
     }
 
     res.json({ message: "Offer declined." });
+  });
+});
+
+app.post("/clearTrades", (req, res) => {
+  const deleteOffersSql = "DELETE FROM TradeOffers";
+  db.query(deleteOffersSql, (offersErr) => {
+    if (offersErr) {
+      console.error(offersErr);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    const deleteTradesSql = "DELETE FROM Trades";
+    db.query(deleteTradesSql, (tradesErr, tradeResults) => {
+      if (tradesErr) {
+        console.error(tradesErr);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      res.json({
+        message: "All trades removed.",
+        removedTrades: tradeResults.affectedRows
+      });
+    });
   });
 });
 

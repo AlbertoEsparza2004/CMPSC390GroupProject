@@ -41,6 +41,8 @@
 
 <button onclick="loadTrades()">Load Available Trades</button>
 
+<button onclick="clearTrades()">Remove All Trades</button>
+
 <div id="trades"></div>
 
 </div>
@@ -66,8 +68,18 @@
 
 <script>
 /* This redirects to the login page, as you must be logged in in order to access the trading feature*/
-if(!localStorage.getItem("userId")){
-window.location.href = "CustomerSingInPage.html";
+function getCurrentUserId(){
+const params = new URLSearchParams(window.location.search);
+const queryUserId = params.get("userId");
+if (queryUserId) {
+return parseInt(queryUserId, 10);
+}
+return parseInt(localStorage.getItem("userId"), 10);
+}
+
+const activeUserId = getCurrentUserId();
+if(!activeUserId){
+window.location.href = "TradeLogin.html";
 }
 
 function loadTrades(){
@@ -80,19 +92,21 @@ let output = "";
 
 data.forEach(trade => {
 
-const currentUser = localStorage.getItem("userId");
+const currentUser = activeUserId;
 
 output += `
 <img src="${trade.ImageURL}" width="200"><br>
 
 <p><strong>Posted by:</strong> ${trade.UserName}</p>
 
+<p><strong>Part:</strong> ${trade.PartName || "Unknown Part"}</p>
+
 <p>Part ID: ${trade.OfferedPartID}</p>
 <p>Condition: ${trade.ConditionDescription}</p>
 <p>Price Range: ${trade.DesiredMinPrice} - ${trade.DesiredMaxPrice}</p>
 `;
 
-if(currentUser == trade.OwnerUserID){
+if(currentUser === trade.OwnerUserID){
 
 output += `
 <button onclick="viewOffers(${trade.TradeID})">View Offers</button>
@@ -141,7 +155,7 @@ headers: {
 
 body: JSON.stringify({
 
-OwnerUserID: localStorage.getItem("userId"),
+OwnerUserID: activeUserId,
 
 OfferedPartID: document.getElementById("partID").value,
 
@@ -159,7 +173,10 @@ ImageURL: document.getElementById("imageURL").value
 
 .then(res => res.json())
 
-.then(data => alert(data.message));
+.then(data => {
+alert(data.message);
+loadTrades();
+});
 
 }
 /* Code that is used for drop down selection for part id when a trade is being created*/
@@ -201,7 +218,7 @@ headers: {
 body: JSON.stringify({
 
 TradeID: tradeId,
-OfferingUserID: localStorage.getItem("userId"),
+OfferingUserID: activeUserId,
 OfferedPartDescription: description
 
 })
@@ -209,7 +226,10 @@ OfferedPartDescription: description
 })
 
 .then(res => res.json())
-.then(data => alert(data.message));
+.then(data => {
+alert(data.message);
+loadTrades();
+});
 
 }
 
@@ -250,14 +270,23 @@ fetch("/declineOffer/" + offerId, {
 method: "POST"
 })
 .then(res => res.json())
-.then(data => alert(data.message));
+.then(data => {
+alert(data.message);
+loadTrades();
+});
 
 }
 
 function acceptOffer(offerId){
 
 fetch("/acceptOffer/" + offerId,{
-method:"POST"
+method:"POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+userId: activeUserId
+})
 })
 .then(res => res.json())
 .then(data => {
@@ -266,6 +295,23 @@ showTradeMessage(data.message);
 
 loadTrades();
 
+});
+
+}
+
+function clearTrades(){
+
+if(!confirm("Remove all trades and offers?")){
+return;
+}
+
+fetch("/clearTrades", {
+method: "POST"
+})
+.then(res => res.json())
+.then(data => {
+showTradeMessage(data.message || "All trades removed.");
+loadTrades();
 });
 
 }
@@ -295,6 +341,9 @@ function closeMessage(){
 document.getElementById("tradeMessage").style.display = "none";
 
 }
+
+loadTrades();
+setInterval(loadTrades, 3000);
 </script>
 
 </body>
