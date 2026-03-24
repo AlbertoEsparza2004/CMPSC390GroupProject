@@ -158,6 +158,7 @@ CREATE TABLE TimeOffRequests (
     MonthNum    INT NOT NULL,
     WeekNum     INT NOT NULL,
     DayOfWeek   VARCHAR(10) NOT NULL,
+    Type        VARCHAR(10) NOT NULL DEFAULT 'off',
     Reason      TEXT,
     Status      VARCHAR(20) NOT NULL DEFAULT 'Pending',
     PRIMARY KEY (RequestID),
@@ -227,6 +228,33 @@ INSERT INTO Schedule (ScheduleID, EmployeeID, MonthNum, WeekNum, Sun, Mon, Tue, 
 ('AH01','A008',1,1,1,0,0,1,1,1,0),('AH02','A008',1,2,0,1,1,0,1,0,1),('AH03','A008',1,3,1,1,0,1,0,1,0),('AH04','A008',1,4,0,0,1,1,1,0,1),('AH05','A008',1,5,1,1,1,0,0,1,0),
 ('AI01','A009',1,1,0,1,1,0,1,1,0),('AI02','A009',1,2,1,0,1,1,0,0,1),('AI03','A009',1,3,0,1,0,1,1,1,0),('AI04','A009',1,4,1,1,1,0,0,1,0),('AI05','A009',1,5,0,0,1,1,1,0,1),
 ('AJ01','A00A',1,1,1,0,1,1,0,1,0),('AJ02','A00A',1,2,0,1,1,0,1,0,1),('AJ03','A00A',1,3,1,1,0,1,0,1,0),('AJ04','A00A',1,4,0,0,1,1,1,0,1),('AJ05','A00A',1,5,1,1,1,0,0,1,0);
+
+/* This inserts 1 into everyone's schedule for months 2-6 */
+INSERT INTO Schedule (ScheduleID, EmployeeID, MonthNum, WeekNum, Sun, Mon, Tue, Wed, Thu, Fri, Sat)
+SELECT
+    CONCAT(prefix, month, week) AS ScheduleID,
+    empID,
+    month AS MonthNum,
+    week AS WeekNum,
+    1, 1, 1, 1, 1, 1, 1
+FROM (
+    SELECT 'AA' AS prefix, 'A001' AS empID UNION
+    SELECT 'AB', 'A002' UNION
+    SELECT 'AC', 'A003' UNION
+    SELECT 'AD', 'A004' UNION
+    SELECT 'AE', 'A005' UNION
+    SELECT 'AF', 'A006' UNION
+    SELECT 'AG', 'A007' UNION
+    SELECT 'AH', 'A008' UNION
+    SELECT 'AI', 'A009' UNION
+    SELECT 'AJ', 'A00A'
+) employees
+CROSS JOIN (
+    SELECT 2 AS month UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6
+) months
+CROSS JOIN (
+    SELECT 1 AS week UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6
+) weeks;
 
 INSERT INTO EmployeePerformance (PerformanceID, EmployeeID, ActivelyEmployed, Points, Comments) VALUES
 ('BA01','A001', TRUE,  0,  'Great Employee'),

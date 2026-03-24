@@ -23,6 +23,7 @@ app.get("/test", (req, res) => {
 
 // Serve static files from the parent directory (supports all frontend folders).
 // Keep this after API root/test routes so those endpoints are not shadowed by index.html.
+app.use(express.static(path.join(__dirname, "../Sprint2Alberto")));
 app.use(express.static(path.join(__dirname, "..")));
 
 // ==========================================
@@ -722,10 +723,11 @@ app.get("/contactInfo", (req, res) => {
 // ==========================================
 
 app.post("/request-dayoff", (req, res) => {
-  const { EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason } = req.body;
-  const sql = `INSERT INTO TimeOffRequests (EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason, Status) VALUES (?, ?, ?, ?, ?, 'Pending')`;
+  const { EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason, Type } = req.body;
+  const requestType = (Type || "off").toString().trim().toLowerCase() === "work" ? "work" : "off";
+  const sql = `INSERT INTO TimeOffRequests (EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason, Type, Status) VALUES (?, ?, ?, ?, ?, ?, 'Pending')`;
   
-  db.query(sql, [EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason], (err) => {
+  db.query(sql, [EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason, requestType], (err) => {
     if (err) {
       console.error(err);
       return res.status(500).send("Request failed");
@@ -758,7 +760,7 @@ app.post("/approveRequest", (req, res) => {
     return res.status(400).json({ message: "RequestID is required" });
   }
 
-  const getRequest = `SELECT EmployeeID, MonthNum, WeekNum, DayOfWeek FROM TimeOffRequests WHERE RequestID = ?`;
+  const getRequest = `SELECT EmployeeID, MonthNum, WeekNum, DayOfWeek, Type FROM TimeOffRequests WHERE RequestID = ?`;
   
   db.query(getRequest, [RequestID], (err, results) => {
     if (err) {
@@ -791,8 +793,11 @@ app.post("/approveRequest", (req, res) => {
       return res.status(400).json({ message: "Invalid day of week on request" });
     }
 
-    const updateSchedule = `UPDATE Schedule SET ${dayColumn} = 0 WHERE EmployeeID = ? AND MonthNum = ? AND WeekNum = ?`;
-    db.query(updateSchedule, [request.EmployeeID, request.MonthNum, request.WeekNum], (err) => {
+    const type = (request.Type || "").toString().trim().toLowerCase();
+    const scheduleValue = type === "work" ? 1 : 0;
+
+    const updateSchedule = `UPDATE Schedule SET ${dayColumn} = ? WHERE EmployeeID = ? AND MonthNum = ? AND WeekNum = ?`;
+    db.query(updateSchedule, [scheduleValue, request.EmployeeID, request.MonthNum, request.WeekNum], (err) => {
       if (err) {
         console.error(err);
         return res.status(500).send("Schedule update error");
@@ -905,6 +910,18 @@ app.post("/promoteManager", (req, res) => {
   db.query(sql, [EmployeeID], (err) => {
     if (err) { console.error(err); return res.status(500).send("Database error"); }
     res.json({ message: "Employee promoted to manager" });
+  });
+});
+
+app.post("/rehireEmployee", (req, res) => {
+  const { EmployeeID } = req.body;
+  const sql = `UPDATE EmployeePerformance SET ActivelyEmployed = TRUE WHERE EmployeeID = ?`;
+  db.query(sql, [EmployeeID], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error");
+    }
+    res.json({ message: "Employee rehired" });
   });
 });
 
