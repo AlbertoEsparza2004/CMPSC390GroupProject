@@ -3,58 +3,35 @@
 <head>
   <title>Saved Configurations</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/global-ui.css">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      background: #f4f4f4;
-    }
-
-    header {
-      background: purple;
-      color: black;
-      text-align: center;
-      padding: 20px;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .container {
-      background: white;
-      border: 2px solid black;
-      margin: 30px;
-      padding: 20px;
-    }
-
-    .car {
-      border-bottom: 1px solid black;
-      padding: 10px 0;
-    }
-
-    button {
-      padding: 12px 20px;
-      border: 2px solid black;
-      background: #999;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-
-    footer {
-      background: purple;
-      color: black;
-      text-align: center;
-      padding: 20px;
-      font-weight: bold;
-      margin-top: 40px;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #07090f; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+    .page-bg { position: fixed; inset: 0; background: radial-gradient(ellipse at 18% 35%, rgba(79,144,240,0.08) 0%, transparent 50%), radial-gradient(ellipse at 82% 70%, rgba(212,168,67,0.04) 0%, transparent 45%), linear-gradient(160deg, #0c1428 0%, #07090f 100%); z-index: 0; }
+    header { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: 'Orbitron', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; }
+    header span { color: #4f90f0; }
+    .container { position: relative; z-index: 1; width: min(720px, calc(100% - 32px)) !important; margin: 40px auto !important; padding: 48px; background: rgba(12,20,40,0.45); border: none !important; border-radius: 24px; box-shadow: 0 0 60px rgba(79,144,240,0.2), 0 20px 40px rgba(0,0,0,0.5); }
+    .container h2 { font-family: 'Orbitron', monospace; font-size: 1.6rem; font-weight: 900; margin-bottom: 28px; }
+    #carsList { max-height: 70vh; overflow-y: auto; }
+    .car { background: rgba(79,144,240,0.08); border: none; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .car strong { color: #fff; }
+    .car { color: rgba(175,200,245,0.8); }
+    .car-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    button { padding: 10px 20px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(79,144,240,0.3); }
+    button:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(79,144,240,0.5); }
+    .page-action { margin-top: 10px; }
+    footer { position: relative; z-index: 1; text-align: center; padding: 32px 24px; border-top: 1px solid rgba(79,144,240,0.1); color: rgba(175,200,245,0.6); font-size: 0.85rem; margin-top: auto; }
   </style>
 
 </head>
 
 <body>
-
-<header>Legacy Auto Company</header>
+<div class="page-bg"></div>
+<header>LEGACY<span>AUTO</span></header>
 
 <div class="container">
 
@@ -64,25 +41,42 @@
     Loading configurations...
   </div>
 
-  <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">
+  <button class="page-action" onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">
     Back to Dashboard
   </button>
 
 </div>
 
 <footer>
-This is Legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and home to build your vision
+Parts Trading & Vehicle Customization Platform
 </footer>
 
 <script>
 
 const userId = localStorage.getItem("userId");
+const API_BASE = `${window.location.protocol}//${window.location.hostname}:3000`;
+
+async function updateBuildStatus(carId, buildStatus) {
+  const response = await fetch(`${API_BASE}/cars/${carId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId,
+      buildStatus
+    })
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(errText || "Status update failed");
+  }
+}
 
 async function loadCars() {
 
   try {
 
-    const res = await fetch("/cars/" + userId);
+    const res = await fetch(`${API_BASE}/cars/` + userId);
     const cars = await res.json();
 
     const container = document.getElementById("carsList");
@@ -98,11 +92,58 @@ async function loadCars() {
       const div = document.createElement("div");
       div.className = "car";
 
+      const partsText = Array.isArray(c.Parts) && c.Parts.length
+        ? c.Parts.map(p => `${p.Name} (ID: ${p.PartID})`).join(", ")
+        : (c.PartID ? `Part ${c.PartID}` : "None");
+
       div.innerHTML =
         "<strong>Vehicle:</strong> " + c.BaseCar +
         "<br><strong>Total Price:</strong> $" + c.TotalPrice +
-        "<br><strong>Part ID:</strong> " + c.PartID;
+        "<br><strong>Parts:</strong> " + partsText;
 
+      const actions = document.createElement("div");
+      actions.className = "car-actions";
+
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "Remove Build";
+      removeBtn.addEventListener("click", async () => {
+        const confirmed = window.confirm("Remove this saved configuration?");
+        if (!confirmed) {
+          return;
+        }
+
+        try {
+          const deleteRes = await fetch(`${API_BASE}/cars/${c.CarID}?userId=${encodeURIComponent(userId)}`, {
+            method: "DELETE"
+          });
+
+          if (!deleteRes.ok) {
+            const errText = await deleteRes.text();
+            throw new Error(errText || "Delete failed");
+          }
+
+          await loadCars();
+        } catch (deleteErr) {
+          console.error(deleteErr);
+          alert("Could not remove configuration right now.");
+        }
+      });
+
+      const buyBtn = document.createElement("button");
+      buyBtn.textContent = "Mark as Bought";
+      buyBtn.addEventListener("click", async () => {
+        try {
+          await updateBuildStatus(c.CarID, "BOUGHT");
+          await loadCars();
+        } catch (buyErr) {
+          console.error(buyErr);
+          alert("Could not move configuration to bought builds right now.");
+        }
+      });
+
+      actions.appendChild(removeBtn);
+      actions.appendChild(buyBtn);
+      div.appendChild(actions);
       container.appendChild(div);
 
     });

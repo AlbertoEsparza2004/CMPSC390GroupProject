@@ -1,38 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>Manager Dashboard Page</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="styles.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Manager Dashboard - LegacyAuto</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/global-ui.css">
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Inter', sans-serif; background: #07090f; color: #fff; min-height: 100vh; }
+            nav { position: relative; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 66px; background: rgba(7,9,15,0.75); backdrop-filter: blur(16px); border-bottom: none; }
+            .nav-brand { font-family: 'Orbitron', monospace; font-size: 1.2rem; font-weight: 900; letter-spacing: 4px; color: #fff; text-decoration: none; text-transform: uppercase; }
+            .nav-brand span { color: #4f90f0; }
+            .nav-right { display: flex; align-items: center; gap: 16px; }
+            .nav-btn { padding: 8px 20px; background: rgba(79,144,240,0.1); border: 1px solid rgba(79,144,240,0.3); border-radius: 50px; color: rgba(175,200,245,0.8); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s ease; }
+            .nav-btn:hover { background: rgba(79,144,240,0.2); color: #fff; }
+            
+            .container { display: flex; position: relative; z-index: 1; min-height: calc(100vh - 66px); background: transparent !important; border: none !important; box-shadow: none !important; margin: 0 !important; width: 100% !important; padding: 0 !important; }
+            .left { flex: 0 0 220px; background: rgba(10,18,38,0.82); border-right: none; padding: 32px 20px; overflow-y: auto; box-shadow: inset -1px 0 0 rgba(111,174,255,0.22), 0 0 24px rgba(79,144,240,0.15); }
+            .left h2 { font-family: 'Orbitron', monospace; font-size: 1.2rem; margin-bottom: 32px; color: #d4a843; }
+            .left button { width: 100%; padding: 14px 16px; background: rgba(212,168,67,0.1); border: none; border-radius: 10px; color: rgba(212,168,67,0.95); cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.25s ease; margin-bottom: 12px; box-shadow: 0 0 15px rgba(212,168,67,0.05); }
+            .left button:hover { background: rgba(212,168,67,0.22); color: #ffd700; box-shadow: 0 0 25px rgba(212,168,67,0.15); transform: translateX(4px); }
+            
+            .right { flex: 1; padding: 40px; overflow-y: auto; background: rgba(10,18,38,0.74); box-shadow: inset 0 0 0 1px rgba(111,174,255,0.2), 0 0 34px rgba(79,144,240,0.14); }
+            .right h2 { font-family: 'Orbitron', monospace; font-size: 1.6rem; margin-bottom: 24px; }
+            .right h3 { font-size: 1.1rem; margin: 24px 0 16px 0; }
+
+            .attendance-wrap { max-width: 860px; margin: 0 auto; }
+            .attendance-wrap h2 { text-align: center; }
+            .calendar-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; max-width: 760px; margin: 0 auto 14px auto; }
+            .calendar-header h2 { margin: 0; font-size: 1.3rem; }
+            .calendar-header button { width: auto; min-width: 132px; padding: 10px 14px; }
+            .calendar-days,
+            .calendar-grid { width: 100%; max-width: 760px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin: 0 auto; }
+            .calendar-days div { text-align: center; font-weight: 700; color: rgba(190,210,255,0.9); }
+            .calendar-grid .day { min-height: 78px; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: rgba(79,144,240,0.1); box-shadow: inset 0 0 0 1px rgba(111,174,255,0.22); }
+            .calendar-grid .day.inactive { opacity: 0.45; }
+            .calendar-grid .day.worked { background: rgba(46, 204, 113, 0.14); box-shadow: inset 0 0 0 1px rgba(46, 204, 113, 0.25); }
+            .calendar-grid .day.off { background: rgba(231, 76, 60, 0.14); box-shadow: inset 0 0 0 1px rgba(231, 76, 60, 0.25); }
+            .calendar-grid .day-number { font-weight: 700; }
+            
+            form { background: rgba(255,255,255,0.04); border: none; border-radius: 14px; padding: 28px; margin-top: 16px; box-shadow: 0 0 20px rgba(212,168,67,0.08); }
+            label { display: block; color: rgba(175,200,245,0.9); font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
+            input[type="text"], input[type="password"], select, textarea { width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.06); border: none; border-radius: 8px; color: #fff; font-family: 'Inter', sans-serif; margin-bottom: 16px; transition: all 0.2s ease; }
+            input[type="text"]:focus, input[type="password"]:focus, select:focus, textarea:focus { outline: none; background: rgba(212,168,67,0.12); box-shadow: 0 0 0 2px rgba(212,168,67,0.4), inset 0 0 10px rgba(212,168,67,0.08); }
+            form button { padding: 12px 28px; background: linear-gradient(135deg, #d4a843 0%, #e8c857 100%); border: none; border-radius: 10px; color: #000; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(212,168,67,0.4); }
+            form button:hover { transform: translateY(-3px); box-shadow: 0 0 25px rgba(212,168,67,0.6), 0 8px 16px rgba(212,168,67,0.3); }
+            
+            table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+            table th, table td { padding: 12px; text-align: left; border: 1px solid rgba(79,144,240,0.2); }
+            table th { background: rgba(79,144,240,0.1); font-weight: 700; }
+            
+            #InteractiveDisplay { position: relative; }
+            .form-card { max-width: 760px; margin: 0 auto; background: rgba(10,18,38,0.8); border: none; border-radius: 16px; padding: 24px; box-shadow: 0 0 24px rgba(79,144,240,0.16); }
+            .form-card h2 { text-align: center; margin-bottom: 18px; }
+            .form-card .field-group { margin-bottom: 14px; }
+            .form-card label { display: block; margin-bottom: 8px; color: rgba(190,210,255,0.85); }
+            .form-card input { width: 100%; }
+            @media (max-width: 768px) { .container { flex-direction: column; } .left { flex: 0 0 auto; } }
+        </style>
     </head>
     
     <body>
-        <header><h1>Legacy Auto Company</h1></header>
+        <nav>
+            <a class="nav-brand" href="/">LEGACY<span>AUTO</span></a>
+            <div class="nav-right">
+                <button class="nav-btn" onclick="logout()">Sign Out</button>
+            </div>
+        </nav>
         
-        <div class = "container" style="justify-content: center;">
-            
-                <div class = "left section">
-                    <h2 id="welcome">Hello Manager</h2>
-
-                    <button onclick ="loadSchedule()">Schedule</button>
-                    <br><br>
-                    <button onclick = "loadAttendance()">Attendance</button>
-                    <br><br>
-                    <button onclick = "loadTaxInfo()">Tax Info.</button>
-                    <br><br>
-                    <button onclick = "loadContactInfo()">Contact Info.</button>
-                    <br><br>
-                    <button onclick = "loadEmployeeOptions()">Employee Options</button>
-                    <br><br>
-                    <button onclick="loadChangePassword()">Change Password</button>
-                </div>
+        <div class="container">
+            <div class="left section">
+                <h2 id="welcome">Manager</h2>
+                <button onclick="loadAttendance()">📅 Attendance</button>
+                <button onclick="loadTaxInfo()">💰 Tax Info</button>
+                <button onclick="loadContactInfo()">📞 Contact Info</button>
+                <button onclick="loadEmployeeOptions()">👥 Employees</button>
+                <button onclick="loadChangePassword()">🔐 Change Password</button>
+            </div>
                 
-                <div class = "right section" id="InteractiveDisplay"></div>
-                 
-            
+            <div class="right section" id="InteractiveDisplay">
+                <h2>Manager Dashboard</h2>
+                <p style="color: rgba(175,200,245,0.7);">Select an option to manage team, schedules, and payroll.</p>
+            </div>
         </div>
-
-        <footer><h2>This is legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and hope to make your vision a reality</h2></footer>
             <script>
                 window.onload = function(){
                     const params = new URLSearchParams(window.location.search);
@@ -41,64 +94,78 @@
                     console.log(name);
                     console.log(employeeID);
                     if (name){
-                        document.getElementById("welcome").textContent = "Hello " + name;
+                        document.getElementById("welcome").textContent = name.split(" ")[0];
                     }
                 };
 
-                /*Schedule button*/
-                async function loadSchedule(){  /*Creates a calender personalized to the logged in user*/
-                    const params = new URLSearchParams(window.location.search);
-                    const employeeID = params.get("EmployeeID");
-                    const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
-                    const data = await res.json();
-                    const employeeName = data[0].FirstName + " " + data[0].LastName;
+                let currentDate = new Date();
 
-                    console.log(data);
-                    let html = `<h2>${employeeName} Schedule</h2> <table border = "1"> <tr> <th>Month</th> <th>Week</th>   <th>Mon</th>    <th>Tue</th>    <th>Wed</th>    <th>Thu</th>    <th>Fri</th>    <th>Sat</th>    <th>Sun</th>    </tr>`;
-                    data.forEach(employee => {
-                        html += `
-                        <tr>
-                            <td>${employee.MonthNum}</td>
-                            <td>${employee.WeekNum}</td>
-                            <td>${employee.Mon ? "✅" : "❌"}</td>
-                            <td>${employee.Tue ? "✅" : "❌"}</td>
-                            <td>${employee.Wed ? "✅" : "❌"}</td>
-                            <td>${employee.Thu ? "✅" : "❌"}</td>
-                            <td>${employee.Fri ? "✅" : "❌"}</td>
-                            <td>${employee.Sat ? "✅" : "❌"}
-                            <td>${employee.Sun ? "✅" : "❌"}</td>
-                        </tr>`;
-                    });
-                    html += "</table>";
-                    document.getElementById("InteractiveDisplay").innerHTML = html;
+                function changeMonth(offset){
+                    currentDate.setMonth(currentDate.getMonth() + offset);
+ 
+                    if(document.getElementById("calendar")){
+                        calendar();
+                    }
+                    const label = document.getElementById("monthLabel");
+                    if(label){
+                        label.innerText = currentDate.toLocaleString("default", { month: "long" });
+                        document.getElementById("PaystubTable").innerHTML = "";
+                    }
                 }
-
-
-                /*Attendance Buttons*/
-                async function loadAttendance(){    /*Essentially all the html to make it appear additionally form submission*/
+                
+                async function loadAttendance(){
                     const params = new URLSearchParams(window.location.search);
                     const employeeID = params.get("EmployeeID");
                     const res = await fetch(`/getPoints?EmployeeID=${employeeID}`);
                     const data = await res.json();
+                    const defaultMonth = currentDate.getMonth() + 1;
+                    const defaultWeek = Math.min(6, Math.max(1, Math.ceil(currentDate.getDate() / 7)));
 
                     document.getElementById("InteractiveDisplay").innerHTML = `
+                        <div class="attendance-wrap">
                         <h2>Attendance</h2>
-                        <div id="calendar"></div>   <!--Calender div is where it will show-->
+                        <div id="calendar"></div>
                         <br>
                         <p>Attendace Points: ${data.Points}</p>
                         <br>
-                        <h3>Request Day Off</h3>
+                        <h3>Schedule Request Change</h3>
                         <form id="dayOffForm">
                             <input type="hidden" name="EmployeeID" value="${employeeID}">
-
+                            
+                            <label>Request Type</label>
+                            <select id="requestType" name ="Type" required><br>
+                                <option value="off">Request Off</option>
+                                <option value="work">Request to Work</option>
+                            </select><br><br>
+                            
                             <label>Month</label><br>
-                            <input type="number" name="MonthNum" required><br><br>
+                            <select name="MonthNum" required>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select><br><br>
 
                             <label>Week</label><br>
-                            <input type="number" name="WeekNum" required><br><br>
+                            <select id="weekSelect" name="WeekNum" required>
+                                <option value="1">Week 1</option>
+                                <option value="2">Week 2</option>
+                                <option value="3">Week 3</option>
+                                <option value="4">Week 4</option>
+                                <option value="5">Week 5</option>
+                                <option value="6">Week 6</option>
+                            </select><br><br>
                             
                             <label>Day</label><br>
-                            <select name="DayOfWeek">
+                            <select name="DayOfWeek" required>
                                 <option value="Mon">Monday</option>
                                 <option value="Tue">Tuesday</option>
                                 <option value="Wed">Wednesday</option>
@@ -109,82 +176,180 @@
                             </select><br><br>
 
                             <label>Reason</label><br>
-                            <textarea name="Reason"></textarea><br><br>
+                            <textarea name="Reason" required></textarea><br><br>
                             
                             <button type="submit">Submit Request</button>
                         </form>
                         <p id="requestResult"></p>
+                        </div>
                     `;
 
-                    /*Submits the form at the bottom calls calendar() */
                     document.getElementById("dayOffForm").addEventListener("submit", async function(e){
                         e.preventDefault();
                         const formData = new FormData(this);
+                        const requestResult = document.getElementById("requestResult");
+                        const reason = String(formData.get("Reason") || "").trim();
+
+                        if (!reason) {
+                            requestResult.textContent = "Error: enter reason.";
+                            requestResult.style.color = "#ff9a9a";
+                            return;
+                        }
+
                         const res = await fetch("/request-dayoff", {
                             method: "POST",
                             body: new URLSearchParams(formData)
                         });
                         const text = await res.text();
-                        document.getElementById("requestResult").textContent = text;
-                        });
-                        calendar();
+                        let message = text;
+
+                        try {
+                            const parsed = JSON.parse(text);
+                            if (parsed && parsed.message) {
+                                message = parsed.message;
+                            }
+                        } catch (_) {
+                            // Keep plain text messages as-is.
                         }
 
-                async function calendar(){ /*Same as loadschedule but deployed within loadAttendance different inner html so no reload called from loadAttendance*/
+                        if (!res.ok) {
+                            if (String(message).toLowerCase().includes("reason")) {
+                                message = "Error: enter reason.";
+                            } else {
+                                message = "Error submitting request.";
+                            }
+                            requestResult.style.color = "#ff9a9a";
+                        } else {
+                            message = "Request submitted.";
+                            requestResult.style.color = "#8bd8a8";
+                        }
+
+                        requestResult.textContent = message;
+                    });
+
+                    document.querySelector('#dayOffForm select[name="MonthNum"]').value = String(defaultMonth);
+                    document.getElementById("weekSelect").value = String(defaultWeek);
+                    calendar();
+                }
+
+                async function calendar() {
+                    const params = new URLSearchParams(window.location.search);
+                    const employeeID = params.get("EmployeeID");
+                    const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
+                    const data = await res.json();
+                    const calendarDiv = document.getElementById("calendar");
+                    const year = currentDate.getFullYear();
+                    const month = currentDate.getMonth();
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const lastDate = new Date(year, month + 1, 0).getDate();
+
+                    let html = `
+                        <div class="calendar-header">
+                            <button onclick="changeMonth(-1)">Previous Month</button>
+                            <h2>${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}</h2>
+                            <button onclick="changeMonth(1)">Next Month</button>
+                        </div>
+                    
+                        <div class="calendar-days">
+                            <div>Sun</div>
+                            <div>Mon</div>
+                            <div>Tue</div>
+                            <div>Wed</div>
+                            <div>Thu</div>
+                            <div>Fri</div>
+                            <div>Sat</div>
+                        </div>
+                        
+                        <div class="calendar-grid">`;
+
+                    for (let i = 0; i < 42; i++) {
+                        let dayNumber = i - firstDay + 1;
+                        let displayNumber = dayNumber;
+                        let isCurrentMonth = true;
+                        if (dayNumber <= 0) {
+                            const prevMonthLastDate = new Date(year, month, 0).getDate();
+                            displayNumber = prevMonthLastDate + dayNumber;
+                            isCurrentMonth = false;
+                        }
+                        else if (dayNumber > lastDate) {
+                            displayNumber = dayNumber - lastDate;
+                            isCurrentMonth = false;
+                        }
+                        let worked = false;
+                        let display = "";
+
+                        if (isCurrentMonth) {
+                            const jsDay = new Date(year, month, dayNumber).getDay();
+                            const map = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+                            const dayName = map[jsDay];
+                            const week = Math.ceil((dayNumber + firstDay) / 7);
+
+                            data.forEach(emp => {
+                                if (
+                                    Number(emp.MonthNum) === (month + 1) &&
+                                    Number(emp.WeekNum) === week &&
+                                    emp[dayName]
+                                ) {worked = true;}
+                            });
+
+                            display = `<div>${displayNumber}</div>
+                                <div>${worked ? "✅" : "❌"}</div>`;
+                        } else {
+                            display = `<div>${displayNumber}</div>`;
+                        }
+                        html += `<div class="day ${!isCurrentMonth ? "inactive" : worked ? "worked" : "off"}">${display}</div>`;
+                    }
+                    html += `</div>`;
+                    calendarDiv.innerHTML = html;
+                }
+
+                async function loadTaxInfo(){
                     const params = new URLSearchParams(window.location.search);
                     const employeeID = params.get("EmployeeID");
                     const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
                     const data = await res.json();
 
-                    console.log(data);
-                    let html = `<table border="1"> <tr> <th>Month</th> <th>Week</th>   <th>Mon</th>    <th>Tue</th>    <th>Wed</th>    <th>Thu</th>    <th>Fri</th>    <th>Sat</th>    <th>Sun</th>    </tr>`;
-                    data.forEach(employee => {
-                        html += `
-                        <tr>
-                            <td>${employee.MonthNum}</td>
-                            <td>${employee.WeekNum}</td>
-                            <td>${employee.Mon ? "✅" : "❌"}</td>
-                            <td>${employee.Tue ? "✅" : "❌"}</td>
-                            <td>${employee.Wed ? "✅" : "❌"}</td>
-                            <td>${employee.Thu ? "✅" : "❌"}</td>
-                            <td>${employee.Fri ? "✅" : "❌"}</td>
-                            <td>${employee.Sat ? "✅" : "❌"}</td>
-                            <td>${employee.Sun ? "✅" : "❌"}</td>
-                        </tr>
-                        `;
-                    });
-                    html += "</table>";
-                    document.getElementById("calendar").innerHTML = html;
-                }
+                    const weeks = [...new Set(
+                        data
+                        .filter(row => Number(row.MonthNum) === (currentDate.getMonth() + 1))
+                        .map(row => Number(row.WeekNum))
+                    )]
+                    .filter(w => w <= 5)
+                    .sort((a, b) => a - b);
 
-                /*Tax Info Buttons*/
-                function loadTaxInfo(){ /*Function to load the buttons to select desired pay stub week*/
+                    let weekButtons = "";
+                    weeks.forEach(w => {
+                        weekButtons += `<button onclick="loadPaystub(${w})" style="width:120px;height:30px">Week ${w}</button>`;
+                    });
+
                     document.getElementById("InteractiveDisplay").innerHTML = `
                         <h2>Tax Information</h2>
                         <div>
-                            <button onclick = "loadPaystub(1)" style="width:120px; height:30px">Week 1</button>
-                            <button onclick = "loadPaystub(2)" style="width:120px; height:30px">Week 2</button>
-                            <button onclick = "loadPaystub(3)" style="width:120px; height:30px">Week 3</button>
-                            <button onclick = "loadPaystub(4)" style="width:120px; height:30px">Week 4</button>
-                            <button onclick = "loadPaystub(5)" style="width:120px; height:30px">Week 5</button>
+                            <button onclick="changeMonth(-1)">Last Month</button>
+                            <span id="monthLabel">
+                                ${currentDate.toLocaleString("default", { month: "long" })}
+                            </span>
+                            <button onclick="changeMonth(1)">Next Month</button>
                         </div>
                         <br><br>
-                        <div id = "PaystubTable"></div> 
+                        <div>${weekButtons || "No schedule for this month"}</div>
+                        <br><br>
+                        <div id="PaystubTable"></div>
                     `;
                 }
-                
+
                 async function loadPaystub(week){
                     const params = new URLSearchParams(window.location.search);
                     const employeeID = params.get("EmployeeID");
                     const res = await fetch(`/getSchedule?EmployeeID=${employeeID}`);
                     const data = await res.json();
-                    const schedule = data.find(row => row.WeekNum == week);
+                    const schedule = data.find(row => row.WeekNum == week && row.MonthNum == (currentDate.getMonth() + 1));
                     
                     if(!schedule){
                         document.getElementById("PaystubTable").innerHTML = "No schedule found.";
                         return;
                     }
-                    let daysWorked = 0;                 /*Checks how many days the employee worked*/
+                    let daysWorked = 0;
                     if(schedule.Mon) daysWorked++;
                     if(schedule.Tue) daysWorked++;
                     if(schedule.Wed) daysWorked++;
@@ -193,7 +358,7 @@
                     if(schedule.Sat) daysWorked++;
                     if(schedule.Sun) daysWorked++;
                     
-                    const payRes = await fetch(`/getEmployeePay?EmployeeID=${employeeID}`); /*all for the pay data*/
+                    const payRes = await fetch(`/getEmployeePay?EmployeeID=${employeeID}`);
                     const payData = await payRes.json();
                     const hourlyPay = payData.HourlyPay;
                     const hoursWorked = daysWorked * 8;
@@ -205,7 +370,6 @@
                     const totalTaxes = federal + state + social + medicare;
                     const netPay = grossPay - totalTaxes;
                     document.getElementById("PaystubTable").innerHTML = `
-                    
                     <table border="1">
                         <tr><th>Days Worked</th> <th>Hours Worked</th> <th>Hourly Pay</th> <th>Gross Pay</th> </tr>
                         <tr>
@@ -229,7 +393,6 @@
                     `;
                 }
                 
-                /*Contact Info Button*/
                 async function loadContactInfo(){
                     const params = new URLSearchParams(window.location.search);
                     const employeeID = params.get("EmployeeID");
@@ -245,9 +408,9 @@
                     <tr><th>Personal Email:</th><td>${data.PersonalEmail}</td></tr>
                     <tr><th>Work Email:</th><td>${data.WorkEmail}</td></tr>
                     </table>
-                    `;} 
+                    `;
+                }
 
-                /*Employee Options*/
                 function loadEmployeeOptions(){
                     document.getElementById("InteractiveDisplay").innerHTML = `<h2>Employee Options</h2>
                     <button onclick="loadRequests()">Approve / Deny Day Off Requests</button>
@@ -260,245 +423,256 @@
                     `;
                 }
                 
-                        /*Aprove/deny Essentials*/
-                        async function loadRequests(){
-                            const res = await fetch("/getTimeOffRequests");
-                            const data = await res.json();
-                            let html = `<h2>Time Off Requests</h2>
-                            <table border="1">
-                            <tr> <th>Employee</th> <th>Month</th> <th>Week</th> <th>Day</th> <th>Reason</th> <th>Action</th> </tr>`;
-                                data.forEach(request => {
-                                    html += `
-                                    <tr>
-                                        <td>${request.FirstName} ${request.LastName}</td>
-                                        <td>${request.MonthNum}</td>
-                                        <td>${request.WeekNum}</td>
-                                        <td>${request.DayOfWeek}</td>
-                                        <td>${request.Reason}</td>
-                                        <td>
-                                        <button onclick="approveRequest(${request.RequestID})">Approve</button>
-                                        <button onclick="denyRequest(${request.RequestID})">Deny</button>
-                                        </td>
-                                    </tr>`;
-                            });
-                            html += "</table>";
-                            document.getElementById("InteractiveDisplay").innerHTML = html;
-                        }
+                async function loadRequests(){
+                    const res = await fetch("/getTimeOffRequests");
+                    const data = await res.json();
+                    let html = `<h2>Time Off Requests</h2>
+                    <table border="1">
+                    <tr> <th>Employee</th> <th>Month</th> <th>Week</th> <th>Day</th> <th>Type</th> <th>Reason</th> <th>Action</th> </tr>`;
+                    data.forEach(request => {
+                        html += `
+                        <tr>
+                            <td>${request.FirstName} ${request.LastName}</td>
+                            <td>${request.MonthNum}</td>
+                            <td>${request.WeekNum}</td>
+                            <td>${request.DayOfWeek}</td>
+                            <td>${request.Type}</td>
+                            <td>${request.Reason}</td>
+                            <td>
+                            <button onclick="approveRequest(${request.RequestID})">Approve</button>
+                            <button onclick="denyRequest(${request.RequestID})">Deny</button>
+                            </td>
+                        </tr>`;
+                    });
+                    html += "</table>";
+                    document.getElementById("InteractiveDisplay").innerHTML = html;
+                }
 
-                        async function approveRequest(id){
-                            await fetch("/approveRequest",{
-                            method:"POST",
-                            headers:{"Content-Type":"application/json"},
-                            body:JSON.stringify({RequestID:id})
-                            });
-                            loadRequests();
-                            }
+                async function approveRequest(id){
+                    const res = await fetch("/approveRequest",{
+                        method:"POST",
+                        headers:{"Content-Type":"application/json"},
+                        body:JSON.stringify({RequestID:id})
+                    });
+                    const message = await res.text();
+                    if (!res.ok) {
+                        alert(message);
+                    }
+                    loadRequests();
+                }
 
-                        async function denyRequest(id){
-                            await fetch("/denyRequest",{
-                            method:"POST",
-                            headers:{"Content-Type":"application/json"},
-                            body:JSON.stringify({RequestID:id})
-                            });
-                            loadRequests();
-                            }
-                            
-                        /*To view employee stats*/
-                        async function loadEmployeeStats(){
-                                const res = await fetch("/getEmployees");
-                                const data = await res.json();
+                async function denyRequest(id){
+                    await fetch("/denyRequest",{
+                        method:"POST",
+                        headers:{"Content-Type":"application/json"},
+                        body:JSON.stringify({RequestID:id})
+                    });
+                    loadRequests();
+                }
 
-                                let html = `<h2>Employee Stats</h2> <select id="employeeSelect">`;
-                                data.forEach(emp=>{
-                                    html += `
-                                    <option value="${emp.EmployeeID}">
-                                    ${emp.FirstName} ${emp.LastName}
-                                    </option>`;
-                                });
-                                html += `</select>
-                                <br><br>
-                                <button onclick="viewEmployeeStats()">View Stats</button>
-                                `;
-                                document.getElementById("InteractiveDisplay").innerHTML = html;
-                            }
+                async function loadEmployeeStats(){
+                    const res = await fetch("/getEmployees");
+                    const data = await res.json();
 
-                        async function viewEmployeeStats(){
-                                    const employeeID =
-                                    document.getElementById("employeeSelect").value;
-                                    const res = await fetch(`/getEmployeeStats?EmployeeID=${employeeID}`);
-                                    const data = await res.json();
-                                    const status = Number(data.ActivelyEmployed) === 1 ? "Employed" : "Terminated";
-                                    
-                                    console.log(data); 
-                                    document.getElementById("InteractiveDisplay").innerHTML = `
-                                    <h2>${data.FirstName} ${data.LastName}</h2>
-                                    <p>Employee ID: ${data.EmployeeID}</p>
-                                    <p>Points: ${data.Points}</p>
-                                    <p>Comments: ${data.Comments}</p>
-                                    <p>Hourly Pay: $${data.HourlyPay}</p>
-                                    <p>Employment Status: ${status}</p>
-                                    `;
-                                }
-                            
-                        /*Disciplinary Actions*/
-                        async function loadDisciplinary(){
-                            const res = await fetch("/getEmployees");
-                            const data = await res.json();
+                    let html = `<h2>Employee Stats</h2> <select id="employeeSelect">`;
+                    data.forEach(emp=>{
+                        html += `
+                        <option value="${emp.EmployeeID}">
+                        ${emp.FirstName} ${emp.LastName}
+                        </option>`;
+                    });
+                    html += `</select>
+                    <br><br>
+                    <button onclick="viewEmployeeStats()">View Stats</button>
+                    `;
+                    document.getElementById("InteractiveDisplay").innerHTML = html;
+                }
 
-                            let html = `<h2>Disciplinary Actions</h2> <select id="disciplineEmployee">`;
-                            data.forEach(emp=>{
-                                html += `
-                                <option value="${emp.EmployeeID}">
-                                ${emp.FirstName} ${emp.LastName}
-                                </option>`;
-                            });
+                async function viewEmployeeStats(){
+                    const employeeID = document.getElementById("employeeSelect").value;
+                    const res = await fetch(`/getEmployeeStats?EmployeeID=${employeeID}`);
+                    const data = await res.json();
+                    const status = Number(data.ActivelyEmployed) === 1 ? "Employed" : "Terminated";
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                    <h2>${data.FirstName} ${data.LastName}</h2>
+                    <p>Employee ID: ${data.EmployeeID}</p>
+                    <p>Points: ${data.Points}</p>
+                    <p>Comments: ${data.Comments}</p>
+                    <p>Hourly Pay: $${data.HourlyPay}</p>
+                    <p>Employment Status: ${status}</p>
+                    `;
+                }
 
-                            html += `</select>
-                            <br><br>
-                            <button onclick="viewDiscipline()">View Employee</button>`;
-                            document.getElementById("InteractiveDisplay").innerHTML = html;
-                        }
-                        
-                        async function viewDiscipline(employeeID){
-                            if(!employeeID){
-                            employeeID =
-                            document.getElementById("disciplineEmployee").value;    
-                            }
+                async function loadDisciplinary(){
+                    const res = await fetch("/getEmployees");
+                    const data = await res.json();
 
-                            const res = await fetch(`/getEmployeeStats?EmployeeID=${employeeID}`);
-                            const data = await res.json();
+                    let html = `<h2>Disciplinary Actions</h2> <select id="disciplineEmployee">`;
+                    data.forEach(emp=>{
+                        html += `
+                        <option value="${emp.EmployeeID}">
+                        ${emp.FirstName} ${emp.LastName}
+                        </option>`;
+                    });
 
-                            document.getElementById("InteractiveDisplay").innerHTML = `
-                            <h2>${data.FirstName} ${data.LastName}</h2>
-                            <p>Current Points: ${data.Points}</p>
-                            <label>Add Points</label>
+                    html += `</select>
+                    <br><br>
+                    <button onclick="viewDiscipline()">View Employee</button>`;
+                    document.getElementById("InteractiveDisplay").innerHTML = html;
+                }
+                
+                async function viewDiscipline(employeeID){
+                    if(!employeeID){
+                        employeeID = document.getElementById("disciplineEmployee").value;
+                    }
 
-                            <input type="number" id="pointsToAdd">
-                            <br><br>
-                            
-                            <button onclick="addPoints('${employeeID}')">Add Points</button>
-                            <br><br>
+                    const res = await fetch(`/getEmployeeStats?EmployeeID=${employeeID}`);
+                    const data = await res.json();
 
-                            <button onclick="terminateEmployee('${employeeID}')">Terminate Employee</button>`;
-                        }
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                    <h2>${data.FirstName} ${data.LastName}</h2>
+                    <p>Current Points: ${data.Points}</p>
+                    <label>Add Points</label>
 
-                        async function addPoints(employeeID){
-                            const points = document.getElementById("pointsToAdd").value;
+                    <input type="number" id="pointsToAdd">
+                    <br><br>
+                    
+                    <button onclick="addPoints('${employeeID}')">Add Points</button>
+                    <br><br>
 
-                            await fetch("/addPoints",{
-                                method:"POST",
-                                headers:{"Content-Type":"application/json"},
-                                body:JSON.stringify({
-                                    EmployeeID:employeeID,
-                                    points:points
-                                })
-                            });
+                    <button onclick="terminateEmployee('${employeeID}')">Terminate Employee</button>`;
+                }
 
-                            viewDiscipline(employeeID);
-                        }
+                async function addPoints(employeeID){
+                    const points = document.getElementById("pointsToAdd").value;
 
-                        async function terminateEmployee(employeeID){
-                            if(!confirm("Are you sure?"))
-                                return;
+                    await fetch("/addPoints",{
+                        method:"POST",
+                        headers:{"Content-Type":"application/json"},
+                        body:JSON.stringify({
+                            EmployeeID:employeeID,
+                            points:points
+                        })
+                    });
 
-                            await fetch("/terminateEmployee",{
-                                method:"POST",
-                                headers:{"Content-Type":"application/json"},
-                                body:JSON.stringify({
-                                    EmployeeID:employeeID
-                                })
-                            });
-                            loadEmployeeOptions();
-                        }
+                    viewDiscipline(employeeID);
+                }
 
-                        /*Employee Recognition*/
-                        async function loadRecognition(){
-                            const res = await fetch("/getEmployees");
-                            const data = await res.json();
+                async function terminateEmployee(employeeID){
+                    if(!confirm("Are you sure?")) return;
 
-                            let html = `<h2>Employee Recognition</h2>
-                            <select id="recognitionEmployee">`;
-                            data.forEach(emp=>{
-                                html += `
-                                <option value="${emp.EmployeeID}">
-                                ${emp.FirstName} ${emp.LastName}
-                                </option>
-                                `;
-                            });
-                            html += `</select>
-                            <br><br>
+                    await fetch("/terminateEmployee",{
+                        method:"POST",
+                        headers:{"Content-Type":"application/json"},
+                        body:JSON.stringify({
+                            EmployeeID:employeeID
+                        })
+                    });
+                    loadEmployeeOptions();
+                }
 
-                            <button onclick="viewRecognition()">View Employee</button>`;
-                            document.getElementById("InteractiveDisplay").innerHTML = html;
-                        }
+                async function loadRecognition(){
+                    const res = await fetch("/getEmployees");
+                    const data = await res.json();
 
-                        async function viewRecognition(employeeID){
-                            if(!employeeID){
-                                employeeID = document.getElementById("recognitionEmployee").value;
-                            }
+                    let html = `<h2>Employee Recognition</h2>
+                    <select id="recognitionEmployee">`;
+                    data.forEach(emp=>{
+                        html += `
+                        <option value="${emp.EmployeeID}">
+                        ${emp.FirstName} ${emp.LastName}
+                        </option>
+                        `;
+                    });
+                    html += `</select>
+                    <br><br>
 
-                            const res =await fetch(`/getEmployeeStats?EmployeeID=${employeeID}`);
-                            const data = await res.json();
+                    <button onclick="viewRecognition()">View Employee</button>`;
+                    document.getElementById("InteractiveDisplay").innerHTML = html;
+                }
 
-                            document.getElementById("InteractiveDisplay").innerHTML = `
-                            <h2>${data.FirstName} ${data.LastName}</h2>
-                            <p>Current Pay: $${data.HourlyPay}</p>
-                            <label>Raise Amount</label>
-                            <input type="number" id="raiseAmount">
-                            <br><br>
+                async function viewRecognition(employeeID){
+                    if(!employeeID){
+                        employeeID = document.getElementById("recognitionEmployee").value;
+                    }
 
-                            <button onclick="giveRaise('${employeeID}')">Give Raise</button>
-                            <br><br>
+                    const res = await fetch(`/getEmployeeStats?EmployeeID=${employeeID}`);
+                    const data = await res.json();
 
-                            <label>Recognition Comment</label>
-                            <textarea id="recognitionComment"></textarea>
-                            <br><br>
+                    document.getElementById("InteractiveDisplay").innerHTML = `
+                    <h2>${data.FirstName} ${data.LastName}</h2>
+                    <p>Current Pay: $${data.HourlyPay}</p>
+                    <label>Raise Amount</label>
+                    <input type="number" id="raiseAmount">
+                    <br><br>
 
-                            <button onclick="addRecognition('${employeeID}')">Save Comment</button>
-                            <br><br>
+                    <button onclick="giveRaise('${employeeID}')">Give Raise</button>
+                    <br><br>
 
-                            <button onclick="promoteManager('${employeeID}')">Promote to Manager</button>`;
-                        }
+                    <label>Recognition Comment</label>
+                    <textarea id="recognitionComment"></textarea>
+                    <br><br>
 
-                        async function giveRaise(employeeID){
-                            const raise =document.getElementById("raiseAmount").value;
+                    <button onclick="addRecognition('${employeeID}')">Save Comment</button>
+                    <br><br>
 
-                            if(!raise || raise <= 0){
-                                return;
-                            }
-                            await fetch("/giveRaise",{
-                                method:"POST",
-                                headers:{"Content-Type":"application/json"},
-                                body:JSON.stringify({
-                                    EmployeeID:employeeID,
-                                    raise:raise
-                                })
-                            });
-                            alert("Raise Submitted");
-                            viewRecognition(employeeID);
-                        }
+                    <button onclick="rehireEmployee('${employeeID}')">Rehire Employee</button>
+                    <br><br>
 
-                        async function addRecognition(employeeID){
-                            const comment = document.getElementById("recognitionComment").value;
+                    <button onclick="promoteManager('${employeeID}')">Promote to Manager</button>
+                    `;
+                }
 
-                            if(!comment){
-                                return;
-                            }
-                            await fetch("/recognitionComment",{
-                                method:"POST",
-                                headers:{"Content-Type":"application/json"},
-                                body:JSON.stringify({
-                                    EmployeeID:employeeID,
-                                    comment:comment
-                                })
-                            });
-                            alert("Comment Submitted.");
-                            viewRecognition(employeeID);
-                        }
+                async function giveRaise(employeeID){
+                    const raise = document.getElementById("raiseAmount").value;
 
-                        async function promoteManager(employeeID){
-                            if(!confirm("Promote this employee to manager?"))
+                    if(!raise || raise <= 0){
                         return;
+                    }
+                    await fetch("/giveRaise",{
+                        method:"POST",
+                        headers:{"Content-Type":"application/json"},
+                        body:JSON.stringify({
+                            EmployeeID:employeeID,
+                            raise:raise
+                        })
+                    });
+                    alert("Raise Submitted");
+                    viewRecognition(employeeID);
+                }
+
+                async function addRecognition(employeeID){
+                    const comment = document.getElementById("recognitionComment").value;
+
+                    if(!comment){
+                        return;
+                    }
+                    await fetch("/recognitionComment",{
+                        method:"POST",
+                        headers:{"Content-Type":"application/json"},
+                        body:JSON.stringify({
+                            EmployeeID:employeeID,
+                            comment:comment
+                        })
+                    });
+                    alert("Comment Submitted.");
+                    viewRecognition(employeeID);
+                }
+
+                async function rehireEmployee(employeeID){
+                    await fetch("/rehireEmployee",{
+                        method:"POST",
+                        headers:{"Content-Type":"application/json"},
+                        body:JSON.stringify({
+                            EmployeeID:employeeID
+                        })
+                    });
+                    alert("Employee rehired");
+                    viewRecognition(employeeID);
+                }
+
+                async function promoteManager(employeeID){
+                    if(!confirm("Promote this employee to manager?")) return;
 
                     await fetch("/promoteManager",{
                         method:"POST",
@@ -509,20 +683,21 @@
                     });
                 }
                 
-                /*Password change*/
                 function loadChangePassword(){
                     document.getElementById("InteractiveDisplay").innerHTML = `
-                        <h2>Change Password</h2>
-
-                        <label>Old Password</label><br>
-                        <input type="password" id="oldPassword">
-                        <br><br>
-                        <label>New Password</label><br>
-                        <input type="password" id="newPassword">
-                        <br><br>
-                        <button onclick="changePassword()">Update Password</button>
-
-                        <p id="passwordResult"></p>
+                        <div class="form-card">
+                            <h2>Change Password</h2>
+                            <div class="field-group">
+                                <label for="oldPassword">Old Password</label>
+                                <input type="password" id="oldPassword">
+                            </div>
+                            <div class="field-group">
+                                <label for="newPassword">New Password</label>
+                                <input type="password" id="newPassword">
+                            </div>
+                            <button onclick="changePassword()">Update Password</button>
+                            <p id="passwordResult" style="margin-top:12px;"></p>
+                        </div>
                     `;
                 }
                 
@@ -542,6 +717,13 @@
                     });
                     const text = await res.text();
                     document.getElementById("passwordResult").innerText = text;
+                }
+
+                function logout(){
+                    localStorage.removeItem("userSession");
+                    localStorage.removeItem("userId");
+                    localStorage.removeItem("username");
+                    window.location.href = "/index.html";
                 }
         </script>
     </body>

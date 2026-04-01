@@ -1,53 +1,30 @@
 <!DOCTYPE html>
 <html>
-<<<<<<< HEAD
 <head>
     <title>Our Partners Page</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/global-ui.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background-color: #f4f4f4;
-        }
-
-        header {
-            background-color: purple;
-            color: black;
-            text-align: center;
-            padding: 20px;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .content-box {
-            background-color: white;
-            border: 2px solid black;
-            margin: 30px;
-            padding: 20px;
-        }
-
-        button {
-            padding: 12px 20px;
-            border: 2px solid black;
-            background-color: #999;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-
-        footer {
-            background-color: purple;
-            color: black;
-            text-align: center;
-            padding: 20px;
-            font-weight: bold;
-            margin-top: 40px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #07090f; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+        .page-bg { position: fixed; inset: 0; background: radial-gradient(ellipse at 18% 35%, rgba(79,144,240,0.08) 0%, transparent 50%), radial-gradient(ellipse at 82% 70%, rgba(212,168,67,0.04) 0%, transparent 45%), linear-gradient(160deg, #0c1428 0%, #07090f 100%); z-index: 0; }
+        header { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: 'Orbitron', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; }
+        header span { color: #4f90f0; }
+        .content-box { position: relative; z-index: 1; max-width: 720px; margin: 40px auto; padding: 48px; background: rgba(12,20,40,0.45); border: none; border-radius: 24px; box-shadow: 0 0 60px rgba(79,144,240,0.2), 0 20px 40px rgba(0,0,0,0.5); }
+        .content-box h2 { font-family: 'Orbitron', monospace; font-size: 1.6rem; font-weight: 900; margin-bottom: 12px; }
+        .content-box p { color: rgba(175,200,245,0.7); font-size: 0.95rem; margin-bottom: 32px; }
+        button { padding: 12px 28px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; margin-top: 24px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(79,144,240,0.4); }
+        button:hover { transform: translateY(-3px); box-shadow: 0 0 35px rgba(79,144,240,0.6), 0 8px 16px rgba(79,144,240,0.3); }
+        footer { position: relative; z-index: 1; text-align: center; padding: 32px 24px; border-top: 1px solid rgba(79,144,240,0.1); color: rgba(175,200,245,0.6); font-size: 0.85rem; margin-top: auto; }
     </style>
 </head>
 
 <body>
-<header>Legacy Auto Company</header>
+<div class="page-bg"></div>
+<header>LEGACY<span>AUTO</span></header>
 
 <div class="content-box">
     <h2>Our Partners Page</h2>
@@ -59,31 +36,8 @@
 </div>
 
 <footer>
-This is Legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and home to build your vision
+Parts Trading & Vehicle Customization Platform
 </footer>
 
 </body>
-=======
-    <head>
-        <title>Our Partners Page</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    
-    <body>
-        <header><h1>Legacy Auto Company</h1></header>
-        
-        <div class = "container" style="justify-content: center;">           
-            <div>
-                <h2>Our Partners Page</h2>
-                <button onclick = "window.location.href='index.html'">Go back</button>
-            </div>
-        </div>
-
-        
-
-        <footer><h2>This is legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and home to build your vision</h2></footer>
-
-    </body>
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 </html>

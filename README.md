@@ -1,9 +1,8 @@
-Legacy Auto Customization
+# Legacy Auto Customization
 
-CMPSC 390 Software Engineering Group Project
+Primary setup and run instructions are in `backend/README.md`.
 
-Backend: Node.js + Express
-Database: MySQL
-
-See /backend for API code.
-See /sprint1 and /documentation for assignment deliverables.
+Additional project materials:
+- `documentation/`
+- `Sprint1-Charles/`, `Sprint1-Francisco/`, `Sprint1Alberto/`
+- `Sprint2-Charles/`, `Sprint2-Francisco/`, `Sprint2Alberto/`, `Sprint2Ari/`

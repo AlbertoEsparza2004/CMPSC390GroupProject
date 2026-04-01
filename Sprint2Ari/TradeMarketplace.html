@@ -3,7 +3,15 @@
 <head>
 <title>Trade Marketplace</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/global-ui.css">
 <link rel="stylesheet" href="styles.css">
+<style>
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    justify-content: center;
+  }
+</style>
 </head>
 
 <body>
@@ -34,14 +42,13 @@
 
 <button onclick="loadTrades()">Load Available Trades</button>
 
+<button onclick="clearTrades()">Remove All Trades</button>
+
 <div id="trades"></div>
 
 </div>
 
 <div class="right section">
-
-<button onclick="logout()">Logout</button>
-<br><br>
 
 <button onclick="window.location.href='index.html'">Go back</button>
 
@@ -62,33 +69,94 @@
 
 <script>
 /* This redirects to the login page, as you must be logged in in order to access the trading feature*/
-if(!localStorage.getItem("userId")){
-window.location.href = "CustomerSingInPage.html";
+function getCurrentUserId(){
+const params = new URLSearchParams(window.location.search);
+const queryUserId = params.get("userId");
+if (queryUserId) {
+return parseInt(queryUserId, 10);
+}
+return parseInt(localStorage.getItem("userId"), 10);
 }
 
-function loadTrades(){
+const activeUserId = getCurrentUserId();
+const expandedTradeIds = new Set();
+const offerDrafts = {};
+let isLoadingTrades = false;
+let lastTradesSnapshot = "";
+if(!activeUserId){
+window.location.href = "TradeLogin.html";
+}
 
-fetch("/trades")
-.then(res => res.json())
-.then(data => {
+function isTypingOfferInput(){
+const active = document.activeElement;
+return active && active.id && active.id.startsWith("offer");
+}
+
+function captureOfferDrafts(){
+document.querySelectorAll("input[id^='offer']").forEach(input => {
+offerDrafts[input.id] = input.value;
+});
+}
+
+function restoreOfferDrafts(){
+Object.keys(offerDrafts).forEach(inputId => {
+const input = document.getElementById(inputId);
+if (input && input.value !== offerDrafts[inputId]) {
+input.value = offerDrafts[inputId];
+}
+});
+}
+
+async function requestJson(url, options = {}){
+const response = await fetch(url, options);
+const data = await response.json();
+
+if (!response.ok) {
+throw new Error(data.message || data.error || "Request failed");
+}
+
+return data;
+}
+
+function buildTradesSnapshot(trades){
+return JSON.stringify(trades.map(trade => ({
+TradeID: trade.TradeID,
+OwnerUserID: trade.OwnerUserID,
+OfferedPartID: trade.OfferedPartID,
+DesiredMinPrice: trade.DesiredMinPrice,
+DesiredMaxPrice: trade.DesiredMaxPrice,
+ConditionDescription: trade.ConditionDescription,
+ImageURL: trade.ImageURL,
+PartName: trade.PartName,
+UserName: trade.UserName
+})));
+}
+
+function renderTrades(data){
 
 let output = "";
+const currentUser = activeUserId;
+
+if (!data.length) {
+document.getElementById("trades").innerHTML = "<p>No open trades right now.</p>";
+return;
+}
 
 data.forEach(trade => {
-
-const currentUser = localStorage.getItem("userId");
 
 output += `
 <img src="${trade.ImageURL}" width="200"><br>
 
 <p><strong>Posted by:</strong> ${trade.UserName}</p>
 
+<p><strong>Part:</strong> ${trade.PartName || "Unknown Part"}</p>
+
 <p>Part ID: ${trade.OfferedPartID}</p>
 <p>Condition: ${trade.ConditionDescription}</p>
 <p>Price Range: ${trade.DesiredMinPrice} - ${trade.DesiredMaxPrice}</p>
 `;
 
-if(currentUser == trade.OwnerUserID){
+if(currentUser === trade.OwnerUserID){
 
 output += `
 <button onclick="viewOffers(${trade.TradeID})">View Offers</button>
@@ -111,23 +179,72 @@ output += `<hr>`;
 
 document.getElementById("trades").innerHTML = output;
 
+restoreOfferDrafts();
+
+document.querySelectorAll("input[id^='offer']").forEach(input => {
+input.addEventListener("input", () => {
+offerDrafts[input.id] = input.value;
+});
 });
 
+expandedTradeIds.forEach(tradeId => {
+if (document.getElementById("offers" + tradeId)) {
+viewOffers(tradeId, true);
+}
+});
 }
 
-function acceptTrade(id){
+function loadTrades(force = false){
 
-fetch("/acceptTrade/" + id, {
-method: "POST"
+if (isLoadingTrades) {
+return;
+}
+
+captureOfferDrafts();
+isLoadingTrades = true;
+
+requestJson("/trades")
+.then(data => {
+const snapshot = buildTradesSnapshot(data);
+
+if (!force && snapshot === lastTradesSnapshot) {
+expandedTradeIds.forEach(tradeId => {
+if (document.getElementById("offers" + tradeId)) {
+viewOffers(tradeId, true);
+}
+});
+return;
+}
+
+lastTradesSnapshot = snapshot;
+renderTrades(data);
+
 })
-.then(res => res.json())
-.then(data => alert(data.message));
+.catch(err => {
+document.getElementById("trades").innerHTML = `<p>${err.message}</p>`;
+})
+.finally(() => {
+isLoadingTrades = false;
+});
 
 }
 
 function createTrade(){
 
-fetch("/createTrade", {
+const minPrice = document.getElementById("minPrice").value;
+const maxPrice = document.getElementById("maxPrice").value;
+
+if (!document.getElementById("partID").value) {
+alert("Select a part first.");
+return;
+}
+
+if (!minPrice || !maxPrice) {
+alert("Enter both minimum and maximum price.");
+return;
+}
+
+requestJson("/createTrade", {
 
 method: "POST",
 
@@ -137,7 +254,7 @@ headers: {
 
 body: JSON.stringify({
 
-OwnerUserID: localStorage.getItem("userId"),
+OwnerUserID: activeUserId,
 
 OfferedPartID: document.getElementById("partID").value,
 
@@ -153,16 +270,17 @@ ImageURL: document.getElementById("imageURL").value
 
 })
 
-.then(res => res.json())
-
-.then(data => alert(data.message));
+.then(data => {
+alert(data.message);
+loadTrades();
+})
+.catch(err => alert(err.message));
 
 }
 /* Code that is used for drop down selection for part id when a trade is being created*/
 function loadParts(){
 
-fetch("/parts")
-.then(res => res.json())
+requestJson("/parts")
 .then(data => {
 
 let options = "";
@@ -175,6 +293,9 @@ options += `<option value="${part.PartID}">${part.PartName}</option>`;
 
 document.getElementById("partID").innerHTML = options;
 
+})
+.catch(err => {
+document.getElementById("partID").innerHTML = `<option value="">${err.message}</option>`;
 });
 
 }
@@ -186,7 +307,12 @@ function submitOffer(tradeId){
 
 const description = document.getElementById("offer" + tradeId).value;
 
-fetch("/createOffer", {
+if (!description.trim()) {
+alert("Describe your trade offer first.");
+return;
+}
+
+requestJson("/createOffer", {
 
 method: "POST",
 
@@ -197,28 +323,37 @@ headers: {
 body: JSON.stringify({
 
 TradeID: tradeId,
-OfferingUserID: localStorage.getItem("userId"),
+OfferingUserID: activeUserId,
 OfferedPartDescription: description
 
 })
 
 })
-
-.then(res => res.json())
-.then(data => alert(data.message));
+.then(data => {
+delete offerDrafts["offer" + tradeId];
+alert(data.message);
+loadTrades();
+})
+.catch(err => alert(err.message));
 
 }
 
 /*Function that allows the original poster of a trade to accept or decline what someone is requesting to trade */
-function viewOffers(tradeId){
+function viewOffers(tradeId, keepOpen = false){
 
-fetch("/offers/" + tradeId)
+expandedTradeIds.add(tradeId);
 
-.then(res => res.json())
+requestJson("/offers/" + tradeId)
 
 .then(data => {
 
 let output = "<h4>Offers:</h4>";
+
+if (!data.length) {
+output += "<p>No offers yet.</p>";
+document.getElementById("offers" + tradeId).innerHTML = output;
+return;
+}
 
 data.forEach(offer => {
 
@@ -236,33 +371,68 @@ output += `
 
 document.getElementById("offers" + tradeId).innerHTML = output;
 
+})
+.catch(err => {
+if (!keepOpen) {
+expandedTradeIds.delete(tradeId);
+}
+document.getElementById("offers" + tradeId).innerHTML = `<p>${err.message}</p>`;
 });
 
 }
 
 function declineOffer(offerId){
 
-fetch("/declineOffer/" + offerId, {
+requestJson("/declineOffer/" + offerId, {
 method: "POST"
 })
-.then(res => res.json())
-.then(data => alert(data.message));
+.then(data => {
+alert(data.message);
+loadTrades();
+})
+.catch(err => alert(err.message));
 
 }
 
 function acceptOffer(offerId){
 
-fetch("/acceptOffer/" + offerId,{
-method:"POST"
+requestJson("/acceptOffer/" + offerId,{
+method:"POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+userId: activeUserId
 })
-.then(res => res.json())
+})
 .then(data => {
 
 showTradeMessage(data.message);
 
+expandedTradeIds.clear();
+
 loadTrades();
 
-});
+})
+.catch(err => alert(err.message));
+
+}
+
+function clearTrades(){
+
+if(!confirm("Remove all trades and offers?")){
+return;
+}
+
+requestJson("/clearTrades", {
+method: "POST"
+})
+.then(data => {
+showTradeMessage(data.message || "All trades removed.");
+expandedTradeIds.clear();
+loadTrades();
+})
+.catch(err => alert(err.message));
 
 }
 
@@ -291,6 +461,13 @@ function closeMessage(){
 document.getElementById("tradeMessage").style.display = "none";
 
 }
+
+loadTrades();
+setInterval(() => {
+if (!isTypingOfferInput()) {
+loadTrades();
+}
+}, 3000);
 </script>
 
 </body>

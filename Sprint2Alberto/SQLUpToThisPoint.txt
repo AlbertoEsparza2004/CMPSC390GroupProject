@@ -1,9 +1,5 @@
 
-<<<<<<< HEAD
 --first instance FRANCISCO 
-=======
-/*first instance FRANCISCO*/ 
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 CREATE DATABASE IF NOT EXISTS legautocustDB;
 
 USE legautocustDB;
@@ -35,11 +31,7 @@ CREATE TABLE Customized_car
 (
   BaseCar VARCHAR(50) NOT NULL,
   TotalPrice INT NOT NULL,
-<<<<<<< HEAD
   PartsID INT NOT NULL,
-=======
-  PartID INT NOT NULL,
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
   UserID INT NOT NULL,
   PRIMARY KEY (BaseCar),
   FOREIGN KEY (PartID) REFERENCES Parts(PartID),
@@ -74,11 +66,7 @@ Values(
 '2120002026'
 );
 
-<<<<<<< HEAD
 --Second instance of change by FRANCISCO
-=======
-/*Second instance of change by FRANCISCO*/
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 USE legautocustDB;
 
 //adding name, stock, category, and images datatypes
@@ -149,18 +137,11 @@ Values(
 
 SELECT * FROM Parts;
 
-<<<<<<< HEAD
 
 --Plans of SQL I want to use but have not implementeb and will change in accordance to his sql.
 
 CREATE TABLE Employees (
     EmployeeID INT PRIMARY KEY,
-=======
-/*Plans of SQL I want to use but have not implementeb and will change in accordance to his sql.*/
-
-CREATE TABLE Employees (
-    EmployeeID VARCHAR(4) PRIMARY KEY,
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
     FirstName VARCHAR(25) NOT NULL,
     LastName VARCHAR(25) NOT NULL,
     Management BOOLEAN NOT NULL,
@@ -168,83 +149,25 @@ CREATE TABLE Employees (
     Password VARCHAR(50) NOT NULL,
     HourlyPay DECIMAL(5,2) NOT NULL
 );
-<<<<<<< HEAD
 
 INSERT INTO Employees(EmployeeID, FirstName, LastName, Management, HireDate, Password, HourlyPay)
 Values
 (0001, 'John', 'Doe', TRUE, '2000-10-11', 'Password1', 25.00),          --MANAGER TYPE
 (0002, 'John', 'Dowtry', FALSE, '2001-11-12', 'Password2', 21.00),      --REG EMPLOYEE TYPE
 (0003, 'Jon', 'Dope', FALSE, '2015-11-13', 'Password101', 13.00);
-=======
-INSERT INTO Employees(EmployeeID, FirstName, LastName, Management, HireDate, Password, HourlyPay)
-Values
-('A001', 'Mike', 'Myers', TRUE, '2000-10-11', 'Password0001', 25.00),          
-('A002', 'Eddie', 'Murphy', TRUE, '2003-11-12', 'Password0002', 26.00),      
-('A003', 'Conrad', 'Vernon', TRUE, '2015-12-13', 'Password0003', 28.00),      
-('A004', 'Chris', 'Miller', FALSE, '2008-10-17', 'Password0004', 21.00),          
-('A005', 'John', 'Lithgow', FALSE, '2001-07-19', 'Password0005', 21.00),     
-('A006', 'Christopher', 'Knights', FALSE, '2015-4-13', 'Password0006', 13.00),
-('A007', 'Aron', 'Warner', False, '2001-10-11', 'Password0007', 19.00),          
-('A008', 'Cody', 'Cameron', FALSE, '1999-03-12', 'Password0008', 8.00),      
-('A009', 'Jim', 'Cummings', FALSE, '2012-07-13', 'Password0009', 16.00),
-('A00A', 'Vincent', 'Cassel', FALSE, '2016-01-01', 'Password0009', 18.00);
-
-
-
-
-
-
-
-
-CREATE TABLE EmployeeContactInfo (
-    EmployeeID VARCHAR(4) PRIMARY KEY,
-    PhoneNumber VARCHAR(12),
-    EmergencyPhoneNumber VARCHAR(12),
-    Address VARCHAR(100),
-    PersonalEmail VARCHAR(40),
-    WorkEmail VARCHAR(50),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
-);
-Insert Into EmployeeContactInfo(EmployeeID, PhoneNumber, EmergencyPhoneNumber, Address, PersonalEmail, WorkEmail)
-VALUES
-('A001', '708-589-1444', '708-896-1851', '5601 S Harlem Ave, Chicago, IL 60638', 'Mike.Myers@gmail.com', 'Mike.Myers.A001@legacyautoCo.org'),
-('A002', '773-421-5532', '312-774-1203', '3924 S Archer Ave, Chicago, IL 60632', 'eddie.murphy@yahoo.com', 'Eddie.Murphy.A002@legacyautoCo.org'),
-('A003', '312-774-9982', '708-225-7712', '3225 W 47th Pl, Chicago, IL 60632', 'conrad.vernon@gmail.com', 'Conrad.Vernon.A003@legacyautoCo.org'),
-('A004', '708-334-7812', '773-554-8821', '6928 S Pulaski Rd, Chicago, IL 60629', 'chris.miller@gmail.com', 'Chris.Miller.A004@legacyautoCo.org'),
-('A005', '312-665-4410', '773-775-3321', '2906-08 W 63rd St, Chicago, IL 60629', 'john.lithgow@gmail.com', 'John.Lithgow.A005@legacyautoCo.org'),
-('A006', '708-771-4420', '708-998-3210', '1406 W 47th St, Chicago, IL 60609', 'christopher.knights@gmail.com', 'Christopher.Knights.A006@legacyautoCo.org'),
-('A007', '773-551-8922', '312-992-5511', '2849 W 95th St, Evergreen Park, IL 60805', 'aron.warner@gmail.com', 'Aron.Warner.A007@legacyautoCo.org'),
-('A008', '312-441-2201', '773-445-6654', '11708 S Marshfield Ave, Chicago, IL 60643', 'cody.cameron@gmail.com', 'Cody.Cameron.A008@legacyautoCo.org'),
-('A009', '773-228-3321', '708-443-2211', '7929 S Harlem Ave, Burbank, IL 60459', 'jim.cummings@gmail.com', 'Jim.Cummings.A009@legacyautoCo.org'),
-('A00A', '312-558-4412', '773-221-4410', '8849 S Stony Island Ave, Chicago, IL 60617', 'vincent.cassel@gmail.com', 'Vincent.Cassel.A00A@legacyautoCo.org');
-
-
-
-
-
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 
 
 
 CREATE TABLE Schedule (
-<<<<<<< HEAD
     ScheduleID INT PRIMARY KEY,
     EmployeeID INT NOT NULL,
     WeekNum INT NOT NULL DEFAULT 1,  --52 weeks in a year
-=======
-    ScheduleID VARCHAR(4) PRIMARY KEY,
-    EmployeeID VARCHAR(4) NOT NULL,
-    MonthNum INT NOT NULL DEFAULT 1,
-    WeekNum INT NOT NULL DEFAULT 1,  /*Week in the month*/
-    Sun BOOLEAN NOT NULL DEFAULT 0,
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
     Mon BOOLEAN NOT NULL DEFAULT 0,
     Tue BOOLEAN NOT NULL DEFAULT 0,
     Wed BOOLEAN NOT NULL DEFAULT 0,
     Thu BOOLEAN NOT NULL DEFAULT 0,
     Fri BOOLEAN NOT NULL DEFAULT 0,
     Sat BOOLEAN NOT NULL DEFAULT 0,
-<<<<<<< HEAD
     Sun BOOLEAN NOT NULL DEFAULT 0,
     FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
 );
@@ -254,162 +177,20 @@ VALUES    --Wk M  T  W  T  F  S  S
 (1001, 0001, 1, 1, 1, 1, 1, 1, 0, 0),
 (1002, 0002, 1, 1, 0, 0, 0, 1, 1, 1),
 (1003, 0003, 1, 1, 1, 0, 0 ,0 ,0 ,0);
-=======
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
-);
-INSERT INTO Schedule (ScheduleID, EmployeeID, MonthNum, WeekNum, Sun, Mon, Tue, Wed, Thu, Fri, Sat) 
-VALUES         /*M  W  Su Mo Tu We Th Fr Sa*/
-('AA01', 'A001', 1, 1, 0, 1, 1, 1, 1, 1, 0), /*emp1 m-f*/
-('AA02', 'A001', 1, 2, 0, 1, 1, 1, 1, 1, 0),
-('AA03', 'A001', 1, 3, 0, 1, 1, 1, 1, 1, 0),
-('AA04', 'A001', 1, 4, 0, 1, 1, 1, 1, 1, 0),
-('AA05', 'A001', 1, 5, 0, 1, 1, 1, 1, 1, 0),
-	             /*M  W  Su Mo Tu We Th Fr Sa*/
-('AB01', 'A002', 1, 1, 0, 0, 1, 1, 1, 1, 1), /*emp2 tue-sun*/
-('AB02', 'A002', 1, 2, 0, 0, 1, 1, 1, 1, 1),
-('AB03', 'A002', 1, 3, 0, 0, 1, 1, 1, 1, 1),
-('AB04', 'A002', 1, 4, 0, 0, 1, 1, 1, 1, 1),
-('AB05', 'A002', 1, 5, 0, 0, 1, 1, 1, 1, 1),
-	             /*M  W  Su Mo Tu We Th Fr Sa*/
-('AC01', 'A003', 1, 1, 1, 1, 0, 0, 1, 1, 1), /*emp3 thu-mon*/
-('AC02', 'A003', 1, 2, 1, 1, 0, 0, 1, 1, 1),
-('AC03', 'A003', 1, 3, 1, 1, 0, 0, 1, 1, 1),
-('AC04', 'A003', 1, 4, 1, 1, 0, 0, 1, 1, 1),
-('AC05', 'A003', 1, 5, 1, 1, 0, 0, 1, 1, 1),
-	             /*M  W  Su Mo Tu We Th Fr Sa*/
-('AD01', 'A004', 1, 1, 1, 0, 1, 1, 0, 1, 0), /*emp4 regular employees have randomized work days*/
-('AD02', 'A004', 1, 2, 0, 1, 0, 1, 1, 0, 1),
-('AD03', 'A004', 1, 3, 1, 1, 1, 0, 0, 1, 0),
-('AD04', 'A004', 1, 4, 0, 0, 1, 1, 1, 0, 1),
-('AD05', 'A004', 1, 5, 1, 1, 0, 1, 0, 1, 0),
-	             /*M  W  Su Mo Tu We Th Fr Sa*/
-('AE01', 'A005', 1, 1, 0, 1, 1, 0, 1, 0, 1), /*emp5*/
-('AE02', 'A005', 1, 2, 1, 0, 1, 1, 0, 1, 0),
-('AE03', 'A005', 1, 3, 0, 1, 0, 1, 1, 1, 0),
-('AE04', 'A005', 1, 4, 1, 1, 0, 0, 1, 0, 1),
-('AE05', 'A005', 1, 5, 0, 0, 1, 1, 1, 1, 0),
-	             /*M  W  Su Mo Tu We Th Fr Sa*/
-('AF01', 'A006', 1, 1, 1, 0, 1, 0, 1, 1, 0), /*emp6*/
-('AF02', 'A006', 1, 2, 0, 1, 1, 1, 0, 0, 1),
-('AF03', 'A006', 1, 3, 1, 1, 0, 1, 1, 0, 0),
-('AF04', 'A006', 1, 4, 0, 0, 1, 1, 0, 1, 1),
-('AF05', 'A006', 1, 5, 1, 1, 1, 0, 1, 0, 0),
-	             /*M  W  Su Mo Tu We Th Fr Sa*/
-('AG01', 'A007', 1, 1, 0, 1, 0, 1, 1, 1, 0), /*emp7*/
-('AG02', 'A007', 1, 2, 1, 0, 1, 1, 0, 1, 0),
-('AG03', 'A007', 1, 3, 0, 1, 1, 0, 1, 0, 1),
-('AG04', 'A007', 1, 4, 1, 1, 0, 1, 0, 1, 0),
-('AG05', 'A007', 1, 5, 0, 0, 1, 1, 1, 0, 1),
-	             /*M  W  Su Mo Tu We Th Fr Sa*/
-('AH01', 'A008', 1, 1, 1, 0, 0, 1, 1, 1, 0), /*emp8*/
-('AH02', 'A008', 1, 2, 0, 1, 1, 0, 1, 0, 1),
-('AH03', 'A008', 1, 3, 1, 1, 0, 1, 0, 1, 0),
-('AH04', 'A008', 1, 4, 0, 0, 1, 1, 1, 0, 1),
-('AH05', 'A008', 1, 5, 1, 1, 1, 0, 0, 1, 0),
-	             /*M  W  Su Mo Tu We Th Fr Sa*/
-('AI01', 'A009', 1, 1, 0, 1, 1, 0, 1, 1, 0), /*emp9*/
-('AI02', 'A009', 1, 2, 1, 0, 1, 1, 0, 0, 1),
-('AI03', 'A009', 1, 3, 0, 1, 0, 1, 1, 1, 0),
-('AI04', 'A009', 1, 4, 1, 1, 1, 0, 0, 1, 0),
-('AI05', 'A009', 1, 5, 0, 0, 1, 1, 1, 0, 1),
-	             /*M  W  Su Mo Tu We Th Fr Sa*/
-('AJ01', 'A00A', 1, 1, 1, 0, 1, 1, 0, 1, 0), /*emp10*/
-('AJ02', 'A00A', 1, 2, 0, 1, 1, 0, 1, 0, 1),
-('AJ03', 'A00A', 1, 3, 1, 1, 0, 1, 0, 1, 0),
-('AJ04', 'A00A', 1, 4, 0, 0, 1, 1, 1, 0, 1),
-('AJ05', 'A00A', 1, 5, 1, 1, 1, 0, 0, 1, 0);
-
-
-
-
-
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 
 
 
 CREATE TABLE EmployeePerformance (
-<<<<<<< HEAD
     PerformanceID INT PRIMARY KEY,
     EmployeeID INT NOT NULL,
-=======
-    PerformanceID VARCHAR(4) PRIMARY KEY,
-    EmployeeID VARCHAR(4) NOT NULL,
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
     ActivelyEmployed BOOLEAN DEFAULT TRUE,
     Points INT NOT NULL DEFAULT 0,
     Comments TEXT,
     FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
 );
-<<<<<<< HEAD
 
 INSERT INTO EmployeePerformance (PerformanceID, EmployeeID, ActivelyEmployed, Points, Comments)
 Values
 (2001, 0001, TRUE, 0, ''),
 (2002, 0002, TRUE, 3, 'Attendance Issue.'),
 (2003, 0003, FALSE, 10, 'DO NOT REHIRE!!!');
-=======
-INSERT INTO EmployeePerformance (PerformanceID, EmployeeID, ActivelyEmployed, Points, Comments)
-Values
-('BA01','A001', TRUE, 0,'Great Employee'),
-('BA02','A002', TRUE, 1, 'Efficient'),
-('BA03','A003', TRUE, 1,'Next in line'),
-('BA04','A004', FALSE, 10, 'Do Not Rehire'),
-('BA05','A005', TRUE, 2,'Great Employee'),
-('BA06','A006', TRUE, 5, 'Attendance Issues'),
-('BA07','A007', TRUE, 4,'HardWorker'),
-('BA08','A008', TRUE, 1, 'Efficient'),
-('BA09','A009', TRUE, 1,'Fast Worker'),
-('BA0A','A00A', FALSE, 10, 'Do Not Rehire');
-
-
-
-
-CREATE TABLE TimeOffRequests (
-    RequestID INT AUTO_INCREMENT PRIMARY KEY,
-    EmployeeID VARCHAR(4) NOT NULL,
-    MonthNum INT NOT NULL,
-    WeekNum INT NOT NULL,
-    DayOfWeek VARCHAR(3) NOT NULL,
-    Reason TEXT,
-    Status VARCHAR(20) DEFAULT 'Pending',
-
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
-);
-
-
-
-/*This returns the full name of fired employees and their comments*/
-SELECT Employees.FirstName, Employees.Lastname, EmployeePerformance.Comments
-FROM Employees
-Join EmployeePerformance ON Employees.EmployeeID = EmployeePerformance.EmployeeID
-Where EmployeePerformance.ActivelyEmployed = FALSE;
-
-/*This would increase the pay of everyone say yearly raise of 3%*/
-UPDATE Employees
-SET	HourlyPay = HourlyPay * 1.03;
-
-
-/*This could would update the pay of 1 individual by using a first and last name*/
-UPDATE Employees
-SET HourlyPay = HourlyPay + 5.00
-WHERE FirstName = 'John'
-AND LastName = 'Dowtry';
-/*IF you want to assin by empID so if two share a name*/
-UPDATE Employees
-SET HourlyPay = HourlyPay + 5.00
-WHERE EmployeeID = 1;
-
-/*Manager adding points to a bad employee for missing a day*/
-UPDATE EmployeePerformance
-JOIN Employees
-ON EmployeePerformance.EmployeeID = Employees.EmployeeID
-SET EmployeePerformance.Points =  EmployeePerformance.Points + 1
-WHERE Employees.EmployeeID = 0002;
-
-/*Select statement can be used to return the name EmpID and their points
-SELECT  Employees.FirstName, Employees.EmployeeID, EmployeePerformance.Points
-FROM EmployeePerformance
-Join Employees 
-ON EmployeePerformance.EmployeeID = Employees.EmployeeID
-Where Employees.EmployeeID = 2;
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
