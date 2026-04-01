@@ -2,24 +2,13 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const db = require("./db");
-<<<<<<< HEAD
-
-=======
 const PORT = process.env.PORT || 3000;
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 const app = express();
 //const PORT = 3000;
 
 app.use(express.json());
-<<<<<<< HEAD
-
-// Serve static files from the project root
-// Example: http://localhost:3000/Sprint2Alberto/CustomerSingInPage.html
-app.use(express.static(path.join(__dirname, "..")));
-=======
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../Sprint2Alberto")));
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 
 /* Root route */
 app.get("/", (req, res) => {
@@ -43,29 +32,6 @@ app.get("/parts", (req, res) => {
   });
 });
 
-<<<<<<< HEAD
-/* Get customized cars for a user */
-app.get("/cars/:userId", (req, res) => {
-
-  const userId = req.params.userId;
-
-  const sql = "SELECT * FROM Customized_car WHERE UserID = ?";
-
-  db.query(sql, [userId], (err, results) => {
-
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    res.json(results);
-
-  });
-
-});
-
-=======
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 /* User login */
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
@@ -101,44 +67,6 @@ app.post("/login", (req, res) => {
   });
 });
 
-<<<<<<< HEAD
-/* User registration */
-app.post("/customer/register", (req, res) => {
-  const { firstName, lastName, password, userName, zipCode, birthdate } = req.body;
-
-  if (!firstName || !lastName || !password || !userName || !zipCode || !birthdate) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
-
-  const checkSql = "SELECT * FROM `User` WHERE UserName = ?";
-  db.query(checkSql, [userName], (checkErr, checkResults) => {
-    if (checkErr) {
-      console.error(checkErr);
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    if (checkResults.length > 0) {
-      return res.status(409).json({ message: "Username already exists" });
-    }
-
-    const insertSql = "INSERT INTO `User` (FirstName, LastName, Password, UserName, ZipCode, Birthdate) VALUES (?, ?, ?, ?, ?, ?)";
-    db.query(insertSql, [firstName, lastName, password, userName, zipCode, birthdate], (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Error creating account" });
-      }
-
-      res.json({
-        message: "Account created successfully",
-        userId: result.insertId,
-        username: userName,
-      });
-    });
-  });
-});
-
-=======
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 /* Get customer by ID (for dashboard) */
 app.get("/customer/:id", (req, res) => {
   const userId = req.params.id;
@@ -159,8 +87,6 @@ app.get("/customer/:id", (req, res) => {
   });
 });
 
-<<<<<<< HEAD
-=======
 /* Code for trade listings */
 app.get("/trades", (req, res) => {
 
@@ -373,9 +299,10 @@ app.get("/getPoints", (req, res) => {
 });
 
 app.post("/request-dayoff", (req, res) => {
-    const { EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason } = req.body;
-    const sql = `INSERT INTO TimeOffRequests (EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason) VALUES (?, ?, ?, ?, ?)`;
-    db.query(sql, [EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason], (err) => {
+    console.log(req.body);   
+    const { EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason , Type } = req.body;
+    const sql = `INSERT INTO TimeOffRequests (EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason, Type) VALUES (?, ?, ?, ?, ?, ?)`;
+    db.query(sql, [EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason, Type], (err) => {
         if (err){
             console.error(err);
             return res.status(500).send("Request failed");
@@ -425,40 +352,42 @@ app.get("/contactInfo", (req, res)=>{
 
         app.post("/approveRequest",(req,res)=>{
             const {RequestID} = req.body;
-            const getRequest = `SELECT EmployeeID, MonthNum, WeekNum, DayOfWeek FROM TimeOffRequests WHERE RequestID = ?`;
+            const getRequest = `SELECT EmployeeID, MonthNum, WeekNum, DayOfWeek, Type FROM TimeOffRequests WHERE RequestID = ?`;
             db.query(getRequest,[RequestID],(err,results)=>{
                 if(err){
                     console.error(err);
                     return res.send("Database error");
                 }
                 const request = results[0];
-                console.log("Request info:", request);
+                if (results.length === 0) {
+                  return res.send("Request not found");
+                }
 
+                console.log("Request info:", request);
+                console.log("Type:", request.Type);
+                console.log("DayColumn:", request.DayOfWeek);
+                console.log("Computed value:", request.Type === "work" ? 1 : 0);
+
+                /*let value = request.Type === "work" ? 1 : 0;*/
+                let type = (request.Type || "").trim().toLowerCase();
+                let value = type === "work" ? 1 : 0;
                 let dayColumn = request.DayOfWeek;
 
-        if(dayColumn === "Monday") dayColumn = "Mon";
-        if(dayColumn === "Tuesday") dayColumn = "Tue";
-        if(dayColumn === "Wednesday") dayColumn = "Wed";
-        if(dayColumn === "Thursday") dayColumn = "Thu";
-        if(dayColumn === "Friday") dayColumn = "Fri";
-        if(dayColumn === "Saturday") dayColumn = "Sat";
-        if(dayColumn === "Sunday") dayColumn = "Sun";
-
-        const updateSchedule = `UPDATE Schedule SET ${dayColumn} = 0 WHERE EmployeeID = ? AND MonthNum = ? AND WeekNum = ?`;
+        const updateSchedule = `UPDATE Schedule SET ${dayColumn} = ? WHERE EmployeeID = ? AND MonthNum = ? AND WeekNum = ?`;
                 db.query(updateSchedule,
-                [request.EmployeeID, request.MonthNum, request.WeekNum],
-                (err)=>{
+                [value, request.EmployeeID, request.MonthNum, request.WeekNum],
+                (err,result)=>{
                     if(err){
                         console.error(err);
                         return res.send("Schedule update error");
                     }
+                    console.log("Rows affected:", result.affectedRows);
+
                     const updateStatus = `UPDATE TimeOffRequests SET Status = 'Approved' WHERE RequestID = ?`;
                     db.query(updateStatus,[RequestID]);
                     res.send("Approved");
                 });
-
             });
-
         });
 
         app.post("/denyRequest",(req,res)=>{
@@ -561,6 +490,18 @@ app.get("/contactInfo", (req, res)=>{
             });
         });
 
+        app.post("/rehireEmployee",(req,res)=>{
+            const {EmployeeID} = req.body;
+            const sql = `UPDATE EmployeePerformance SET ActivelyEmployed = TRUE WHERE EmployeeID = ?`;
+            db.query(sql,[EmployeeID],(err)=>{
+                if(err){
+                    console.error(err);
+                    return res.status(500).send("Database error");
+                }
+                res.send("Employee rehired");
+            });
+        });
+
 /*Password Change*/
 app.post("/changePassword", (req, res) => {
   const {EmployeeID, oldPassword, newPassword} = req.body;
@@ -584,7 +525,6 @@ app.post("/changePassword", (req, res) => {
   });
 });
 
->>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 /* Start server */
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

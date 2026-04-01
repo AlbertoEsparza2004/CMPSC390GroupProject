@@ -61,3 +61,57 @@ button {
     width: 300px;
     
 }
+
+
+/*---------------------New Calendar----------------------------*/
+.day-header {
+    font-weight: bold;
+    text-align: center;
+}
+
+/*Day worke/scheduled */
+.worked {
+    background: #b8e8c3;
+}
+
+/* OFF DAY/reqested off */
+.off {
+    background: #f89fa7;
+}
+
+.inactive {
+    opacity: 0.35;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    height: 400px;
+    width: 750px;
+    gap: 5px;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.day {
+    padding: 5px;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+
