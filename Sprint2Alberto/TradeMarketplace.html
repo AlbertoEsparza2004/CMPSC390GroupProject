@@ -1,255 +1,420 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Trade Marketplace</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #e6eeff;
+            background:
+                radial-gradient(ellipse at 14% 30%, rgba(79, 144, 240, 0.18) 0%, transparent 48%),
+                radial-gradient(ellipse at 84% 72%, rgba(212, 168, 67, 0.08) 0%, transparent 45%),
+                linear-gradient(160deg, #0c1428 0%, #07090f 100%);
+            padding: 28px 20px 48px;
+        }
+
+        .shell {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        .brand {
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 4px;
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 24px;
+            color: #f1f5ff;
+        }
+
+        .brand span {
+            color: #6faeff;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 26px;
+        }
+
+        .panel {
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 0;
+        }
+
+        .title {
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.9rem;
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #c7d8ff;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 14px 0 14px;
+        }
+
+        .field {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            color: #f3f7ff;
+            border-radius: 12px;
+            border: 1px solid rgba(127, 165, 232, 0.32);
+            padding: 12px 14px;
+            line-height: 1.25;
+            min-height: 46px;
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .field::placeholder {
+            color: rgba(195, 211, 245, 0.5);
+        }
+
+        .field:focus {
+            background: rgba(79, 144, 240, 0.16);
+            border-color: rgba(143, 190, 255, 0.92);
+            box-shadow: 0 0 0 2px rgba(111, 174, 255, 0.35);
+        }
+
+        select.field {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image:
+                linear-gradient(45deg, transparent 50%, #c9dcff 50%),
+                linear-gradient(135deg, #c9dcff 50%, transparent 50%);
+            background-position:
+                calc(100% - 18px) calc(50% - 3px),
+                calc(100% - 12px) calc(50% - 3px);
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+        }
+
+        select.field option {
+            background: #dfe8fb;
+            color: #0d1730;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #5f90e6 0%, #78a9ff 100%);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            padding: 12px 18px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(79, 144, 240, 0.36);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(79, 144, 240, 0.48);
+            filter: brightness(1.06);
+        }
+
+        .danger {
+            background: linear-gradient(135deg, #ca4a3f 0%, #e35c49 100%);
+            box-shadow: 0 8px 24px rgba(227, 92, 73, 0.38);
+        }
+
+        .stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        #trades {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .trade-card {
+            background: transparent;
+            border-radius: 0;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(127, 165, 232, 0.24);
+        }
+
+        .trade-card img {
+            display: block;
+            width: 190px;
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            object-fit: cover;
+        }
+
+        .trade-card p {
+            margin: 4px 0;
+            color: #d8e4ff;
+            font-size: 0.93rem;
+        }
+
+        .trade-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .trade-actions button {
+            flex: 0 0 auto;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+        }
+
+        .offer-box {
+            margin-top: 8px;
+        }
+
+        .offer-box .field {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .muted {
+            color: rgba(189, 206, 245, 0.72);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 640px) {
+            .title {
+                font-size: 1.45rem;
+            }
+
+            .brand {
+                font-size: 1.45rem;
+            }
+
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-
 <body>
-
-<header><h1>Legacy Auto Company</h1></header>
-
-<div class="container">
-
-<div class="left section">
-
-<h2>Trade Marketplace</h2>
-
-<h3>Create Trade</h3>
-
-<select id="partID"></select><br><br>
-
-<input id="minPrice" placeholder="Minimum Price"><br><br>
-
-<input id="maxPrice" placeholder="Maximum Price"><br><br>
-
-<input id="condition" placeholder="Condition"><br><br>
-
-<input id="imageURL" placeholder="Image URL"><br><br>
-
-<button onclick="createTrade()">Post Trade</button>
-
-<hr>
-
-<button onclick="loadTrades()">Load Available Trades</button>
-
-<div id="trades"></div>
-
-</div>
-
-<div class="right section">
-
-<button onclick="logout()">Logout</button>
-<br><br>
-
-<button onclick="window.location.href='index.html'">Go back</button>
-
-</div>
-
-</div>
-
-<footer>
-<h2>Trade parts with other users!</h2>
-</footer>
-
-<script>
-/* This redirects to the login page, as you must be logged in in order to access the trading feature*/
-if(!localStorage.getItem("userId")){
-window.location.href = "CustomerSingInPage.html";
-}
-
-function loadTrades(){
-
-fetch("/trades")
-.then(res => res.json())
-.then(data => {
-
-let output = "";
-
-data.forEach(trade => {
-
-const currentUser = localStorage.getItem("userId");
-
-output += `
-<img src="${trade.ImageURL}" width="200"><br>
-
-<p>Part ID: ${trade.OfferedPartID}</p>
-<p>Condition: ${trade.ConditionDescription}</p>
-<p>Price Range: ${trade.DesiredMinPrice} - ${trade.DesiredMaxPrice}</p>
-`;
-
-if(currentUser == trade.OwnerUserID){
-
-output += `
-<button onclick="viewOffers(${trade.TradeID})">View Offers</button>
-<div id="offers${trade.TradeID}"></div>
-`;
-
-}else{
-
-output += `
-<input id="offer${trade.TradeID}" placeholder="Describe your part"><br><br>
-
-<button onclick="submitOffer(${trade.TradeID})">Offer Trade</button>
-`;
-
-}
-
-output += `<hr>`;
-
-});
-
-document.getElementById("trades").innerHTML = output;
-
-});
-
-}
-
-function acceptTrade(id){
-
-fetch("/acceptTrade/" + id, {
-method: "POST"
-})
-.then(res => res.json())
-.then(data => alert(data.message));
-
-}
-
-function createTrade(){
-
-fetch("/createTrade", {
-
-method: "POST",
-
-headers: {
-"Content-Type": "application/json"
-},
-
-body: JSON.stringify({
-
-OwnerUserID: localStorage.getItem("userId"),
-
-OfferedPartID: document.getElementById("partID").value,
-
-DesiredMinPrice: document.getElementById("minPrice").value,
-
-DesiredMaxPrice: document.getElementById("maxPrice").value,
-
-ConditionDescription: document.getElementById("condition").value,
-
-ImageURL: document.getElementById("imageURL").value
-
-})
-
-})
-
-.then(res => res.json())
-
-.then(data => alert(data.message));
-
-}
-/* Code that is used for drop down selection for part id when a trade is being created*/
-function loadParts(){
-
-fetch("/parts")
-.then(res => res.json())
-.then(data => {
-
-let options = "";
-
-data.forEach(part => {
-
-options += `<option value="${part.PartID}">Part ${part.PartID}</option>`;
-
-});
-
-document.getElementById("partID").innerHTML = options;
-
-});
-
-}
-
-loadParts();
-
-/* function that allows a user to send a user (one that has posted their own trade) an offer, which the original poster can accept or decline*/
-function submitOffer(tradeId){
-
-const description = document.getElementById("offer" + tradeId).value;
-
-fetch("/createOffer", {
-
-method: "POST",
-
-headers: {
-"Content-Type": "application/json"
-},
-
-body: JSON.stringify({
-
-TradeID: tradeId,
-OfferingUserID: localStorage.getItem("userId"),
-OfferedPartDescription: description
-
-})
-
-})
-
-.then(res => res.json())
-.then(data => alert(data.message));
-
-}
-
-/*Function that allows the original poster of a trade to accept or decline what someone is requesting to trade */
-function viewOffers(tradeId){
-
-fetch("/offers/" + tradeId)
-
-.then(res => res.json())
-
-.then(data => {
-
-let output = "<h4>Offers:</h4>";
-
-data.forEach(offer => {
-
-output += `
-<p>User ${offer.OfferingUserID}</p>
-<p>${offer.OfferedPartDescription}</p>
-
-<button onclick="acceptTrade(${tradeId})">Accept Offer</button>
-<button onclick="declineOffer(${offer.OfferID})">Decline Offer</button>
-
-<hr>
-`;
-
-});
-
-document.getElementById("offers" + tradeId).innerHTML = output;
-
-});
-
-}
-
-function logout(){
-
-localStorage.removeItem("userId");
-localStorage.removeItem("username");
-
-window.location.href = "CustomerSingInPage.html";
-
-}
-
-function declineOffer(offerId){
-
-fetch("/declineOffer/" + offerId, {
-method: "POST"
-})
-.then(res => res.json())
-.then(data => alert(data.message));
-
-}
-</script>
-
+    <main class="shell">
+        <h1 class="brand">LEGACY<span>AUTO</span></h1>
+
+        <div class="toolbar">
+            <button onclick="window.location.href='index.html'">Go Back</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <section class="panel">
+            <h2 class="title">Trade Marketplace</h2>
+
+            <p class="subtitle">Create Trade</p>
+            <select id="partID" class="field"></select>
+            <div class="row">
+                <input id="minPrice" class="field" placeholder="Minimum Price">
+                <input id="maxPrice" class="field" placeholder="Maximum Price">
+            </div>
+            <input id="condition" class="field" placeholder="Condition">
+            <input id="imageURL" class="field" placeholder="Image URL">
+
+            <div class="stack">
+                <button onclick="createTrade()">Post Trade</button>
+                <button onclick="loadTrades()">Load Available Trades</button>
+                <button class="danger" onclick="clearTrades()">Remove All Trades</button>
+            </div>
+
+            <div id="trades" class="muted">No open trades right now.</div>
+        </section>
+    </main>
+
+    <script>
+        if (!localStorage.getItem("userId")) {
+            window.location.href = "CustomerSingInPage.html";
+        }
+
+        function loadTrades() {
+            fetch("/trades")
+                .then(res => res.json())
+                .then(data => {
+                    const currentUser = localStorage.getItem("userId");
+                    const tradesRoot = document.getElementById("trades");
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        tradesRoot.className = "muted";
+                        tradesRoot.textContent = "No open trades right now.";
+                        return;
+                    }
+
+                    tradesRoot.className = "";
+
+                    const html = data.map(trade => {
+                        const ownerView = String(currentUser) === String(trade.OwnerUserID);
+
+                        let controls = "";
+                        if (ownerView) {
+                            controls = `
+                                <div class="trade-actions">
+                                    <button onclick="viewOffers(${trade.TradeID})">View Offers</button>
+                                </div>
+                                <div id="offers${trade.TradeID}" class="offer-box"></div>
+                            `;
+                        } else {
+                            controls = `
+                                <div class="offer-box">
+                                    <input id="offer${trade.TradeID}" class="field" placeholder="Describe your part offer">
+                                    <div class="trade-actions">
+                                        <button onclick="submitOffer(${trade.TradeID})">Offer Trade</button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        return `
+                            <article class="trade-card">
+                                <p><strong>Part ID:</strong> ${trade.OfferedPartID}</p>
+                                <p><strong>Condition:</strong> ${trade.ConditionDescription || "N/A"}</p>
+                                <p><strong>Price Range:</strong> ${trade.DesiredMinPrice} - ${trade.DesiredMaxPrice}</p>
+                                ${controls}
+                            </article>
+                        `;
+                    }).join("");
+
+                    tradesRoot.innerHTML = html;
+                })
+                .catch(() => {
+                    const tradesRoot = document.getElementById("trades");
+                    tradesRoot.className = "muted";
+                    tradesRoot.textContent = "Could not load trades right now.";
+                });
+        }
+
+        function acceptTrade(id) {
+            fetch("/acceptTrade/" + id, { method: "POST" })
+                .then(res => res.json())
+                .then(data => alert(data.message));
+        }
+
+        function createTrade() {
+            fetch("/createTrade", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    OwnerUserID: localStorage.getItem("userId"),
+                    OfferedPartID: document.getElementById("partID").value,
+                    DesiredMinPrice: document.getElementById("minPrice").value,
+                    DesiredMaxPrice: document.getElementById("maxPrice").value,
+                    ConditionDescription: document.getElementById("condition").value,
+                    ImageURL: document.getElementById("imageURL").value
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message);
+                    loadTrades();
+                });
+        }
+
+        function loadParts() {
+            fetch("/parts")
+                .then(res => res.json())
+                .then(data => {
+                    const options = data.map(part => `<option value="${part.PartID}">Part ${part.PartID}</option>`).join("");
+                    document.getElementById("partID").innerHTML = options;
+                });
+        }
+
+        function submitOffer(tradeId) {
+            const description = document.getElementById("offer" + tradeId).value;
+
+            fetch("/createOffer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    TradeID: tradeId,
+                    OfferingUserID: localStorage.getItem("userId"),
+                    OfferedPartDescription: description
+                })
+            })
+                .then(res => res.json())
+                .then(data => alert(data.message));
+        }
+
+        function viewOffers(tradeId) {
+            fetch("/offers/" + tradeId)
+                .then(res => res.json())
+                .then(data => {
+                    const output = (data || []).map(offer => `
+                        <div class="trade-card" style="margin-top: 8px;">
+                            <p><strong>User:</strong> ${offer.OfferingUserID}</p>
+                            <p>${offer.OfferedPartDescription}</p>
+                            <div class="trade-actions">
+                                <button onclick="acceptTrade(${tradeId})">Accept Offer</button>
+                                <button class="danger" onclick="declineOffer(${offer.OfferID})">Decline Offer</button>
+                            </div>
+                        </div>
+                    `).join("");
+
+                    document.getElementById("offers" + tradeId).innerHTML = output || "<p class='muted'>No offers yet.</p>";
+                });
+        }
+
+        function clearTrades() {
+            fetch("/clearTrades", { method: "POST" })
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("Could not remove trades.");
+                    }
+                    return res.json();
+                })
+                .then(() => loadTrades())
+                .catch(err => alert(err.message));
+        }
+
+        function logout() {
+            localStorage.removeItem("userId");
+            localStorage.removeItem("username");
+            window.location.href = "CustomerSingInPage.html";
+        }
+
+        function declineOffer(offerId) {
+            fetch("/declineOffer/" + offerId, { method: "POST" })
+                .then(res => res.json())
+                .then(data => alert(data.message));
+        }
+
+        loadParts();
+        loadTrades();
+    </script>
 </body>
 </html>

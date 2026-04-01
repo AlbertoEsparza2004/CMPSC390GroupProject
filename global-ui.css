@@ -1,0 +1,378 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap');
+
+/* =====================================================
+   LegacyAuto — Global Design System
+   Dark premium automotive theme
+   ===================================================== */
+
+:root {
+  /* Backgrounds */
+  --bg-a:           #0c1428;
+  --bg-b:           #07090f;
+  --surface:        #111827;
+  --surface-muted:  #16203a;
+  --surface-raised: #1f2e4a;
+
+  /* Brand */
+  --brand:          #4f90f0;
+  --brand-hover:    #6faeff;
+  --brand-glow:     rgba(79, 144, 240, 0.28);
+  --accent:         #d4a843;
+  --accent-glow:    rgba(212, 168, 67, 0.2);
+
+  /* Text */
+  --text:           #e6eeff;
+  --text-soft:      #7e94b8;
+  --text-muted:     #3e4d6b;
+
+  /* Status */
+  --ok:             #22c55e;
+  --ok-glow:        rgba(34, 197, 94, 0.22);
+  --danger:         #f0453a;
+  --danger-glow:    rgba(240, 69, 58, 0.25);
+
+  /* Borders */
+  --border:         rgba(255, 255, 255, 0.07);
+  --border-accent:  rgba(79, 144, 240, 0.18);
+
+  /* Shape */
+  --radius:     14px;
+  --radius-sm:   8px;
+  --radius-lg:  22px;
+  --radius-pill: 50px;
+
+  /* Shadow */
+  --shadow:      0 4px 20px rgba(0, 0, 0, 0.36);
+  --shadow-lg:   0 20px 60px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 8px 28px var(--brand-glow);
+  --surface-dark-glow: rgba(10, 18, 38, 0.82);
+}
+
+/* ----- Reset ----- */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ----- Base ----- */
+body {
+  margin: 0 !important;
+  min-height: 100vh;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Verdana, sans-serif !important;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text) !important;
+  background:
+    radial-gradient(ellipse at 14% 26%, rgba(79, 144, 240, 0.18) 0%, transparent 48%),
+    radial-gradient(ellipse at 80% 72%, rgba(79, 144, 240, 0.08) 0%, transparent 46%),
+    radial-gradient(ellipse at 84% 12%, rgba(212, 168, 67, 0.06) 0%, transparent 40%),
+    linear-gradient(160deg, var(--bg-a) 0%, var(--bg-b) 100%) fixed !important;
+}
+
+/* ----- Header / Footer ----- */
+header, footer {
+  background: transparent !important;
+  text-align: center;
+}
+
+header {
+  font-family: 'Orbitron', 'Segoe UI', monospace !important;
+  font-size: 1.5rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 5px !important;
+  text-transform: uppercase !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 40px var(--brand-glow) !important;
+  margin: 24px auto 16px auto !important;
+  padding: 10px 20px !important;
+}
+
+footer {
+  font-size: 0.8rem !important;
+  font-weight: 400 !important;
+  color: var(--text-muted) !important;
+  border-top: 1px solid var(--border);
+  margin: 24px auto 28px auto !important;
+  padding: 14px 20px !important;
+  max-width: 1000px;
+}
+
+/* ----- Containers ----- */
+.container,
+.top-bar,
+.content-box,
+.account-box,
+.left.section,
+.right.section,
+.login-container,
+form,
+main,
+section {
+  border-radius: var(--radius);
+}
+
+.container {
+  background: var(--surface-dark-glow) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: none !important;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.52), 0 0 70px rgba(79, 144, 240, 0.18) !important;
+  width: min(1100px, calc(100% - 32px));
+  margin: 24px auto !important;
+  padding: 28px !important;
+}
+
+.left.section,
+.right.section,
+.content-box,
+.account-box,
+.login-container {
+  background: var(--surface-dark-glow) !important;
+  border: none !important;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.4), 0 0 28px rgba(79, 144, 240, 0.14) !important;
+}
+
+/* Universal dark-glow cards for mixed legacy page class names */
+.panel,
+.card,
+.auth-card,
+.nav-card,
+.content-section,
+.history-card,
+.trade-card,
+.car,
+#trades > div,
+#carsList > div {
+  background: var(--surface-dark-glow) !important;
+  border: none !important;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.4), 0 0 30px rgba(79, 144, 240, 0.14) !important;
+}
+
+.top-bar,
+.button-row {
+  gap: 14px !important;
+}
+
+/* ----- Typography ----- */
+h1, h2, h3, h4, h5 {
+  color: var(--text) !important;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+h1 { font-size: 1.85rem; margin-bottom: 0.5rem; }
+h2 { font-size: 1.4rem;  margin-bottom: 0.4rem; }
+h3 { font-size: 1.1rem;  margin-bottom: 0.35rem; }
+
+p, label, li, small, span, div {
+  color: inherit;
+}
+
+/* ----- Inputs ----- */
+input,
+select,
+textarea {
+  width: min(100%, 420px);
+  max-width: 100%;
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 12px 14px !important;
+  font-size: 14.5px;
+  font-family: inherit;
+  color: var(--text) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  background: rgba(79, 144, 240, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(111, 174, 255, 0.5) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
+}
+
+select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ----- Buttons ----- */
+button,
+.dashboard-btn,
+button[type="submit"] {
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 11px 22px !important;
+  min-height: 42px;
+  font-size: 0.9rem !important;
+  font-family: inherit !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #5f90e6 0%, #78a9ff 100%) !important;
+  box-shadow: 0 8px 24px rgba(79, 144, 240, 0.36) !important;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+button:hover,
+.dashboard-btn:hover,
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(79, 144, 240, 0.48) !important;
+  filter: brightness(1.06);
+}
+
+button:active,
+.dashboard-btn:active,
+button[type="submit"]:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px var(--brand-glow) !important;
+}
+
+/* Decline / secondary buttons */
+button[onclick*="decline"],
+button[onclick*="Decline"] {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+  color: var(--text-soft) !important;
+}
+
+button[onclick*="decline"]:hover,
+button[onclick*="Decline"]:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text) !important;
+}
+
+/* Logout buttons */
+button[onclick*="logout"],
+button[onclick*="Logout"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+button[onclick*="logout"]:hover,
+button[onclick*="Logout"]:hover {
+  background: rgba(255, 255, 255, 0.11) !important;
+}
+
+/* Danger buttons */
+button[onclick*="clearTrades"],
+button[onclick*="Remove"],
+button[onclick*="delete"],
+button[onclick*="Delete"] {
+  background: linear-gradient(135deg, #ca4a3f 0%, #e35c49 100%) !important;
+  box-shadow: 0 8px 24px rgba(227, 92, 73, 0.38) !important;
+}
+
+button[onclick*="clearTrades"]:hover,
+button[onclick*="Remove"]:hover {
+  box-shadow: 0 8px 24px var(--danger-glow) !important;
+}
+
+/* ----- Links ----- */
+a {
+  color: var(--brand);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--brand-hover);
+  text-decoration: underline;
+}
+
+/* ----- Tables ----- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+th, td {
+  border: 1px solid var(--border) !important;
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+th {
+  background: rgba(79, 144, 240, 0.1) !important;
+  color: var(--text) !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+tr:hover td {
+  background: rgba(79, 144, 240, 0.04);
+}
+
+/* ----- Dividers ----- */
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+/* ----- Images ----- */
+img {
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+/* ----- Info / alert boxes ----- */
+.info, .alert {
+  background: rgba(79, 144, 240, 0.07) !important;
+  border: 1px solid var(--border-accent) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 14px 16px !important;
+  font-size: 0.88rem;
+}
+
+/* ----- Custom Scrollbar ----- */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: var(--bg-b); }
+::-webkit-scrollbar-thumb {
+  background: rgba(79, 144, 240, 0.25);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 144, 240, 0.45);
+}
+
+/* ----- Utility classes ----- */
+.text-muted  { color: var(--text-soft)  !important; }
+.text-danger { color: var(--danger)     !important; }
+.text-ok     { color: var(--ok)         !important; }
+.text-accent { color: var(--accent)     !important; }
+
+/* ----- Responsive ----- */
+@media (max-width: 900px) {
+  .container {
+    width: calc(100% - 18px);
+    margin: 10px auto !important;
+    padding: 16px !important;
+  }
+
+  .top-bar,
+  .button-row {
+    flex-direction: column !important;
+  }
+
+  button,
+  .dashboard-btn,
+  button[type="submit"] {
+    width: 100%;
+  }
+}

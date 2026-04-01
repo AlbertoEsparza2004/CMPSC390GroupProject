@@ -3,162 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LegacyAuto - Login</title>
+    <title>LegacyAuto — Parts &amp; Customization Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/global-ui.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background: #07090f !important;
+            overflow-x: hidden;
+        }
+
+        .hero-bg {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 18% 35%, rgba(79,144,240,0.13) 0%, transparent 50%),
+                radial-gradient(ellipse at 82% 70%, rgba(212,168,67,0.07)  0%, transparent 45%),
+                radial-gradient(ellipse at 55% 5%,  rgba(79,144,240,0.06)  0%, transparent 40%),
+                linear-gradient(160deg, #0c1428 0%, #07090f 100%);
+            z-index: 0;
+        }
+
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(79,144,240,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,144,240,0.04) 1px, transparent 1px);
+            background-size: 80px 80px;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+            animation: floatOrb 22s ease-in-out infinite;
+        }
+        .orb1 {
+            width: 520px; height: 520px;
+            background: radial-gradient(circle, rgba(79,144,240,0.15), transparent 70%);
+            top: -120px; left: -80px;
+        }
+        .orb2 {
+            width: 380px; height: 380px;
+            background: radial-gradient(circle, rgba(212,168,67,0.09), transparent 70%);
+            bottom: 60px; right: -60px;
+            animation-delay: -11s;
+        }
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0); }
+            33%       { transform: translate(28px, -18px); }
+            66%       { transform: translate(-18px, 14px); }
+        }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 48px;
+            height: 66px;
+            background: rgba(7,9,15,0.72);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(79,144,240,0.1);
+        }
+
+        .nav-brand {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.25rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+        .nav-brand span { color: #4f90f0; }
+
+        .nav-actions { display: flex; gap: 10px; align-items: center; }
+
+        .nav-btn {
+            padding: 8px 20px !important;
+            border-radius: 50px !important;
+            font-size: 0.84rem !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: unset !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+        .nav-ghost {
+            background: transparent !important;
+            color: rgba(190,210,255,0.75) !important;
+            border: 1px solid rgba(79,144,240,0.22) !important;
+            box-shadow: none !important;
+        }
+        .nav-ghost:hover {
+            background: rgba(79,144,240,0.1) !important;
+            color: #fff !important;
+            transform: none;
+            box-shadow: none !important;
+        }
+        .nav-fill {
+            background: #4f90f0 !important;
+            color: #fff !important;
+            border: none !important;
+            box-shadow: 0 4px 16px rgba(79,144,240,0.4) !important;
+        }
+        .nav-fill:hover {
+            background: #6faeff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(79,144,240,0.55) !important;
+        }
+
+        .hero {
+            position: relative;
+            z-index: 1;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 24px 40px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 22px;
+            border: 1px solid rgba(212,168,67,0.35);
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #d4a843;
+            background: rgba(212,168,67,0.06);
+            margin-bottom: 32px;
+        }
+        .hero-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #d4a843;
+            box-shadow: 0 0 8px #d4a843;
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.6rem, 8vw, 5.8rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -1px;
+            color: #ffffff;
+            margin-bottom: 28px;
+            max-width: 880px;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #4f90f0 0%, #8ab9ff 50%, #d4a843 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 1.1rem;
+            color: rgba(175,200,245,0.58);
+            max-width: 480px;
+            line-height: 1.8;
+            margin-bottom: 52px;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 72px;
+        }
+
+        .btn-primary {
+            padding: 16px 44px !important;
+            font-size: 1rem !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 700 !important;
+            background: #4f90f0 !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 50px !important;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 0 40px rgba(79,144,240,0.42), 0 6px 22px rgba(0,0,0,0.3) !important;
+            letter-spacing: 0.4px;
+            min-height: unset !important;
+        }
+        .btn-primary:hover {
+            background: #6faeff !important;
+            box-shadow: 0 0 55px rgba(79,144,240,0.58), 0 8px 28px rgba(0,0,0,0.3) !important;
+            transform: translateY(-3px);
+        }
+
+        .btn-outline {
+            padding: 16px 44px !important;
+            font-size: 1rem !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 600 !important;
+            background: transparent !important;
+            color: rgba(175,200,245,0.8) !important;
+            border: 1px solid rgba(79,144,240,0.3) !important;
+            border-radius: 50px !important;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: none !important;
+            min-height: unset !important;
+        }
+        .btn-outline:hover {
+            background: rgba(79,144,240,0.1) !important;
+            border-color: #4f90f0 !important;
+            color: #fff !important;
+            transform: translateY(-3px);
+            box-shadow: none !important;
+        }
+
+        .features-section {
+            position: relative;
+            z-index: 1;
+            width: min(1080px, 100% - 48px);
+            margin: 0 auto 48px;
+            padding: 26px;
+            border-radius: 24px;
+            background: rgba(10, 16, 33, 0.72);
+            border: 1px solid rgba(79,144,240,0.14);
+            box-shadow: 0 26px 70px rgba(0, 0, 0, 0.34), 0 0 60px rgba(79,144,240,0.08);
+        }
+
+        .features-eyebrow {
+            font-size: 0.74rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(138, 179, 247, 0.72);
+            margin-bottom: 16px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .feature-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            background: rgba(11, 20, 42, 0.84);
+            border: 1px solid rgba(79,144,240,0.16);
+            padding: 20px;
+            transition: all 0.25s ease;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(79,144,240,0.5), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .feature-card:hover {
+            background: rgba(79,144,240,0.06) !important;
+            border-color: rgba(79,144,240,0.26) !important;
+            transform: translateY(-5px);
+        }
+        .feature-card:hover::before { opacity: 1; }
+
+        .feature-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            background: rgba(79,144,240,0.1);
+            border: 1px solid rgba(79,144,240,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.55rem;
+            margin-bottom: 18px;
+        }
+        .feature-card h3 {
+            font-size: 1rem !important;
+            font-weight: 700 !important;
+            color: #e6eeff !important;
+            margin-bottom: 10px !important;
+        }
+        .feature-card p {
+            font-size: 0.84rem;
+            color: rgba(115,145,200,0.7) !important;
+            line-height: 1.7;
         }
 
-        .login-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            padding: 50px;
+        .site-footer {
+            position: relative;
+            z-index: 1;
             text-align: center;
-            max-width: 500px;
-            width: 90%;
+            padding: 40px 24px 48px;
+            border-top: 1px solid rgba(255,255,255,0.04);
         }
-
-        .logo {
-            font-size: 32px;
-            font-weight: bold;
-            color: #667eea;
+        .footer-brand {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            color: rgba(255,255,255,0.18);
+            font-weight: 900;
+            display: block;
             margin-bottom: 10px;
-            text-align: center;
         }
-
-        .tagline {
-            color: #666;
-            margin-bottom: 40px;
-            font-size: 14px;
+        .site-footer p {
+            font-size: 0.78rem;
+            color: rgba(70,95,145,0.6) !important;
+            margin-bottom: 24px;
         }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-
-        .description {
-            color: #666;
-            margin-bottom: 40px;
-            font-size: 14px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 20px;
-            flex-direction: column;
-        }
-
-        button {
-            padding: 15px 30px;
-            font-size: 16px;
-            border: none;
-            border-radius: 8px;
+        .employee-chip {
+            display: inline-block;
+            padding: 8px 24px !important;
+            border: 1px solid rgba(79,144,240,0.15) !important;
+            border-radius: 50px !important;
+            font-size: 0.8rem !important;
+            font-family: 'Inter', sans-serif !important;
+            color: rgba(110,150,220,0.6) !important;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+            background: transparent !important;
+            min-height: unset !important;
+            box-shadow: none !important;
+        }
+        .employee-chip:hover {
+            color: #fff !important;
+            border-color: rgba(79,144,240,0.4) !important;
+            background: rgba(79,144,240,0.08) !important;
+            transform: translateY(-1px);
+            box-shadow: none !important;
         }
 
-        .btn-customer {
-            background: #667eea;
-            color: white;
+        @media (max-width: 640px) {
+            nav { padding: 0 20px; }
+            .hero-title { letter-spacing: -0.5px; }
+            .features-grid { grid-template-columns: 1fr 1fr; }
+            .stat { min-width: 110px; }
         }
-
-        .btn-customer:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-employee {
-            background: #764ba2;
-            color: white;
-        }
-
-        .btn-employee:hover {
-            background: #643a85;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(118, 75, 162, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .divider {
-            margin: 30px 0;
-            color: #ccc;
-            font-size: 12px;
-        }
-
-        .info {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: #666;
-            margin-top: 20px;
-        }
-
-        .info p {
-            margin: 5px 0;
+        @media (max-width: 420px) {
+            .features-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">LegacyAuto</div>
-        <div class="tagline">Parts Trading and Customization Platform</div>
+    <div class="hero-bg"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
 
-        <h1>Welcome</h1>
-        <p class="description">Choose how you would like to access the platform</p>
-
-        <div class="button-group">
-            <button class="btn-customer" onclick="goToCustomerLogin()">
-                Customer Login
-            </button>
-            <button class="btn-employee" onclick="goToEmployeeLogin()">
-                Employee Login
-            </button>
+    <nav>
+        <a class="nav-brand" href="/">LEGACY<span>AUTO</span></a>
+        <div class="nav-actions">
+            <button class="nav-btn nav-ghost" onclick="goToCustomerLogin()">Sign In</button>
+            <button class="nav-btn nav-fill"  onclick="goToCustomerRegister()">Get Started</button>
         </div>
+    </nav>
 
-        <div class="divider">OR</div>
+    <section class="hero">
+        <div class="hero-badge">Parts &middot; Trades &middot; Custom Builds</div>
 
-        <button class="btn-customer" onclick="goToCustomerRegister()" style="background: #4CAF50;">
-            New Customer Account
-        </button>
+        <h1 class="hero-title">
+            Engineer Your<br>
+            <span class="gradient-text">Perfect Ride</span>
+        </h1>
 
-        <div class="info">
-            <p><strong>Customer Area:</strong> Browse parts, trade, and customize vehicles</p>
-            <p><strong>Employee Area:</strong> Manage schedules, performance, and requests</p>
+        <p class="hero-sub">
+            Browse premium automotive parts, trade with builders worldwide, and configure your dream vehicle &mdash; all in one platform.
+        </p>
+
+        <div class="hero-cta">
+            <button class="btn-primary" onclick="goToCustomerLogin()">Customer Login</button>
+            <button class="btn-outline" onclick="goToCustomerRegister()">Create Account</button>
+            <button class="btn-primary" style="background: linear-gradient(135deg, #d4a843 0%, #e8c857 100%) !important; box-shadow: 0 0 40px rgba(212,168,67,0.42), 0 6px 22px rgba(0,0,0,0.3) !important;" onclick="goToEmployeeLogin()">Employee Portal &rarr;</button>
         </div>
-    </div>
+    </section>
+
+    <section class="features-section">
+        <p class="features-eyebrow">What We Offer</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">&#x1F529;</div>
+                <h3>Parts Catalog</h3>
+                <p>Search thousands of automotive parts. Filter by category, compatibility, and price to find exactly what your build needs.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#x1F504;</div>
+                <h3>Trade Marketplace</h3>
+                <p>List your spare parts and make offers on other listings. Real-time trade negotiation between builders.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#x1F697;</div>
+                <h3>Vehicle Builder</h3>
+                <p>Configure custom vehicle builds from the ground up. Mix and match parts, save configs, and describe your vision.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#x1F4C1;</div>
+                <h3>Saved Builds</h3>
+                <p>Store unlimited vehicle configurations and pick up right where you left off, any time.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <span class="footer-brand">LEGACYAUTO</span>
+        <p>Built for modern builders, technicians, and performance enthusiasts.</p>
+        <button class="employee-chip" onclick="goToEmployeeLogin()">Employee Access</button>
+    </footer>
 
     <script>
         function goToCustomerLogin() {
             window.location.href = '/Sprint2Alberto/CustomerSingInPage.html';
         }
 
-        function goToEmployeeLogin() {
-            window.location.href = '/Sprint2Alberto/EmployeeSignInPage.html';
-        }
-
         function goToCustomerRegister() {
             window.location.href = '/Sprint2-Charles/CustomerCreateAccountPage.html';
+        }
+
+        function goToEmployeeLogin() {
+            window.location.href = '/Sprint2Alberto/EmployeeSignInPage.html';
         }
     </script>
 </body>

@@ -13,10 +13,6 @@ app.use(express.urlencoded({ extended: true }));
 // ROOT & TEST ROUTES
 // ==========================================
 
-app.get("/", (req, res) => {
-  res.send("CMPSC390 Backend API is running (Consolidated Backend).");
-});
-
 app.get("/test", (req, res) => {
   res.send("Backend server is running successfully.");
 });
@@ -522,13 +518,31 @@ app.get("/trades", (req, res) => {
 app.post("/createTrade", (req, res) => {
   const { OwnerUserID, OfferedPartID, DesiredMinPrice, DesiredMaxPrice, ConditionDescription, ImageURL } = req.body;
 
+  const ownerUserId = Number(OwnerUserID);
+  const offeredPartId = Number(OfferedPartID);
+  const minPrice = Number(DesiredMinPrice);
+  const maxPrice = Number(DesiredMaxPrice);
+
+  if (!Number.isInteger(ownerUserId) || ownerUserId <= 0 || !Number.isInteger(offeredPartId) || offeredPartId <= 0) {
+    return res.status(400).json({ message: "Valid OwnerUserID and OfferedPartID are required" });
+  }
+
+  if (!Number.isFinite(minPrice) || !Number.isFinite(maxPrice) || minPrice < 0 || maxPrice < 0 || minPrice > maxPrice) {
+    return res.status(400).json({ message: "Valid DesiredMinPrice and DesiredMaxPrice are required" });
+  }
+
+  const condition = String(ConditionDescription || "").trim();
+  if (!condition) {
+    return res.status(400).json({ message: "ConditionDescription is required" });
+  }
+
   const sql = `
     INSERT INTO Trades
     (OwnerUserID, OfferedPartID, DesiredMinPrice, DesiredMaxPrice, ConditionDescription, ImageURL, Status)
     VALUES (?, ?, ?, ?, ?, ?, 'OPEN')
   `;
 
-  db.query(sql, [OwnerUserID, OfferedPartID, DesiredMinPrice, DesiredMaxPrice, ConditionDescription, ImageURL], (err, results) => {
+  db.query(sql, [ownerUserId, offeredPartId, minPrice, maxPrice, condition, ImageURL || null], (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Database error" });
@@ -539,8 +553,12 @@ app.post("/createTrade", (req, res) => {
 });
 
 app.post("/acceptTrade/:id", (req, res) => {
-  const tradeId = req.params.id;
-  const userId = parseInt(req.body.userId, 10);
+  const tradeId = Number(req.params.id);
+  const userId = Number(req.body.userId);
+
+  if (!Number.isInteger(tradeId) || tradeId <= 0 || !Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ message: "Valid trade id and userId are required" });
+  }
 
   // Verify that the user is the trade owner
   const verifySql = "SELECT OwnerUserID FROM Trades WHERE TradeID = ?";
@@ -573,9 +591,17 @@ app.post("/acceptTrade/:id", (req, res) => {
 app.post("/createOffer", (req, res) => {
   const { TradeID, OfferingUserID, OfferedPartDescription } = req.body;
 
+  const tradeId = Number(TradeID);
+  const offeringUserId = Number(OfferingUserID);
+  const offeredPartDescription = String(OfferedPartDescription || "").trim();
+
+  if (!Number.isInteger(tradeId) || tradeId <= 0 || !Number.isInteger(offeringUserId) || offeringUserId <= 0 || !offeredPartDescription) {
+    return res.status(400).json({ message: "Valid TradeID, OfferingUserID, and OfferedPartDescription are required" });
+  }
+
   const sql = `INSERT INTO TradeOffers (TradeID, OfferingUserID, OfferedPartDescription) VALUES (?, ?, ?)`;
 
-  db.query(sql, [TradeID, OfferingUserID, OfferedPartDescription], (err) => {
+  db.query(sql, [tradeId, offeringUserId, offeredPartDescription], (err) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Database error" });
@@ -599,8 +625,12 @@ app.get("/offers/:tradeId", (req, res) => {
 });
 
 app.post("/acceptOffer/:id", (req, res) => {
-  const offerId = req.params.id;
-  const userId = parseInt(req.body.userId, 10);
+  const offerId = Number(req.params.id);
+  const userId = Number(req.body.userId);
+
+  if (!Number.isInteger(offerId) || offerId <= 0 || !Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ message: "Valid offer id and userId are required" });
+  }
 
   const getOfferSql = `SELECT TradeID FROM TradeOffers WHERE OfferID = ?`;
   db.query(getOfferSql, [offerId], (offerErr, offerResults) => {
@@ -653,7 +683,11 @@ app.post("/acceptOffer/:id", (req, res) => {
 });
 
 app.post("/declineOffer/:id", (req, res) => {
-  const offerId = req.params.id;
+  const offerId = Number(req.params.id);
+
+  if (!Number.isInteger(offerId) || offerId <= 0) {
+    return res.status(400).json({ message: "Valid offer id is required" });
+  }
 
   const sql = "DELETE FROM TradeOffers WHERE OfferID = ?";
 
@@ -823,10 +857,21 @@ app.get("/contactInfo", (req, res) => {
 
 app.post("/request-dayoff", (req, res) => {
   const { EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason, Type } = req.body;
+  const employeeId = String(EmployeeID || "").trim();
+  const monthNum = Number(MonthNum);
+  const weekNum = Number(WeekNum);
+  const normalizedDay = String(DayOfWeek || "").trim();
+  const reason = String(Reason || "").trim();
   const requestType = (Type || "off").toString().trim().toLowerCase() === "work" ? "work" : "off";
+  const validDays = new Set(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
+
+  if (!employeeId || !Number.isInteger(monthNum) || monthNum < 1 || monthNum > 12 || !Number.isInteger(weekNum) || weekNum < 1 || weekNum > 6 || !validDays.has(normalizedDay) || !reason) {
+    return res.status(400).json({ message: "Valid EmployeeID, MonthNum, WeekNum, DayOfWeek, and Reason are required" });
+  }
+
   const sql = `INSERT INTO TimeOffRequests (EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason, Type, Status) VALUES (?, ?, ?, ?, ?, ?, 'Pending')`;
   
-  db.query(sql, [EmployeeID, MonthNum, WeekNum, DayOfWeek, Reason, requestType], (err) => {
+  db.query(sql, [employeeId, monthNum, weekNum, normalizedDay, reason, requestType], (err) => {
     if (err) {
       console.error(err);
       return res.status(500).send("Request failed");

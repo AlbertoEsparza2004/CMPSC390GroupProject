@@ -3,16 +3,38 @@
 <head>
 <title>Trade Marketplace</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/Sprint2Alberto/styles.css">
-<style>
-  .container { max-width: 700px; margin: 0 auto; padding: 20px; display: block; }
-  .left.section { width: 100%; align-items: center; }
-</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: 'Inter', sans-serif; background: #07090f; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+      .page-bg { position: fixed; inset: 0; background: radial-gradient(ellipse at 18% 35%, rgba(79,144,240,0.08) 0%, transparent 50%), radial-gradient(ellipse at 82% 70%, rgba(212,168,67,0.04) 0%, transparent 45%), linear-gradient(160deg, #0c1428 0%, #07090f 100%); z-index: 0; }
+      header { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: 'Orbitron', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; }
+      header span { color: #4f90f0; }
+      .container { position: relative; z-index: 1; width: min(760px, calc(100% - 32px)); margin: 30px auto; padding: 40px 44px; background: rgba(12,20,40,0.5); border: none; border-radius: 24px; box-shadow: 0 0 60px rgba(79,144,240,0.18), 0 20px 40px rgba(0,0,0,0.5); }
+      .left.section { width: 100%; align-items: stretch; }
+      .container h2 { font-family: 'Orbitron', monospace; font-size: 2rem; font-weight: 900; text-align: center; margin: 0 0 26px 0; }
+      .container h3 { font-size: 1.1rem; margin: 6px 0 14px 0; color: #d9e7ff; }
+      select, input { width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.08); border: none !important; border-radius: 10px; color: #fff; font-family: 'Inter', sans-serif; font-size: 0.95rem; margin-bottom: 14px; box-shadow: none !important; }
+      select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: linear-gradient(45deg, transparent 50%, #c9dcff 50%), linear-gradient(135deg, #c9dcff 50%, transparent 50%); background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px); background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 34px; }
+      select:focus, input:focus { outline: none; background: rgba(79,144,240,0.2); box-shadow: 0 0 0 2px rgba(111,174,255,0.45); }
+      select option { background: #dfe8fb; color: #0d1730; }
+      #trades input[id^='offer'] { width: 100%; display: block; margin: 10px 0 8px; }
+      button { padding: 12px 28px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none !important; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.95rem; transition: all 0.25s ease; box-shadow: 0 0 18px rgba(79,144,240,0.35); margin-top: 8px; margin-right: 8px; }
+      button:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(79,144,240,0.5); }
+      .action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+      .danger { background: linear-gradient(135deg, #ca4a3f 0%, #e35c49 100%); box-shadow: 0 0 18px rgba(227,92,73,0.35); }
+      #trades { margin-top: 26px; display: flex; flex-direction: column; gap: 10px; }
+      #trades img { border-radius: 8px; margin-bottom: 6px; }
+      #trades > div.trade-row { background: rgba(79,144,240,0.1); border: none; border-radius: 12px; padding: 12px; }
+      footer { position: relative; z-index: 1; text-align: center; padding: 32px 24px; border-top: 1px solid rgba(79,144,240,0.1); color: rgba(175,200,245,0.6); font-size: 0.85rem; margin-top: auto; }
+    </style>
 </head>
 
 <body>
-
-<header><h1>Legacy Auto Company</h1></header>
+<div class="page-bg"></div>
+<header>LEGACY<span>AUTO</span></header>
 
 <div class="container">
 
@@ -22,27 +44,22 @@
 
 <h3>Create Trade</h3>
 
-<select id="partID"></select><br><br>
+<select id="partID"></select>
 
-<input id="minPrice" placeholder="Minimum Price"><br><br>
+<input id="minPrice" placeholder="Minimum Price">
 
-<input id="maxPrice" placeholder="Maximum Price"><br><br>
+<input id="maxPrice" placeholder="Maximum Price">
 
-<input id="condition" placeholder="Condition"><br><br>
+<input id="condition" placeholder="Condition">
 
-<input id="imageURL" placeholder="Image URL"><br><br>
+<input id="imageURL" placeholder="Image URL">
 
+<div class="action-row">
 <button onclick="createTrade()">Post Trade</button>
-
-<hr>
-
 <button onclick="loadTrades()">Load Available Trades</button>
-
-<button onclick="clearTrades()">Remove All Trades</button>
-
-<br><br>
-
+<button class="danger" onclick="clearTrades()">Remove All Trades</button>
 <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + getCurrentUserId()">Go back</button>
+</div>
 
 <div id="trades"></div>
 
@@ -51,7 +68,7 @@
 </div>
 
 <footer>
-<h2>Trade parts with other users!</h2>
+<p>Trade parts with other users!</p>
 </footer>
 
 <script>
@@ -130,9 +147,7 @@ return;
 
 data.forEach(trade => {
 
-output += `
-<img src="${trade.ImageURL}" width="200"><br>
-
+output += `<div class="trade-row">
 <p><strong>Posted by:</strong> ${trade.UserName}</p>
 
 <p><strong>Part:</strong> ${trade.PartName || "Unknown Part"}</p>
@@ -152,15 +167,13 @@ output += `
 }else{
 
 output += `
-<input id="offer${trade.TradeID}" placeholder="Describe your part"><br><br>
-
+<input id="offer${trade.TradeID}" placeholder="Describe your part">
 <button onclick="submitOffer(${trade.TradeID})">Offer Trade</button>
-
 `;
 
 }
 
-output += `<hr>`;
+output += `</div>`;
 
 });
 

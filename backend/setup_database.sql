@@ -278,3 +278,4 @@ SELECT COUNT(*) AS PartCount FROM Parts;
 SELECT COUNT(*) AS EmpCount FROM Employees;
 SELECT COUNT(*) AS CarCount FROM Customized_car;
 SELECT COUNT(*) AS CarPartsCount FROM Customized_car_parts;
+SELECT * from user;

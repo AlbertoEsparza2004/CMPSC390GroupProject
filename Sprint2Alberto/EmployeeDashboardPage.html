@@ -1,36 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>Employee Dashboard Page</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="styles.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Employee Dashboard - LegacyAuto</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/global-ui.css">
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Inter', sans-serif; background: #07090f; color: #fff; min-height: 100vh;  }
+            nav { position: relative; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 66px; background: rgba(7,9,15,0.75); backdrop-filter: blur(16px); border-bottom: none; }
+            .nav-brand { font-family:'Orbitron', monospace; font-size: 1.2rem; font-weight: 900; letter-spacing: 4px; color: #fff; text-decoration: none; text-transform: uppercase; }
+            .nav-brand span { color: #4f90f0; }
+            .nav-right { display: flex; align-items: center; gap: 16px; }
+            .nav-btn { padding: 8px 20px; background: rgba(79,144,240,0.1); border: 1px solid rgba(79,144,240,0.3); border-radius: 50px; color: rgba(175,200,245,0.8); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s ease; }
+            .nav-btn:hover { background: rgba(79,144,240,0.2); color: #fff; }
+            
+            .container { display: flex; position: relative; z-index: 1; min-height: calc(100vh - 66px); background: transparent !important; border: none !important; box-shadow: none !important; margin: 0 !important; width: 100% !important; padding: 0 !important; }
+            .left { flex: 0 0 220px; background: rgba(10,18,38,0.82); border-right: none; padding: 32px 20px; overflow-y: auto; box-shadow: inset -1px 0 0 rgba(111,174,255,0.25), 0 0 24px rgba(79,144,240,0.18); }
+            .left h2 { font-family: 'Orbitron', monospace; font-size: 1.2rem; margin-bottom: 32px; }
+            .left button { width: 100%; padding: 14px 16px; background: rgba(79,144,240,0.12); border: none; border-radius: 10px; color: rgba(175,200,245,0.9); cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.25s ease; margin-bottom: 12px; box-shadow: 0 0 15px rgba(79,144,240,0.08); }
+            .left button:hover { background: rgba(79,144,240,0.25); color: #fff; box-shadow: 0 0 25px rgba(79,144,240,0.2); transform: translateX(4px); }
+            
+            .right { flex: 1; padding: 40px; overflow-y: auto; background: rgba(10,18,38,0.74); box-shadow: inset 0 0 0 1px rgba(111,174,255,0.2), 0 0 34px rgba(79,144,240,0.16); }
+            .right h2 { font-family: 'Orbitron', monospace; font-size: 1.6rem; margin-bottom: 24px; }
+            .right h3 { font-size: 1.1rem; margin: 24px 0 16px 0; }
+
+            .attendance-wrap { max-width: 860px; margin: 0 auto; }
+            .attendance-wrap h2 { text-align: center; }
+            .calendar-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; max-width: 760px; margin: 0 auto 14px auto; }
+            .calendar-header h2 { margin: 0; font-size: 1.3rem; }
+            .calendar-header button { width: auto; min-width: 132px; padding: 10px 14px; }
+            .calendar-days,
+            .calendar-grid { width: 100%; max-width: 760px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin: 0 auto; }
+            .calendar-days div { text-align: center; font-weight: 700; color: rgba(190,210,255,0.9); }
+            .calendar-grid .day { min-height: 78px; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: rgba(79,144,240,0.1); box-shadow: inset 0 0 0 1px rgba(111,174,255,0.22); }
+            .calendar-grid .day.inactive { opacity: 0.45; }
+            .calendar-grid .day.worked { background: rgba(46, 204, 113, 0.14); box-shadow: inset 0 0 0 1px rgba(46, 204, 113, 0.25); }
+            .calendar-grid .day.off { background: rgba(231, 76, 60, 0.14); box-shadow: inset 0 0 0 1px rgba(231, 76, 60, 0.25); }
+            .calendar-grid .day-number { font-weight: 700; }
+            
+            form { background: rgba(255,255,255,0.04); border: none; border-radius: 14px; padding: 28px; margin-top: 16px; box-shadow: 0 0 20px rgba(79,144,240,0.1); }
+            label { display: block; color: rgba(175,200,245,0.9); font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
+            input[type="text"], input[type="password"], select, textarea { width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.06); border: none; border-radius: 8px; color: #fff; font-family: 'Inter', sans-serif; margin-bottom: 16px; transition: all 0.2s ease; }
+            input[type="text"]:focus, input[type="password"]:focus, select:focus, textarea:focus { outline: none; background: rgba(79,144,240,0.15); box-shadow: 0 0 0 2px rgba(79,144,240,0.4), inset 0 0 10px rgba(79,144,240,0.1); }
+            form button { padding: 12px 28px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(79,144,240,0.4); }
+            form button:hover { transform: translateY(-3px); box-shadow: 0 0 25px rgba(79,144,240,0.6), 0 8px 16px rgba(79,144,240,0.3); }
+            
+            table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+            table th, table td { padding: 12px; text-align: left; border: 1px solid rgba(79,144,240,0.2); }
+            table th { background: rgba(79,144,240,0.1); font-weight: 700; }
+            
+            #InteractiveDisplay { position: relative; }
+            .form-card { max-width: 760px; margin: 0 auto; background: rgba(10,18,38,0.8); border: none; border-radius: 16px; padding: 24px; box-shadow: 0 0 24px rgba(79,144,240,0.16); }
+            .form-card h2 { text-align: center; margin-bottom: 18px; }
+            .form-card .field-group { margin-bottom: 14px; }
+            .form-card label { display: block; margin-bottom: 8px; color: rgba(190,210,255,0.85); }
+            .form-card input { width: 100%; }
+            @media (max-width: 768px) { .container { flex-direction: column; } .left { flex: 0 0 auto; } }
+        </style>
     </head>
     
     <body>
-        <header><h1>Legacy Auto Company</h1></header>
+        <nav>
+            <a class="nav-brand" href="/">LEGACY<span>AUTO</span></a>
+            <div class="nav-right">
+                <button class="nav-btn" onclick="logout()">Sign Out</button>
+            </div>
+        </nav>
         
-        <div class = "container" style="justify-content: center;">
-            <div class = "left section">
-               <h2 id = "welcome">Hello Employee</h2>
-                <button onclick = "loadAttendance()">Attendance</button>
-                <br><br><br>
-                <button onclick = "loadTaxInfo()">Tax Info.</button>
-                <br><br><br>
-                <button onclick = "loadContactInfo()">Contact Info.</button>
-                <br><br><br>
-                <button onclick="loadChangePassword()">Change Password</button>
-                <br><br><br>
-                <button onclick="logout()">Logout</button>
-
+        <div class="container">
+            <div class="left section">
+               <h2 id="welcome">Employee</h2>
+                <button onclick="loadAttendance()">📅 Attendance</button>
+                <button onclick="loadTaxInfo()">💰 Tax Info</button>
+                <button onclick="loadContactInfo()">📞 Contact Info</button>
+                <button onclick="loadChangePassword()">🔐 Change Password</button>
             </div>
 
-            <div class = "right section" id = "InteractiveDisplay">
-
+            <div class="right section" id="InteractiveDisplay">
+                <h2>Welcome to Your Dashboard</h2>
+                <p style="color: rgba(175,200,245,0.7);">Select an option from the menu on the left to get started.</p>
             </div>
-            
         </div>
-
-        <footer><h2>This is legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and hope to make your vision a reality</h2></footer>
+        
         <script>
                 window.onload = function(){
                     const params = new URLSearchParams(window.location.search);
@@ -39,7 +94,7 @@
                     console.log(name);
                     console.log(employeeID);
                     if (name){
-                        document.getElementById("welcome").textContent = "Hello " + name;
+                        document.getElementById("welcome").textContent = name.split(" ")[0];
                     }
                 };
 
@@ -80,6 +135,7 @@
                     const defaultWeek = Math.min(6, Math.max(1, Math.ceil(currentDate.getDate() / 7)));
 
                     document.getElementById("InteractiveDisplay").innerHTML = `
+                        <div class="attendance-wrap">
                         <h2>Attendance</h2>
                         <div id="calendar"></div>
                         <br>
@@ -133,22 +189,55 @@
                             </select><br><br>
 
                             <label>Reason</label><br>
-                            <textarea name="Reason"></textarea><br><br>
+                            <textarea name="Reason" required></textarea><br><br>
                             
                             <button type="submit">Submit Request</button>
                         </form>
                         <p id="requestResult"></p>
+                        </div>
                     `;
 
                     document.getElementById("dayOffForm").addEventListener("submit", async function(e){
                         e.preventDefault();
                         const formData = new FormData(this);
+                        const requestResult = document.getElementById("requestResult");
+                        const reason = String(formData.get("Reason") || "").trim();
+
+                        if (!reason) {
+                            requestResult.textContent = "Error: enter reason.";
+                            requestResult.style.color = "#ff9a9a";
+                            return;
+                        }
+
                         const res = await fetch("/request-dayoff", {
                             method: "POST",
                             body: new URLSearchParams(formData)
                         });
                         const text = await res.text();
-                        document.getElementById("requestResult").textContent = text;
+                        let message = text;
+
+                        try {
+                            const parsed = JSON.parse(text);
+                            if (parsed && parsed.message) {
+                                message = parsed.message;
+                            }
+                        } catch (_) {
+                            // Keep plain text messages as-is.
+                        }
+
+                        if (!res.ok) {
+                            if (String(message).toLowerCase().includes("reason")) {
+                                message = "Error: enter reason.";
+                            } else {
+                                message = "Error submitting request.";
+                            }
+                            requestResult.style.color = "#ff9a9a";
+                        } else {
+                            message = "Request submitted.";
+                            requestResult.style.color = "#8bd8a8";
+                        }
+
+                        requestResult.textContent = message;
                     });
 
                     document.querySelector('#dayOffForm select[name="MonthNum"]').value = String(defaultMonth);
@@ -352,17 +441,19 @@
                 
                 function loadChangePassword(){
                     document.getElementById("InteractiveDisplay").innerHTML = `
-                        <h2>Change Password</h2>
-
-                        <label>Old Password</label><br>
-                        <input type="password" id="oldPassword">
-                        <br><br>
-                        <label>New Password</label><br>
-                        <input type="password" id="newPassword">
-                        <br><br>
-                        <button onclick="changePassword()">Update Password</button>
-
-                        <p id="passwordResult"></p>
+                        <div class="form-card">
+                            <h2>Change Password</h2>
+                            <div class="field-group">
+                                <label for="oldPassword">Old Password</label>
+                                <input type="password" id="oldPassword">
+                            </div>
+                            <div class="field-group">
+                                <label for="newPassword">New Password</label>
+                                <input type="password" id="newPassword">
+                            </div>
+                            <button onclick="changePassword()">Update Password</button>
+                            <p id="passwordResult" style="margin-top:12px;"></p>
+                        </div>
                     `;
                 }
                 
