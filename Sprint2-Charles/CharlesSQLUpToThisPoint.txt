@@ -1,0 +1,26 @@
+-- Use database
+USE legautocustDB;
+
+-- Check tables
+SHOW TABLES;
+
+-- Table structures
+DESCRIBE `User`;
+DESCRIBE Parts;
+DESCRIBE Customized_car;
+
+-- Changes I made, generates UserID
+ALTER TABLE `User`
+MODIFY UserID INT NOT NULL AUTO_INCREMENT;
+
+-- Get users
+SELECT * FROM `User`;
+
+-- Get parts
+SELECT * FROM Parts;
+
+-- Get saved vehicles for a user
+SELECT * FROM Customized_car WHERE UserID = 2120002026;
+
+-- Count saved vehicles for a user (used in dashboard)
+SELECT COUNT(*) FROM Customized_car WHERE UserID = 2120002026;

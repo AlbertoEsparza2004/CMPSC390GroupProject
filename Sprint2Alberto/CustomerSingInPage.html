@@ -1,5 +1,77 @@
 <!DOCTYPE html>
 <html>
+<<<<<<< HEAD
+<head>
+    <title>Customer SignIn Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header><h1>Legacy Auto Company</h1></header>
+
+    <div class="container" style="justify-content: center;">
+        <div>
+            <h2 style="text-align: center">Customer SignIn Page</h2>
+
+            <form id="loginForm">
+                <label>Username</label><br>
+                <input type="text" id="username" name="username" required /><br><br>
+
+                <label>Password</label><br>
+                <input type="password" id="password" name="password" required /><br><br>
+
+                <button type="submit">Login</button><br><br>
+
+                Dont have an account? <a href="/Sprint2-Charles/CustomerCreateAccountPage.html">Create one</a>
+                <br><br><br><br>
+            </form>
+
+            <button onclick="window.location.href='index.html'">Go back</button>
+        </div>
+    </div>
+
+    <footer>
+        <h2>This is legacy Auto Comp!!!!! we are excited to bring you a new perspective on creativity and home to build your vision</h2>
+    </footer>
+
+<script>
+const form = document.getElementById("loginForm");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+        const res = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.message || "Login failed");
+            return;
+        }
+
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("username", data.username);
+
+        window.location.replace("/Sprint2-Charles/CustomerDashboard.html?userId=" + data.userId);
+
+    } catch (err) {
+        console.error(err);
+        alert("Server error. Check backend console.");
+    }
+});
+</script>
+
+</body>
+=======
     <head>
         <title>Customer SignIn Page</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -85,4 +157,5 @@ alert(data.message || "Login failed");
 
 </script>
     </body>
+>>>>>>> c1dcc553348a59f278862fac6cd761be4c56dadf
 </html>
