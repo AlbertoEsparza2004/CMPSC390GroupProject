@@ -1095,7 +1095,7 @@ app.post("/changePassword", (req, res) => {
 // ==========================================
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "Sprint2Alberto", "CustomerSignInPage.html"));
+    res.sendFile(path.join(__dirname, "..", "index.html"));
 });
 
 // ==========================================
