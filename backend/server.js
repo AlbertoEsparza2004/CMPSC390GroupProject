@@ -1088,6 +1088,16 @@ app.post("/changePassword", (req, res) => {
   });
 });
 
+
+
+// ==========================================
+// ROOT HOMEPAGE (ADD THIS)
+// ==========================================
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "Sprint2Alberto", "CustomerSignInPage.html"));
+});
+
 // ==========================================
 // SERVER START
 // ==========================================
