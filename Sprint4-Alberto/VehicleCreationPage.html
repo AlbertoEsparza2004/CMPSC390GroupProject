@@ -26,73 +26,89 @@
         button { padding: 12px 28px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(79,144,240,0.4); }
         button:hover { transform: translateY(-3px); box-shadow: 0 0 35px rgba(79,144,240,0.6), 0 8px 16px rgba(79,144,240,0.3); }
         footer { position: relative; z-index: 1; text-align: center; padding: 32px 24px; border-top: 1px solid rgba(79,144,240,0.1); color: rgba(175,200,245,0.6); font-size: 0.85rem; margin-top: auto; }
-    </style>
+        .split-layout { display: flex; padding: 20px; gap: 20px; }
+        .left-side { width: 40%; }
+        .right-side { width: 60%; display: flex; justify-content: center; align-items: center; }    
+</style>
 </head>
 
 <body>
 <div class="page-bg"></div>
 <header>LEGACY<span>AUTO</span></header>
 
-<div class="content-box">
-    <h2>Vehicle Creation Page</h2>
-    <p>Quickly create and save a basic vehicle configuration.</p>
+<div class="split-layout">
 
-    <div class="form-row">  <!--creates select for body-->
-        <label for="baseCar">Base Car</label>
-        <select id="baseCar">
-            <option value="">Select Car</option>
-            <option value="Muscle">Muscle</option>
-            <option value="SUV">SUV</option>
-            <option value="Truck">Truck (Not Finished)</option>
-            <option value="Coupe">Coupe</option>
-        </select>
-    </div>              
+    <!-- LEFT SIDE -->
+    <div class="left-side">
+        <div class="content-box">
 
-    <div class="form-row">  <!--creates select for color-->
-    <label for="carColor">Car Color</label>
-    <select id="carColor" required>
-        <option value="">Select Color</option>
-        <option value="white">White</option>
-        <option value="black">Black</option>
-        <option value="purple">Neon Purple</option>
-        <option value="green">Neon Green</option>
-    </select>
-</div>                  
+            <h2>Vehicle Creation Page</h2>
+            <p>Quickly create and save a basic vehicle configuration.</p>
 
-<div class="form-row">      <!--creates select for rims-->
-    <label for="carRims">Car Rims</label>
-    <select id="carRims" required>
-        <option value="">Select Rims</option>
-        <option value="blackSport">Sport Black</option>
-        <option value="greySport">Sport Silver</option>
-        <option value="offRoadBlack">Offroad Black</option>
-        <option value="bronzeOffRoad">Offroad Bronze</option>
-    </select>
-</div>                  
+            <div class="form-row">
+                <label for="baseCar">Base Car</label>
+                <select id="baseCar">
+                    <option value="">Select Car</option>
+                    <option value="Muscle">Muscle</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Truck">Truck (Not Finished)</option>
+                    <option value="Coupe">Coupe</option>
+                </select>
+            </div>
 
-<div id="extraOptions"></div>   <!--container for extra options-->
-    <a href="#" onclick="addExtraOption(); return false;">+ More Options</a>
+            <div class="form-row">
+                <label for="carColor">Car Color</label>
+                <select id="carColor">
+                    <option value="">Select Color</option>
+                    <option value="white">White</option>
+                    <option value="black">Black</option>
+                    <option value="purple">Neon Purple</option>
+                    <option value="green">Neon Green</option>
+                </select>
+            </div>
 
-    <div class="summary" id="summaryBox">
-        <div><strong>Base Car:</strong> <span id="sumBase">Muscle</span></div>
-        <div><strong>Parts:</strong> <span id="sumPart">None</span></div>
-        <div><strong>Total:</strong> $<span id="sumTotal">25000.00</span></div>   
+            <div class="form-row">
+                <label for="carRims">Car Rims</label>
+                <select id="carRims">
+                    <option value="">Select Rims</option>
+                    <option value="blackSport">Sport Black</option>
+                    <option value="greySport">Sport Silver</option>
+                    <option value="offRoadBlack">Offroad Black</option>
+                    <option value="bronzeOffRoad">Offroad Bronze</option>
+                </select>
+            </div>
+
+            <div id="extraOptions"></div>
+            <a href="#" onclick="addExtraOption(); return false;">+ More Options</a>
+
+            <div class="summary" id="summaryBox">
+                <div><strong>Base Car:</strong> <span id="sumBase">Muscle</span></div>
+                <div><strong>Parts:</strong> <span id="sumPart">None</span></div>
+                <div><strong>Total:</strong> $<span id="sumTotal">25000.00</span></div>
+            </div>
+
+            <p id="saveResult"></p>
+
+            <div class="actions">
+                <button id="saveBtn">Save Configuration</button>
+                <button onclick="window.location.href='/Sprint2-Charles/SavedConfigurations.html?userId=' + localStorage.getItem('userId')">View Saved Configurations</button>
+                <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">Back to Dashboard</button>
+            </div>
+
+        </div>
     </div>
 
-    <div id="carPreview" style="margin-top:20px;"></div>
-
-    <p id="saveResult"></p>
-
-    <div class="actions">
-        <button id="saveBtn">Save Configuration</button>
-        <button onclick="window.location.href='/Sprint2-Charles/SavedConfigurations.html?userId=' + localStorage.getItem('userId')">View Saved Configurations</button>
-        <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">Back to Dashboard</button>
+    <!-- RIGHT SIDE -->
+    <div class="right-side">
+        <div id="carPreview"></div>
     </div>
+
 </div>
 
 <footer>
 Parts Trading & Vehicle Customization Platform
 </footer>
+</body>
 
 <script>
 const BASE_PRICE = 25000;
@@ -365,5 +381,5 @@ async function initPage() { /* run once at the start of page creation */
 initPage();
 </script>
 
-</body>
+
 </html>
