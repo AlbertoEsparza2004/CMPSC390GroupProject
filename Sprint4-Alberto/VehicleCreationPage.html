@@ -52,7 +52,7 @@
             <p>Quickly create and save a basic vehicle configuration.</p>
 
             <div class="form-row">
-                <label for="baseCar">Base Car</label>
+                <label for="baseCar">Car Model</label>
                 <select id="baseCar">
                     <option value="">Select Car</option>
                     <option value="Muscle">Muscle</option>
@@ -73,7 +73,8 @@
                 </select>
             </div>
 
-           <form-row">
+            
+            <div class="form-row">
                 <label for="carRims">Car Rims</label>
                 <select id="carRims">
                     <option value="">Select Rims</option>
@@ -181,7 +182,15 @@ function updateSummary() {
         }
     });
     
-    document.getElementById("sumBase").textContent = baseCar || "None";
+    // document.getElementById("sumBase").textContent = baseCar || "None";
+    const baseParts = [];
+
+    if (baseCar) baseParts.push(baseCar);
+    if (colorValue) baseParts.push(colorValue);
+    if (rimsValue) baseParts.push(rimsValue);
+
+    document.getElementById("sumBase").textContent =
+    baseParts.length ? baseParts.join(" , ") : "None";
     document.getElementById("sumPart").textContent = partNames.length ? partNames.join(", ") : "None";
     document.getElementById("sumTotal").textContent = total.toFixed(2);
 }
@@ -290,6 +299,7 @@ function addExtraOption() {/*Adds a removable extra option but the same part can
     const label = document.createElement("label");
     label.textContent = `Extra Option ${extraCount}`;
     const select = document.createElement("select");
+    select.addEventListener("change", updateSummary);
     const defaultOpt = document.createElement("option");
     defaultOpt.value = "";
     defaultOpt.textContent = "Select Option";
