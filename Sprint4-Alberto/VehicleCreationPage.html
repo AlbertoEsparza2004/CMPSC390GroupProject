@@ -223,6 +223,37 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     }    
     const allSelects = document.querySelectorAll("#partSelect1, #partSelect2, #partSelect3, #extraOptions select");
     const chosenParts = [];
+    
+    const colorValue = document.getElementById("carColor").value;
+    if (colorValue) {
+        const colorPart = allParts.find(p =>
+            p.Category?.toLowerCase() === "paint" &&
+            p.Name.toLowerCase().includes(colorValue.toLowerCase())
+        );
+        if (colorPart) {
+            chosenParts.push({
+                PartID: colorPart.PartID,
+                Name: colorPart.Name,
+                Price: colorPart.Price
+            });
+        }
+    }
+
+    
+    const rimsValue = document.getElementById("carRims").value;
+    if (rimsValue) {
+        const rimsPart = allParts.find(p =>
+            p.Category?.toLowerCase() === "rims" &&
+            p.Image?.toLowerCase().includes(rimsValue.toLowerCase())
+        );
+        if (rimsPart) {
+            chosenParts.push({
+                PartID: rimsPart.PartID,
+                Name: rimsPart.Name,
+                Price: rimsPart.Price
+            });
+        }
+    }
 
     allSelects.forEach(select => {
         if (select.value) { 
@@ -303,12 +334,12 @@ function addExtraOption() {/*Adds a removable extra option but the same part can
     defaultOpt.textContent = "Select Option";
     select.appendChild(defaultOpt);
     const excludedCategories = ["paint", "wheel", "rims", "car"];
-
-    allParts.forEach(part => {
-        const category = part.Category?.toLowerCase();
-        if (excludedCategories.includes(category)) {
-            return;
-        }        
+        allParts.forEach(part => {
+            const category = (part.Category || "").toLowerCase();
+            if (["paint", "wheel", "rims", "car"].some(ex => category.includes(ex))) {
+                return;
+            }
+          
         const opt = document.createElement("option");
         opt.value = String(part.PartID);
         opt.textContent = `${part.Name} ($${Number(part.Price).toFixed(2)})`;
@@ -390,7 +421,11 @@ function refreshAllDropdowns() {
         select.innerHTML = `<option value="">Select Option</option>`;
         const excludedCategories = ["paint", "wheel", "rims", "car"];
         allParts.forEach(part => {
-            const category = part.Category?.toLowerCase();
+            // const category = part.Category?.toLowerCase();
+            const category = (part.Category || "").toLowerCase();
+            if (["paint", "wheel", "rims", "car"].some(ex => category.includes(ex))) {
+                return;
+            }
             const selectedCategories = getSelectedCategories();
             let currentCategory = null;
             const selectedPart = allParts.find(p => String(p.PartID) === currentValue);
