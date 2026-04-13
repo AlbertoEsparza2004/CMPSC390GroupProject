@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pick a Part</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/global-ui.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #07090f; color: #fff; }
+    .page-bg { position: fixed; inset: 0; background: radial-gradient(ellipse at 18% 35%, rgba(79,144,240,0.08) 0%, transparent 50%), radial-gradient(ellipse at 82% 70%, rgba(212,168,67,0.04) 0%, transparent 45%), linear-gradient(160deg, #0c1428 0%, #07090f 100%); z-index: 0; }
+    header { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: 'Orbitron', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; }
+    header span { color: #4f90f0; }
+    .container { position: relative; z-index: 1; max-width: 1200px; margin: 40px auto; padding: 48px; background: rgba(12,20,40,0.45); border: none; border-radius: 24px; box-shadow: 0 0 60px rgba(79,144,240,0.2), 0 20px 40px rgba(0,0,0,0.5); }
+    .container h1 { font-family: 'Orbitron', monospace; font-size: 1.6rem; font-weight: 900; margin-bottom: 12px; }
+    .container h2 { font-size: 1.2rem; margin-top: 28px; margin-bottom: 12px; color: #4f90f0; }
+    .container h5 { color: rgba(175,200,245,0.6); font-size: 0.9rem; margin-bottom: 16px; }
+    .filters { margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; }
+    .filters label { display: flex; align-items: center; gap: 8px; color: rgba(175,200,245,0.8); font-size: 0.9rem; }
+    .filters input[type="checkbox"] { cursor: pointer; }
+    #partsContainer { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px; }
+    .part { background: rgba(79,144,240,0.08); border: none; border-radius: 12px; padding: 16px; display: flex; align-items: flex-start; gap: 16px; transition: all 0.25s ease; }
+    .part:hover { background: rgba(79,144,240,0.15); }
+    .part img { width: 120px; height: 100px; object-fit: contain; border-radius: 8px; background: rgba(0,0,0,0.3); }
+    .info h3 { color: #fff; margin: 0 0 6px 0; font-size: 0.95rem; }
+    .info p { color: rgba(175,200,245,0.7); font-size: 0.85rem; margin: 2px 0; }
+    .out { color: #ff6b6b; }
+    #cartContainer { background: rgba(212,168,67,0.08); border: none; border-radius: 12px; padding: 16px; margin-top: 16px; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 12px; color: rgba(175,200,245,0.8); }
+    button { padding: 10px 24px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.9rem; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(79,144,240,0.3); margin-top: 12px; }
+    button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 25px rgba(79,144,240,0.5); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .top-actions { margin-top: 24px; }
+    footer { position: relative; z-index: 1; text-align: center; padding: 32px 24px; border-top: 1px solid rgba(79,144,240,0.1); color: rgba(175,200,245,0.6); font-size: 0.85rem; margin-top: 40px; }
+  </style>
+</head>
+<body>
+<div class="page-bg"></div>
+<header>LEGACY<span>AUTO</span></header>
+
+<div class="container">
+  <h1>Pick a Part</h1>
+
+  <div class="filters">
+    <label><input type="checkbox" id="inStockCheckbox"> In Stock Only</label>
+    <label><input type="checkbox" id="bufferCheckbox"> Buffer</label>
+    <label><input type="checkbox" id="paintCheckbox"> Paint</label>
+    <label><input type="checkbox" id="engineCheckbox"> Engine</label>
+    <label><input type="checkbox" id="wheelCheckbox"> Wheel</label>
+    <label><input type="checkbox" id="hornCheckbox"> Horn</label>
+    <label><input type="checkbox" id="exhaustsystemCheckbox"> Exhaust system</label>
+  </div>
+
+  <h2>Parts</h2>
+  <h5>Select the parts you want to modify your dream car</h5>
+  <div id="partsContainer">Loading parts...</div>
+
+  <h2>Cart (Going to Car)</h2>
+  <div id="cartContainer"></div>
+  <p><strong>Total: $<span id="cartTotal">0.00</span></strong></p>
+
+  <div class="top-actions">
+    <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">Back to Dashboard</button>
+  </div>
+</div>
+
+<footer>
+Parts Trading & Vehicle Customization Platform
+</footer>
+
+<script>
+let parts = [];
+let cart = [];
+
+function fetchParts() {
+  let url = "/api/parts?";
+  const params = [];
+
+  if (document.getElementById("inStockCheckbox").checked) params.push("inStock=true");
+
+  // Keep the same behavior as your earlier page: if multiple categories are checked,
+  // the last checked one in this order is used by the API.
+  if (document.getElementById("bufferCheckbox").checked) params.push("category=buffer");
+  if (document.getElementById("paintCheckbox").checked) params.push("category=paint");
+  if (document.getElementById("engineCheckbox").checked) params.push("category=engine");
+  if (document.getElementById("wheelCheckbox").checked) params.push("category=wheel");
+  if (document.getElementById("hornCheckbox").checked) params.push("category=horn");
+  if (document.getElementById("exhaustsystemCheckbox").checked) params.push("category=exhaust system");
+
+  url += params.join("&");
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      parts = data;
+      displayParts();
+    })
+    .catch(() => {
+      document.getElementById("partsContainer").innerText = "Error loading parts.";
+    });
+}
+
+function displayParts() {
+  const container = document.getElementById("partsContainer");
+  container.innerHTML = "";
+
+  parts.forEach(part => {
+    const div = document.createElement("div");
+    div.className = "part";
+
+    const img = document.createElement("img");
+    img.src = part.Image || "https://via.placeholder.com/110x90?text=No+Image";
+    img.alt = part.Name || ("Part #" + part.PartID);
+
+    const info = document.createElement("div");
+    info.className = "info";
+
+    const name = document.createElement("h3");
+    name.textContent = part.Name || ("Part #" + part.PartID);
+    if (Number(part.Stock) === 0) name.classList.add("out");
+
+    const price = document.createElement("p");
+    price.textContent = "Price: $" + Number(part.Price || 0).toFixed(2);
+
+    const category = document.createElement("p");
+    category.textContent = "Category: " + (part.Category || "N/A");
+
+    const stock = document.createElement("p");
+    stock.textContent = "Stock: " + Number(part.Stock || 0);
+
+    info.appendChild(name);
+    info.appendChild(price);
+    info.appendChild(category);
+    info.appendChild(stock);
+
+    const button = document.createElement("button");
+    if (Number(part.Stock) === 0) {
+      button.textContent = "Out of Stock";
+      button.disabled = true;
+    } else {
+      button.textContent = "Add to Cart";
+      button.onclick = () => addToCart(part);
+    }
+
+    div.appendChild(img);
+    div.appendChild(info);
+    div.appendChild(button);
+
+    container.appendChild(div);
+  });
+}
+
+function addToCart(part) {
+  const exists = cart.find(item => item.PartID === part.PartID);
+  if (!exists) cart.push(part);
+  displayCart();
+}
+
+function removeFromCart(partId) {
+  cart = cart.filter(item => item.PartID !== partId);
+  displayCart();
+}
+
+function displayCart() {
+  const container = document.getElementById("cartContainer");
+  container.innerHTML = "";
+
+  let total = 0;
+
+  cart.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "cart-item";
+
+    const label = document.createElement("span");
+    label.textContent = (item.Name || ("Part #" + item.PartID)) + " ($" + Number(item.Price || 0).toFixed(2) + ")";
+    total += Number(item.Price || 0);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "Remove";
+    removeBtn.onclick = () => removeFromCart(item.PartID);
+
+    div.appendChild(label);
+    div.appendChild(removeBtn);
+    container.appendChild(div);
+  });
+
+  document.getElementById("cartTotal").textContent = total.toFixed(2);
+}
+
+document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.addEventListener("change", fetchParts));
+fetchParts();
+</script>
+
+</body>
+</html>

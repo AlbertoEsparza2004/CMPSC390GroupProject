@@ -400,6 +400,7 @@ app.delete("/cars/:carId", (req, res) => {
 
 app.post("/cars", (req, res) => {
   const { userId, baseCar, partId, partIds, totalPrice } = req.body;
+  console.log("REQ.BODY totalPrice:", totalPrice);
 
   if (!userId || !baseCar) {
     return res.status(400).json({ message: "userId and baseCar are required" });
@@ -411,7 +412,7 @@ app.post("/cars", (req, res) => {
         .map((id) => Number(id))
         .filter((id) => Number.isInteger(id) && id > 0)
     )
-  ].slice(0, 3);
+  ];
 
   const primaryPartId = normalizedPartIds[0] || null;
 
@@ -420,7 +421,11 @@ app.post("/cars", (req, res) => {
     VALUES (?, ?, ?, ?)
   `;
 
-  db.query(sqlWithPart, [baseCar, Number(totalPrice) || 0, primaryPartId, userId], (err, result) => {
+  //db.query(sqlWithPart, [baseCar, Number(totalPrice) || 0, primaryPartId, userId], (err, result) => {
+    const total = parseFloat(totalPrice);
+    console.log("PARSED total:", total);
+    
+    db.query(sqlWithPart, [baseCar, total, primaryPartId, userId], (err, result) => {
     if (!err) {
       const carId = result.insertId;
 
@@ -449,7 +454,8 @@ app.post("/cars", (req, res) => {
             carId
           });
         }
-
+          
+        console.log("NORMALIZED PART IDS:", normalizedPartIds);
         const values = normalizedPartIds.map((pid) => [carId, pid]);
         const insertCarPartsSql = "INSERT IGNORE INTO Customized_car_parts (CarID, PartID) VALUES ?";
 

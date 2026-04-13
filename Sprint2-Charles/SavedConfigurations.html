@@ -96,8 +96,18 @@ async function loadCars() {
         ? c.Parts.map(p => `${p.Name} (ID: ${p.PartID})`).join(", ")
         : (c.PartID ? `Part ${c.PartID}` : "None");
 
+      // div.innerHTML =
+      //   "<strong>Vehicle:</strong> " + c.BaseCar +
+      //   "<br><strong>Total Price:</strong> $" + c.TotalPrice +
+      //   "<br><strong>Parts:</strong> " + partsText;
+      const paint = c.Parts?.find(p => p.Name.toLowerCase().includes("paint"));
+      const rims = c.Parts?.find(p => p.Name.toLowerCase().includes("rim"));
+
+      const paintName = paint ? paint.Name.replace(" Paint", "") : "No Color";
+      const rimsName = rims ? rims.Name : "Stock Rims";
+
       div.innerHTML =
-        "<strong>Vehicle:</strong> " + c.BaseCar +
+        "<strong>Vehicle:</strong> " + c.BaseCar + " | " + paintName + " | " + rimsName +
         "<br><strong>Total Price:</strong> $" + c.TotalPrice +
         "<br><strong>Parts:</strong> " + partsText;
 
