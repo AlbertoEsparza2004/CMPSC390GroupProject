@@ -1,0 +1,18 @@
+Database Sql Version 1 for partsreview
+
+this table will store and reviews that are created from users
+
+Use legautocustDB;
+
+
+CREATE TABLE partsreviews (
+  PartReviewID INT AUTO_INCREMENT PRIMARY KEY,
+  PartID INT NOT NULL,
+  PartRating INT NOT NULL,
+  comment TEXT,
+  posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (PartID) REFERENCES parts(PartID)
+);
+
+SELECT * FROM partsreviews;
+

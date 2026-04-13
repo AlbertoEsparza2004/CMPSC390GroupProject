@@ -1,0 +1,14 @@
+feature-parts pages
+Francisco Garcia JR Sprint 4
+
+
+This feature adds users to create and view reviews of parts, this will be useful for customers to have insight of 
+the product before making finale descionson
+
+this will require a databade that creates data into the table by users on the front end
+
+backend to connects the table and front and both table parts and review should connect as the reviews of a part need to be connected
+
+and frontend for users to create reviews and view them
+
+all this will be added with data from sprint 2 to work
