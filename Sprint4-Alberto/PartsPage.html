@@ -49,9 +49,7 @@
     <label><input type="checkbox" id="paintCheckbox"> Paint</label>
     <label><input type="checkbox" id="engineCheckbox"> Engine</label>
     <label><input type="checkbox" id="wheelCheckbox"> Wheel</label>
-    <label><input type="checkbox" id="rimsCheckbox"> Rims</label>
     <label><input type="checkbox" id="hornCheckbox"> Horn</label>
-    <label><input type="checkbox" id="suspensionCheckbox"> Suspension</label>
     <label><input type="checkbox" id="exhaustsystemCheckbox"> Exhaust system</label>
   </div>
 
@@ -88,9 +86,7 @@ function fetchParts() {
   if (document.getElementById("paintCheckbox").checked) params.push("category=paint");
   if (document.getElementById("engineCheckbox").checked) params.push("category=engine");
   if (document.getElementById("wheelCheckbox").checked) params.push("category=wheel");
-  if (document.getElementById("rimsCheckbox").checked) params.push("category=rims");
   if (document.getElementById("hornCheckbox").checked) params.push("category=horn");
-  if (document.getElementById("suspensionCheckbox").checked) params.push("category=suspension");
   if (document.getElementById("exhaustsystemCheckbox").checked) params.push("category=exhaust system");
 
   url += params.join("&");

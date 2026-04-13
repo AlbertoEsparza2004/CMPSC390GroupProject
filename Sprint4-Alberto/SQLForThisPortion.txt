@@ -1,0 +1,66 @@
+USE legautocustDB;
+INSERT INTO Parts (PartID, Name, Stock, Availability, Category, Image, Price) VALUES
+
+/*Car Model*/
+(17277633, 'Muscle Base', 9, 'Available', 'car', '/Sprint4-Alberto/car-images/Muscle_white_basic.png', 32000),
+(83451953, 'SUV Base', 7, 'Available', 'car', '/Sprint4-Alberto/car-images/SUV_white_basic.png', 30000),
+(93469582, 'Truck Base', 6, 'Available', 'car', '/Sprint4-Alberto/car-images/Truck_white_basic.png', 32000),
+(22782485, 'Coupe Base', 4, 'Available', 'car', '/Sprint4-Alberto/car-images/Coupe_white_basic.png', 28000),
+
+/*Paint*/
+(26501480, 'White Paint', 20, 'Available', 'paint', '/Sprint4-Alberto/car-paints/white.png', 100),
+(18066938, 'Black Paint', 20, 'Available', 'paint', '/Sprint4-Alberto/car-paints/black.png', 115),
+(29367808, 'Neon Purple Paint', 15, 'Available', 'paint', '/Sprint4-Alberto/car-paints/purple.png', 130),
+(28056391, 'Neon Green Paint', 15, 'Available', 'paint', '/Sprint4-Alberto/car-paints/green.png', 145),
+
+/*Rims*/
+(85052968, 'Black Sport Rims', 15, 'Available', 'rims', '/Sprint4-Alberto/car-rims/blackSport.png', 1200),
+(82890043, 'Grey Sport Rims', 15, 'Available', 'rims', '/Sprint4-Alberto/car-rims/greySport.png', 1200),
+(99057491, 'Bronze Offroad Rims', 10, 'Available', 'rims', '/Sprint4-Alberto/car-rims/bronzeOffRoad.png', 1500),
+(1779980,  'Offroad Black Rims', 10, 'Available', 'rims', '/Sprint4-Alberto/car-rims/OffRoadBlack.png', 1400);
+
+
+UPDATE Parts
+SET Image = REPLACE(Image, '_basic.png', '_basic_front.png')
+WHERE PartID > 0
+  AND Category = 'car'
+  AND Image LIKE '%_basic.png';
+  
+  SELECT PartID, Name, Image
+FROM Parts
+WHERE Category = 'car';
+
+
+USE legautocustdb;
+INSERT INTO Parts (PartID, Name, Stock, Availability, Category, Image, Price) VALUES
+/*engine*/
+(27277633, '6.7 Cummins Engine', 5, 'Available', 'engine', '/Sprint4-Alberto/car-parts/6.7Engine.png', 5995),
+(13277633, '6.4 PowerStroke Engine', 3, 'Available', 'engine', '/Sprint4-Alberto/car-parts/6.4Engine.png', 6795),
+(17477633, '3.6 V6 Engine', 7, 'Available', 'engine', '/Sprint4-Alberto/car-parts/3.6Engine.png', 2578),
+
+/*suspension*/
+(17257633, 'Spring Suspension', 7, 'Available', 'suspension', '/Sprint4-Alberto/car-parts/springSuspension.png', 156.79),
+(17276633, 'Cush Suspension', 3, 'Available', 'suspension', '/Sprint4-Alberto/car-parts/cushSuspension.png', 256.89),
+(17277733, 'Air Suspension', 8, 'Available', 'suspension', '/Sprint4-Alberto/car-parts/airSuspension.png', 329.87),
+
+/*exhaust system*/
+(17277683, 'Stainless Steel Cat-Back Exhaust System', 3, 'Available', 'exhaust system', '/Sprint4-Alberto/car-parts/stainlessSteelExhaustSystem.png', 32000),
+(17277639, 'AWE Tuning Track Cat-Back Exhaust System', 5, 'Available', 'exhaust system', '/Sprint4-Alberto/car-parts/backExhaustSystem.png', 32000),
+(17277631, 'Dual Exit Cat-Back Exhaust System', 2, 'Available', 'exhaust system', '/Sprint4-Alberto/car-parts/catExhaustSystem.png', 32000),
+
+/*horn*/
+(17277623, 'HornBlasters The Godfather Musical Air Horn', 3, 'Available', 'horn', '/Sprint4-Alberto/car-parts/godfatherHorn.png', 35),
+(17277333, 'HornBlasters Dixie Musical Horn', 5, 'Available', 'horn', '/Sprint4-Alberto/car-parts/dixieHorn.png', 47),
+(17274633, 'HornBlasters Shocker XL Train Horn', 9, 'Available', 'horn', '/Sprint4-Alberto/car-parts/trainHorn.png', 459);
+
+
+
+
+
+UPDATE Parts
+SET Price = CASE
+    WHEN PartID = 17277683 THEN 1800
+    WHEN PartID = 17277639 THEN 3200
+    WHEN PartID = 17277631 THEN 1400
+END
+WHERE PartID IN (17277683, 17277639, 17277631);

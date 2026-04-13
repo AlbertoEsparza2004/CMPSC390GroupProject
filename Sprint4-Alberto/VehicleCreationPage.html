@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vehicle Creation Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/global-ui.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #07090f; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+        .page-bg { position: fixed; inset: 0; background: radial-gradient(ellipse at 18% 35%, rgba(79,144,240,0.08) 0%, transparent 50%), radial-gradient(ellipse at 82% 70%, rgba(212,168,67,0.04) 0%, transparent 45%), linear-gradient(160deg, #0c1428 0%, #07090f 100%); z-index: 0; }
+        header { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: 'Orbitron', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; }
+        header span { color: #4f90f0; }
+        .content-box { position: relative; z-index: 1; max-width: 720px; margin: 40px auto; padding: 48px; background: rgba(12,20,40,0.45); border: none; border-radius: 24px; box-shadow: 0 0 60px rgba(79,144,240,0.2), 0 20px 40px rgba(0,0,0,0.5); }
+        .content-box h2 { font-family: 'Orbitron', monospace; font-size: 1.6rem; font-weight: 900; margin-bottom: 12px; }
+        .content-box p { color: rgba(175,200,245,0.7); font-size: 0.95rem; margin-bottom: 32px; }
+        .form-row { margin-bottom: 20px; }
+        label { display: block; color: rgba(175,200,245,0.9); font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
+        select, input[type="text"] { width: 100%; max-width: 520px; padding: 12px 16px; background: rgba(255,255,255,0.06); border: none; border-radius: 10px; color: #fff; font-family: 'Inter', sans-serif; font-size: 0.95rem; transition: all 0.25s ease; }
+        select:focus, input[type="text"]:focus { outline: none; background: rgba(79,144,240,0.15); box-shadow: 0 0 0 2px rgba(79,144,240,0.4), inset 0 0 12px rgba(79,144,240,0.1); }
+        .summary { margin-top: 24px; padding: 20px; background: rgba(79,144,240,0.1); border: none; border-radius: 12px; max-width: 520px; }
+        .summary div { margin: 8px 0; color: rgba(175,200,245,0.8); }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+        button { padding: 12px 28px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(79,144,240,0.4); }
+        button:hover { transform: translateY(-3px); box-shadow: 0 0 35px rgba(79,144,240,0.6), 0 8px 16px rgba(79,144,240,0.3); }
+        footer { position: relative; z-index: 1; text-align: center; padding: 32px 24px; border-top: 1px solid rgba(79,144,240,0.1); color: rgba(175,200,245,0.6); font-size: 0.85rem; margin-top: auto; }
+        .split-layout { display: flex; padding: 20px; gap: 20px; position: relative; z-index: 1; flex: 1; }
+        .left-side { width: 40%;}
+        .right-side { width: 60%; display: flex; justify-content: center; align-items: center; min-height: 500px; position: relative; z-index: 1; }
+        #carPreview { min-height: 400px; width: 100%; display: flex; justify-content: center; align-items: center; position: relative; z-index: 1; }
+        #carPreview img {box-shadow: 0 20px 40px rgba(0,0,0,0.5); transition: transform .3s ease;}
+        #carPreview img:hover {transform: scale(1.05); }
+        #carContainer {position: relative; width: 100%; display: flex; justify-content: center; }
+        #viewControls { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.6); padding: 6px 14px; border-radius: 12px; z-index: 10;}
+        #viewControls span {font-size: 14px;}
+</style>
+</head>
+
+<body>
+<div class="page-bg"></div>
+<header>LEGACY<span>AUTO</span></header>
+
+<div class="split-layout">
+
+    <!-- LEFT SIDE -->
+    <div class="left-side">
+        <div class="content-box">
+
+            <h2>Vehicle Creation Page</h2>
+            <p>Quickly create and save a basic vehicle configuration.</p>
+
+            <div class="form-row">
+                <label for="baseCar">Car Model</label>
+                <select id="baseCar">
+                    <option value="">Select Car</option>
+                    <option value="Muscle">Muscle</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Truck">Truck </option>
+                    <option value="Coupe">Coupe</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label for="carColor">Car Color</label>
+                <select id="carColor">
+                    <option value="">Select Color</option>
+                    <option value="white">White</option>
+                    <option value="black">Black</option>
+                    <option value="purple">Neon Purple</option>
+                    <option value="green">Neon Green</option>
+                </select>
+            </div>
+
+            
+            <div class="form-row">
+                <label for="carRims">Car Rims</label>
+                <select id="carRims">
+                    <option value="">Select Rims</option>
+                    <option value="blackSport">Sport Black</option>
+                    <option value="greySport">Sport Silver</option>
+                    <option value="bronzeOffRoad">Offroad Bronze</option>
+                    <option value="OffRoadBlack">Offroad Black</option>
+                </select>
+            </div>
+
+            
+
+            <div id="extraOptions"></div>
+            <a href="#" onclick="addExtraOption(); return false;">+ More Options</a>
+
+            <div class="summary" id="summaryBox">
+                <div><strong>Base Car:</strong> <span id="sumBase">Muscle</span></div>
+                <div><strong>Parts:</strong> <span id="sumPart">None</span></div>
+                <div><strong>Total:</strong> $<span id="sumTotal">25000.00</span></div>
+            </div>
+
+            <p id="saveResult"></p>
+
+            <div class="actions">
+                <button id="saveBtn">Save Configuration</button>
+                <button onclick="window.location.href='/Sprint2-Charles/SavedConfigurations.html?userId=' + localStorage.getItem('userId')">View Saved Configurations</button>
+                <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">Back to Dashboard</button>
+                <button type="button" onclick="toggleView()" id="viewBtn">Front View</button>
+            </div>
+            <!-- <div class="form-row"> -->
+                
+               
+            <!-- </div> -->
+
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-side">
+        <div id="carContainer">
+
+        <div id="carPreview"></div>
+
+
+
+
+</div>
+
+<!-- <footer>
+Parts Trading & Vehicle Customization Platform
+</footer> -->
+</body>
+
+<script>
+const BASE_PRICE = 25000;
+const API_BASE = `${window.location.protocol}//${window.location.hostname}:3000`;
+const userId = localStorage.getItem("userId");
+const baseCarEl = document.getElementById("baseCar");
+const saveResultEl = document.getElementById("saveResult");
+
+let allParts = [];
+
+let currentView = "front";
+
+if (!userId) {  //send to login if no userId in localStorage
+    window.location.replace("/Sprint4-Alberto/CustomerSingInPage.html");
+}
+
+function updateSummary() {
+    let total = 0;
+    let partNames = [];
+
+    const baseCar = baseCarEl.value;
+    if (baseCar) {
+        const carPart = allParts.find(p =>
+            p.Category?.toLowerCase() === "car" && p.Name.toLowerCase().startsWith(baseCar.toLowerCase())
+        );
+        if (carPart) {total += Number(carPart.Price);}
+    }
+
+    const colorValue = document.getElementById("carColor").value;
+    if (colorValue) {
+        const colorPart = allParts.find(p =>
+            p.Category?.toLowerCase() === "paint" && p.Name.toLowerCase().includes(colorValue.toLowerCase())
+        );
+        if (colorPart) {total += Number(colorPart.Price);}
+    }
+    
+    const rimsValue = document.getElementById("carRims").value;
+    if (rimsValue) {
+        const rimsPart = allParts.find(p =>
+            p.Category?.toLowerCase() === "rims" && p.Image?.toLowerCase().includes(rimsValue.toLowerCase())
+        );
+        if (rimsPart) { total += Number(rimsPart.Price);}
+    }
+
+    const selects = document.querySelectorAll("#extraOptions select");
+    selects.forEach(select => {
+        if (select.value) {
+            const opt = select.options[select.selectedIndex];
+            total += Number(opt.dataset.price || 0);
+            partNames.push(opt.dataset.name);
+        }
+    });
+    
+    
+    const baseParts = [];
+
+    if (baseCar) baseParts.push(baseCar);
+    if (colorValue) baseParts.push(colorValue);
+    if (rimsValue) baseParts.push(rimsValue);
+
+    document.getElementById("sumBase").textContent =
+    baseParts.length ? baseParts.join(" , ") : "None";
+    document.getElementById("sumPart").textContent = partNames.length ? partNames.join(", ") : "None";
+    document.getElementById("sumTotal").textContent = total.toFixed(2);
+}
+
+        /*Gets all the parts form database*/
+async function loadParts() {
+    try {
+        const res = await fetch(`${API_BASE}/parts`);
+        const parts = await res.json();
+        allParts = parts;
+       
+    } catch (e) {
+        console.error(e);
+        saveResultEl.textContent = "Could not load parts list.";
+        saveResultEl.style.color = "red";
+    }
+}
+
+/*Event listeners for updating summary and preview when selections change*/
+baseCarEl.addEventListener("change", updateSummary);
+document.getElementById("carColor").addEventListener("change", updateSummary);
+document.getElementById("carRims").addEventListener("change", updateSummary);
+
+
+document.getElementById("saveBtn").addEventListener("click", async () => {
+    const color = document.getElementById("carColor").value;
+    const rims = document.getElementById("carRims").value;
+
+    if (!baseCarEl.value || !color || !rims) {
+        alert("Model, Color, and Rims are required.");
+        return;
+    }    
+    const allSelects = document.querySelectorAll("#partSelect1, #partSelect2, #partSelect3, #extraOptions select");
+    const chosenParts = [];
+    
+    const colorValue = document.getElementById("carColor").value;
+    if (colorValue) {
+        const colorPart = allParts.find(p =>
+            p.Category?.toLowerCase() === "paint" &&
+            p.Name.toLowerCase().includes(colorValue.toLowerCase())
+        );
+        if (colorPart) {
+            chosenParts.push({
+                PartID: colorPart.PartID,
+                Name: colorPart.Name,
+                Price: colorPart.Price
+            });
+        }
+    }
+
+    
+    const rimsValue = document.getElementById("carRims").value;
+    if (rimsValue) {
+        const rimsPart = allParts.find(p =>
+            p.Category?.toLowerCase() === "rims" &&
+            p.Image?.toLowerCase().includes(rimsValue.toLowerCase())
+        );
+        if (rimsPart) {
+            chosenParts.push({
+                PartID: rimsPart.PartID,
+                Name: rimsPart.Name,
+                Price: rimsPart.Price
+            });
+        }
+    }
+
+    allSelects.forEach(select => {
+        if (select.value) { 
+            const selectedOption = select.options[select.selectedIndex];
+            chosenParts.push({
+                PartID: select.value,
+                Name: selectedOption.dataset.name,
+                Price: Number(selectedOption.dataset.price || 0)
+            });
+        }
+    });
+
+    const uniquePartIds = [...new Set(chosenParts.map(p => String(p.PartID)))];
+    const total = Number(document.getElementById("sumTotal").textContent);
+    try {
+        const res = await fetch(`${API_BASE}/cars`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId,
+                baseCar: baseCarEl.value,
+                color,
+                rims,
+                partIds: uniquePartIds,
+                partId: uniquePartIds[0] || null,
+                totalPrice: total
+            })
+        });
+        const data = await res.json();
+        console.log(data);
+
+        if (!res.ok) {
+            if (res.status === 404) {
+                saveResultEl.textContent = "Save route not found (Cannot POST /cars). Restart backend server so latest routes load.";
+            } else {
+                saveResultEl.textContent = data.message || "Could not save configuration.";
+            }
+            saveResultEl.style.color = "red";
+            return;
+        }
+        
+
+       const baseCar = baseCarEl.value;
+
+        const imageName = rims
+            ? `${baseCar}_${color}_${rims}.png`
+            : `${baseCar}_${color}_basic.png`;
+
+        document.getElementById("carPreview").innerHTML = `
+            <img src="/Sprint4-Alberto/car-images/${imageName}" 
+                style="width:800px; max-width:100%; background:white; padding:10px;"
+        `;
+
+        saveResultEl.textContent = "Configuration saved successfully.";
+        saveResultEl.style.color = "green";
+        } catch (e) {
+            console.error(e);
+            saveResultEl.textContent = "Server error while saving configuration.";
+            saveResultEl.style.color = "red";
+        }
+
+});
+
+let extraCount = 0;
+
+function addExtraOption() {/*Adds a removable extra option but the same part cannot be selected twice*/
+    extraCount++;
+
+    const container = document.getElementById("extraOptions");
+    const div = document.createElement("div");
+    div.classList.add("form-row");
+    const label = document.createElement("label");
+    label.textContent = `Extra Option ${extraCount}`;
+    const select = document.createElement("select");
+    select.addEventListener("change", () => { updateSummary(); refreshAllDropdowns(); });
+    const defaultOpt = document.createElement("option");
+    defaultOpt.value = "";
+    defaultOpt.textContent = "Select Option";
+    select.appendChild(defaultOpt);
+    const excludedCategories = ["paint", "wheel", "rims", "car"];
+        allParts.forEach(part => {
+            const category = (part.Category || "").toLowerCase();
+            if (["paint", "wheel", "rims", "car"].some(ex => category.includes(ex))) {
+                return;
+            }
+          
+        const opt = document.createElement("option");
+        opt.value = String(part.PartID);
+        opt.textContent = `${part.Name} ($${Number(part.Price).toFixed(2)})`;
+        opt.dataset.name = part.Name;
+        opt.dataset.price = part.Price;
+        select.appendChild(opt);
+    });
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "Remove";
+    removeBtn.type = "button"; 
+
+    removeBtn.onclick = () => 
+    {
+        div.remove();      
+        updateSummary();   
+        refreshAllDropdowns();
+    };
+
+    div.appendChild(label);
+    div.appendChild(select);
+    div.appendChild(removeBtn); 
+
+    container.appendChild(div);
+    refreshAllDropdowns();
+}
+
+
+
+
+function updateCarPreview() {
+    const baseCar = document.getElementById("baseCar").value;
+    const color = document.getElementById("carColor").value;
+    const rims = document.getElementById("carRims").value;
+
+    console.log("Preview:", baseCar, color, rims);
+
+    if (!baseCar || !color) {
+    return;
+    }
+
+    let imageName;
+    if (!rims) {
+    imageName = `${baseCar}_${color}_basic_${currentView}.png`;
+} else {
+    imageName = `${baseCar}_${color}_${rims}_${currentView}.png`;
+}
+
+    console.log("Trying:", imageName);
+
+    document.getElementById("carPreview").innerHTML = `
+    <img src="/Sprint4-Alberto/car-images/${imageName}" 
+         style="width:800px; max-width:100%; background:white; padding:10px;">
+`;
+}
+
+document.getElementById("baseCar").addEventListener("change", updateCarPreview); /*these three will update the car preview when their values change*/
+document.getElementById("carColor").addEventListener("change", updateCarPreview);
+document.getElementById("carRims").addEventListener("change", updateCarPreview);
+
+function getSelectedPartIds() {
+    const selects = document.querySelectorAll("#extraOptions select");
+    const selected = new Set();
+    selects.forEach(select => {
+        if (select.value) {
+            selected.add(select.value);
+        }
+    });
+
+    return selected;
+}
+
+
+function refreshAllDropdowns() {
+    const selectedIds = getSelectedPartIds();
+    const selects = document.querySelectorAll("#extraOptions select");
+    selects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = `<option value="">Select Option</option>`;
+        const excludedCategories = ["paint", "wheel", "rims", "car"];
+        allParts.forEach(part => {
+            // const category = part.Category?.toLowerCase();
+            const category = (part.Category || "").toLowerCase();
+            if (["paint", "wheel", "rims", "car"].some(ex => category.includes(ex))) {
+                return;
+            }
+            const selectedCategories = getSelectedCategories();
+            let currentCategory = null;
+            const selectedPart = allParts.find(p => String(p.PartID) === currentValue);
+            if (selectedPart) {
+                currentCategory = selectedPart.Category?.toLowerCase();
+            }
+            const partCategory = part.Category?.toLowerCase();
+            if (
+                selectedCategories.has(partCategory) &&
+                partCategory !== currentCategory
+            ) {
+                return;
+            }
+
+            const opt = document.createElement("option");
+            opt.value = String(part.PartID);
+            opt.textContent = `${part.Name} ($${Number(part.Price).toFixed(2)})`;
+            opt.dataset.name = part.Name;
+            opt.dataset.price = part.Price;
+
+            if (String(part.PartID) === currentValue) {
+                opt.selected = true;
+            }
+
+            select.appendChild(opt);
+        });
+    });
+}
+
+function getSelectedCategories() {
+    const selects = document.querySelectorAll("#extraOptions select");
+    const categories = new Set();
+
+    selects.forEach(select => {
+        if (select.value) {
+            const selectedPart = allParts.find(p => String(p.PartID) === select.value);
+            if (selectedPart) {
+                categories.add(selectedPart.Category?.toLowerCase());
+            }
+        }
+    });
+
+    return categories;
+}
+
+function toggleView() {
+    currentView = currentView === "front" ? "back" : "front";
+    document.getElementById("viewBtn").innerText =
+        currentView === "front" ? "Front View" : "Back View";
+    updateCarPreview();
+}
+
+async function initPage() { /* run once at the start of page creation */
+    await loadParts();
+    updateSummary();
+    updateCarPreview();
+}
+
+initPage();
+</script>
+
+
+</html>
