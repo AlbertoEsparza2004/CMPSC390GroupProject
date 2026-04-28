@@ -31,10 +31,13 @@
         .right-side { width: 60%; display: flex; justify-content: center; align-items: center; min-height: 500px; position: relative; z-index: 1; }
         #carPreview { min-height: 400px; width: 100%; display: flex; justify-content: center; align-items: center; position: relative; z-index: 1; }
         #carPreview img {box-shadow: 0 20px 40px rgba(0,0,0,0.5); transition: transform .3s ease;}
-        #carPreview img:hover {transform: scale(1.05); }
+        #carPreview img:hover {transform: scale(1.05);}
+        #carPreview img.flip-horizontal:hover {transform: scaleX(-1) scale(1.05);}
         #carContainer {position: relative; width: 100%; display: flex; justify-content: center; }
         #viewControls { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.6); padding: 6px 14px; border-radius: 12px; z-index: 10;}
         #viewControls span {font-size: 14px;}
+        .flip-horizontal {transform: scaleX(-1);}
+
 </style>
 </head>
 
@@ -73,7 +76,6 @@
                 </select>
             </div>
 
-            
             <div class="form-row">
                 <label for="carRims">Car Rims</label>
                 <select id="carRims">
@@ -81,11 +83,9 @@
                     <option value="blackSport">Sport Black</option>
                     <option value="greySport">Sport Silver</option>
                     <option value="bronzeOffRoad">Offroad Bronze</option>
-                    <option value="OffRoadBlack">Offroad Black</option>
+                    <option value="offRoadBlack">Offroad Black</option>
                 </select>
             </div>
-
-            
 
             <div id="extraOptions"></div>
             <a href="#" onclick="addExtraOption(); return false;">+ More Options</a>
@@ -102,7 +102,8 @@
                 <button id="saveBtn">Save Configuration</button>
                 <button onclick="window.location.href='/Sprint2-Charles/SavedConfigurations.html?userId=' + localStorage.getItem('userId')">View Saved Configurations</button>
                 <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">Back to Dashboard</button>
-                <button type="button" onclick="toggleView()" id="viewBtn">Front View</button>
+                <button type="button" onclick="prevView()"> Left </button>
+                <button type="button" onclick="nextView()"> Right </button>
             </div>
             <!-- <div class="form-row"> -->
                 
@@ -117,8 +118,6 @@
         <div id="carContainer">
 
         <div id="carPreview"></div>
-
-
 
 
 </div>
@@ -137,6 +136,7 @@ const saveResultEl = document.getElementById("saveResult");
 
 let allParts = [];
 
+let viewIndex = 1;
 let currentView = "front";
 
 function getCarImage(baseCar, color, rims, view) {
@@ -183,7 +183,6 @@ function updateSummary() {
             partNames.push(opt.dataset.name);
         }
     });
-    
     
     const baseParts = [];
 
@@ -242,7 +241,6 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
             });
         }
     }
-
     
     const rimsValue = document.getElementById("carRims").value;
     if (rimsValue) {
@@ -298,7 +296,6 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
             saveResultEl.style.color = "red";
             return;
         }
-        
 
        const baseCar = baseCarEl.value;
 
@@ -306,18 +303,9 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
             ? `${baseCar}_${color}_${rims}.png`
             : `${baseCar}_${color}_basic.png`;
 
-        // document.getElementById("carPreview").innerHTML = `
-        //     <img src="/Sprint4-Alberto/car-images/${imageName}" 
-        //         style="width:800px; max-width:100%; background:white; padding:10px;"
-        // `;
-
         const imageUrl = getCarImage(baseCar, color, rims || "basic", "front");
 
-        document.getElementById("carPreview").innerHTML = `
-            <img src="${imageUrl}" 
-                style="width:800px; max-width:100%; background:white; padding:10px;">
-        `;
-
+        updateView();
         saveResultEl.textContent = "Configuration saved successfully.";
         saveResultEl.style.color = "green";
         } catch (e) {
@@ -378,43 +366,9 @@ function addExtraOption() {/*Adds a removable extra option but the same part can
     refreshAllDropdowns();
 }
 
-
-
-
-function updateCarPreview() {
-    const baseCar = document.getElementById("baseCar").value;
-    const color = document.getElementById("carColor").value;
-    const rims = document.getElementById("carRims").value;
-
-    console.log("Preview:", baseCar, color, rims);
-
-    if (!baseCar || !color) {
-    return;
-    }
-
-    let imageName;
-    if (!rims) {
-    imageName = `${baseCar}_${color}_basic_${currentView}.png`;
-} else {
-    imageName = `${baseCar}_${color}_${rims}_${currentView}.png`;
-}
-
-    console.log("Trying:", imageName);
-
-//     document.getElementById("carPreview").innerHTML = `
-//     <img src="/Sprint4-Alberto/car-images/${imageName}" 
-//          style="width:800px; max-width:100%; background:white; padding:10px;">
-// `;
-    const carImgUrl = getCarImage(baseCar, color, rims || "basic", currentView);
-    document.getElementById("carPreview").innerHTML = `
-        <img src="${carImgUrl}" 
-             style="width:800px; max-width:100%; background:white; padding:10px;">
-    `;
-}
-
-document.getElementById("baseCar").addEventListener("change", updateCarPreview); /*these three will update the car preview when their values change*/
-document.getElementById("carColor").addEventListener("change", updateCarPreview);
-document.getElementById("carRims").addEventListener("change", updateCarPreview);
+document.getElementById("baseCar").addEventListener("change", updateView); /*these three will update the car preview when their values change*/
+document.getElementById("carColor").addEventListener("change", updateView);
+document.getElementById("carRims").addEventListener("change", updateView);
 
 function getSelectedPartIds() {
     const selects = document.querySelectorAll("#extraOptions select");
@@ -487,17 +441,43 @@ function getSelectedCategories() {
     return categories;
 }
 
-function toggleView() {
-    currentView = currentView === "front" ? "back" : "front";
-    document.getElementById("viewBtn").innerText =
-        currentView === "front" ? "Front View" : "Back View";
-    updateCarPreview();
+function nextView() {
+    viewIndex++;
+    updateView();
+}
+
+function prevView() {
+    viewIndex--;
+    updateView();
+}
+
+function updateView() {
+    let flipped = false;
+    
+    if (viewIndex > 6) viewIndex = 1;
+    if (viewIndex < 1) viewIndex = 6;
+    if (viewIndex === 1) currentView = "front";
+    if (viewIndex === 2) currentView = "left";
+    if (viewIndex === 3) { currentView = "back"; flipped = true;}
+    if (viewIndex === 4) currentView = "back";
+    if (viewIndex === 5) { currentView = "left"; flipped = true; }
+    if (viewIndex === 6) { currentView = "front"; flipped = true; }
+
+    const baseCar = document.getElementById("baseCar").value;
+    const color = document.getElementById("carColor").value;
+    const rims = document.getElementById("carRims").value;
+
+    if (!baseCar || !color) return;
+
+    const carImgUrl = getCarImage(baseCar, color, rims || "basic", currentView);
+    document.getElementById("carPreview").innerHTML = `
+        <img src="${carImgUrl}" style="width:800px; max-width:100%; background:white; padding:10px; transform: ${flipped ? "scaleX(-1)" : "scaleX(1)"};">`;
 }
 
 async function initPage() { /* run once at the start of page creation */
     await loadParts();
     updateSummary();
-    updateCarPreview();
+    updateView();
 }
 
 initPage();
