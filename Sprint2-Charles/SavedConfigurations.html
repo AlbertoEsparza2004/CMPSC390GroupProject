@@ -105,11 +105,30 @@ async function loadCars() {
 
       const paintName = paint ? paint.Name.replace(" Paint", "") : "No Color";
       const rimsName = rims ? rims.Name : "Stock Rims";
+      
+      let colorValue = "white";
+      if (paintName.toLowerCase().includes("purple")) colorValue = "purple";
+      else if (paintName.toLowerCase().includes("green")) colorValue = "green";
+      else if (paintName.toLowerCase().includes("black")) colorValue = "black";
 
-      div.innerHTML =
-        "<strong>Vehicle:</strong> " + c.BaseCar + " | " + paintName + " | " + rimsName +
-        "<br><strong>Total Price:</strong> $" + c.TotalPrice +
-        "<br><strong>Parts:</strong> " + partsText;
+      let rimsValue = "basic";
+      if (rimsName.toLowerCase().includes("black")) rimsValue = "blackSport";
+      else if (rimsName.toLowerCase().includes("silver")) rimsValue = "greySport";
+      else if (rimsName.toLowerCase().includes("bronze")) rimsValue = "bronzeOffRoad";
+      else if (rimsName.toLowerCase().includes("offroad")) rimsValue = "offRoadBlack";
+
+      const imageUrl = `https://firebasestorage.googleapis.com/v0/b/legautocustdb.firebasestorage.app/o/${c.BaseCar}_${colorValue}_${rimsValue}_front.png?alt=media`;
+
+      div.innerHTML = `
+        <div class="car-row">
+          <img src="${imageUrl}" class="car-img">
+          <div class="car-info">
+            <strong>Vehicle:</strong> ${c.BaseCar} | ${paintName} | ${rimsName}
+            <br><strong>Total Price:</strong> $${c.TotalPrice}
+            <br><strong>Parts:</strong> ${partsText}
+          </div>
+        </div>
+      `;
 
       const actions = document.createElement("div");
       actions.className = "car-actions";
