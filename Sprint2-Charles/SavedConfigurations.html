@@ -170,6 +170,16 @@ async function loadCars() {
         }
       });
 
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "Edit";
+
+      editBtn.addEventListener("click", () => {
+          localStorage.setItem("editCar", JSON.stringify(c));
+          window.location.href = "/Sprint4-Alberto/VehicleCreationPage.html?edit=true";
+      });
+
+      actions.appendChild(editBtn);
+
       actions.appendChild(removeBtn);
       actions.appendChild(buyBtn);
       div.appendChild(actions);
