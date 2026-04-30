@@ -134,6 +134,11 @@ const userId = localStorage.getItem("userId");
 const baseCarEl = document.getElementById("baseCar");
 const saveResultEl = document.getElementById("saveResult");
 
+let editCar = JSON.parse(localStorage.getItem("editCar"));
+let editingCarId = editCar ? editCar.CarID : null;
+const params = new URLSearchParams(window.location.search);
+const isEditMode = params.get("edit") === "true";
+
 let allParts = [];
 
 let viewIndex = 1;
@@ -271,8 +276,14 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     const uniquePartIds = [...new Set(chosenParts.map(p => String(p.PartID)))];
     const total = Number(document.getElementById("sumTotal").textContent);
     try {
-        const res = await fetch(`${API_BASE}/cars`, {
-            method: "POST",
+        const url = editingCarId
+            ? `${API_BASE}/cars/${editingCarId}`
+            : `${API_BASE}/cars`;
+
+            const method = editingCarId ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+            method,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 userId,
@@ -280,16 +291,16 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
                 color,
                 rims,
                 partIds: uniquePartIds,
-                partId: uniquePartIds[0] || null,
                 totalPrice: total
             })
-        });
+            });
+
         const data = await res.json();
         console.log(data);
 
         if (!res.ok) {
             if (res.status === 404) {
-                saveResultEl.textContent = "Save route not found (Cannot POST /cars). Restart backend server so latest routes load.";
+                saveResultEl.textContent = `Route not found (${method} ${url})`;
             } else {
                 saveResultEl.textContent = data.message || "Could not save configuration.";
             }
@@ -308,6 +319,10 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
         updateView();
         saveResultEl.textContent = "Configuration saved successfully.";
         saveResultEl.style.color = "green";
+        if (editingCarId) {
+            localStorage.removeItem("editCar");
+            editingCarId = null; 
+        }
         } catch (e) {
             console.error(e);
             saveResultEl.textContent = "Server error while saving configuration.";
@@ -476,6 +491,47 @@ function updateView() {
 
 async function initPage() { /* run once at the start of page creation */
     await loadParts();
+    if (!isEditMode) {
+        localStorage.removeItem("editCar");
+    }
+
+    if (editCar && isEditMode) {
+        document.getElementById("baseCar").value = editCar.BaseCar;
+        const paint = editCar.Parts?.find(p => p.Name.toLowerCase().includes("paint"));
+        const rims = editCar.Parts?.find(p => p.Name.toLowerCase().includes("rim"));
+
+        if (paint) {
+            if (paint.Name.toLowerCase().includes("purple")) document.getElementById("carColor").value = "purple";
+            else if (paint.Name.toLowerCase().includes("green")) document.getElementById("carColor").value = "green";
+            else if (paint.Name.toLowerCase().includes("black")) document.getElementById("carColor").value = "black";
+            else document.getElementById("carColor").value = "white";
+        }
+
+        if (rims) {
+            if (rims.Name.toLowerCase().includes("black")) document.getElementById("carRims").value = "blackSport";
+            else if (rims.Name.toLowerCase().includes("silver")) document.getElementById("carRims").value = "greySport";
+            else if (rims.Name.toLowerCase().includes("bronze")) document.getElementById("carRims").value = "bronzeOffRoad";
+            else document.getElementById("carRims").value = "offRoadBlack";
+        }
+        const extraParts = editCar.Parts?.filter(p => {
+        const name = p.Name.toLowerCase();
+        return !name.includes("paint") && !name.includes("rim");    
+        });
+
+        if (extraParts && extraParts.length > 0) {
+            extraParts.forEach(part => {
+                addExtraOption();
+                const selects = document.querySelectorAll("#extraOptions  select");
+                const lastSelect = selects[selects.length - 1];
+                lastSelect.value = String(part.PartID);
+            });
+            updateSummary();
+        }
+            document.getElementById("saveBtn").textContent = "Update Configuratoin";
+            updateSummary();
+            updateView();
+        }
+
     updateSummary();
     updateView();
 }
