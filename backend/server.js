@@ -549,6 +549,51 @@ app.post("/cars", (req, res) => {
   });
 });
 
+app.put("/cars/:carId", (req, res) => {
+  const carId = Number(req.params.carId);
+  const { userId, baseCar, partIds, totalPrice } = req.body;
+
+  if (!carId || !userId || !baseCar) {
+    return res.status(400).json({ message: "carId, userId, and baseCar arerequired" });
+  }
+ 
+  const updateCarSql = `UPDATE Customized_car SET BaseCar = ?, TotalPrice = ? WHERE CarID = ? AND UserID = ?`;
+
+  db.query(updateCarSql, [baseCar, totalPrice, carId, userId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error updating car" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Car not found" });
+    }
+
+    const deletePartsSql = "DELETE FROM Customized_car_parts WHERE CarID = ?";
+
+    db.query(deletePartsSql, [carId], (deleteErr) => {
+      if (deleteErr) {
+        console.error(deleteErr);
+      }
+      
+      if (!partIds || partIds.length === 0) {
+        return res.json({ message: "Car updated successfully" });
+      }
+
+      const values = partIds.map(pid => [carId, Number(pid)]);
+      const insertPartsSql = `INSERT INTO Customized_car_parts (CarID, PartID) VALUES ?`;
+
+      db.query(insertPartsSql, [values], (partsErr) => {
+        if (partsErr) {
+          console.error(partsErr);
+        }
+
+        return res.json({ message: "Car updated successfully" });
+      });
+    });
+  });
+});
+
 // ==========================================
 // TRADE MARKETPLACE ROUTES
 // ==========================================

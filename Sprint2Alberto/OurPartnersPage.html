@@ -19,6 +19,13 @@
         button { padding: 12px 28px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; margin-top: 24px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(79,144,240,0.4); }
         button:hover { transform: translateY(-3px); box-shadow: 0 0 35px rgba(79,144,240,0.6), 0 8px 16px rgba(79,144,240,0.3); }
         footer { position: relative; z-index: 1; text-align: center; padding: 32px 24px; border-top: 1px solid rgba(79,144,240,0.1); color: rgba(175,200,245,0.6); font-size: 0.85rem; margin-top: auto; }
+        .partners-grid {display: flex; flex-direction: column; gap: 24px; }
+        .partner-card img { width: 100%; height: auto; object-fit: contain; background: #0c1428; padding: 10px;}
+        .partner-card:hover {transform: translateY(-6px); box-shadow: 0 0 40px rgba(79,144,240,0.35);}
+        .partner-info {padding: 16px;}
+        .partner-info h3 {font-family: 'Orbitron', monospace; font-size: 1rem; margin-bottom: 8px;}
+        .partner-info p {font-size: 0.85rem; margin-bottom: 12px; color: rgba(175,200,245,0.7);}
+        .partner-info button {width: 100%; padding: 10px; font-size: 0.85rem;}
     </style>
 </head>
 
@@ -29,6 +36,47 @@
 <div class="content-box">
     <h2>Our Partners Page</h2>
     <p>View Legacy Auto Company partners here.</p>
+    <div class="partners-grid">
+
+    <div class="partner-card">
+        <img src="https://firebasestorage.googleapis.com/v0/b/legautocustdb.firebasestorage.app/o/Maaco.webp?alt=media&token=72a0f014-4cb7-4877-b0f0-70fed4ce270f">
+        <div class="partner-info">
+            <h3>Maaco Chicago</h3>
+            <p>Maaco’s body and paint experts can take care of all your scratched-up paint and dents. If your car has any of the following: rust damage, delamination, bumper damage, dings, and dents you need to book an appointment today.</p>
+
+            <a href="https://www.maaco.com/locations/chicago-area/?utm_medium=ppc&utm_source=google&geo=9192842&mca_cmp=paidsearch&utm_term=car%20paint%20shops%20near%20me&utm_campaign=MAA_SEM_CV_AC-602-Chicago_2026Q1Q2_Search_Google_NonBrand&utm_content=NB_OverallPaint&campaign=MAA_SEM_CV_AC-602-Chicago_2026Q1Q2_Search_Google_NonBrand&keyword=car%20paint%20shops%20near%20me&gclsrc=aw.ds&gad_source=1&gad_campaignid=22739382145&gbraid=0AAAAACR6Qqa2k0znTXOn4NFHqgtdnUWyv&gclid=CjwKCAjw-8vPBhBbEiwAoA39WrnUxtlTleuFBTa8BuaDivr585mWeKPgrTRAAscL2XM-qT74uruJURoCS_8QAvD_BwE">
+                <button>Visit</button>
+            </a>
+        </div>
+    </div>
+
+    <div class="partner-card">
+        <img src="https://firebasestorage.googleapis.com/v0/b/legautocustdb.firebasestorage.app/o/CrashChampion.svg?alt=media&token=e26935eb-73b9-45cc-8768-e7b12259d67a">
+
+        <div class="partner-info">
+            <h3>Crash Champion: Collision Repair Team</h3>
+            <p>Our collision repair centers are designed to bring out the best in your work and your career. Connect with our talent acquisition partners and learn how we can help you build a career and paycheck you can be proud of.</p>
+
+            <a href="https://careers.crashchampions.com/auto-body-tech/?vs=428&utm_source=Google&utm_medium=Paid&utm_campaign=Google&gad_source=1&gad_campaignid=20895056544&gbraid=0AAAAAqsBjTnG_6vs9Nj0JeF4fE8qiXp8J&gclid=CjwKCAjw-8vPBhBbEiwAoA39Wr18RGPF6pOkWZvZcWaO4Wyb2Ys82jklP5xooo9oAZueAaLyREPN1hoClnIQAvD_BwE">
+                <button>Visit</button>
+            </a>
+        </div>
+    </div>
+
+    <div class="partner-card">
+        <img src="https://firebasestorage.googleapis.com/v0/b/legautocustdb.firebasestorage.app/o/FoxFactory.avif?alt=media&token=b02d9bda-bb09-4568-82f6-ef5da25b5c8d">
+
+        <div class="partner-info">
+            <h3>Fox Factory Vehicles</h3>
+            <p>For those who push the limits, conquer the most unforgiving terrain, and redefine what's possible. When you get in the driver's seat, you're on your way to your next adrenaline-fueled adventure.</p>
+
+            <a href="https://vehicles.ridefox.com/?gad_source=1&gad_campaignid=22228285578&gbraid=0AAAAABbIG7oW2YBWGOhJfH4j4-fwWZIc_&gclid=CjwKCAjw-8vPBhBbEiwAoA39Wvn4OmwHhvHRlQ3LzUDYyxR0Bv8hVdpZuHH2EDtscBX1ByTd8FU8txoCwyAQAvD_BwE">
+                <button>Visit</button>
+            </a>
+        </div>
+    </div>
+
+</div>
 
     <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">
         Back to Dashboard

@@ -31,69 +31,13 @@
         .right-side { width: 60%; display: flex; justify-content: center; align-items: center; min-height: 500px; position: relative; z-index: 1; }
         #carPreview { min-height: 400px; width: 100%; display: flex; justify-content: center; align-items: center; position: relative; z-index: 1; }
         #carPreview img {box-shadow: 0 20px 40px rgba(0,0,0,0.5); transition: transform .3s ease;}
-        #carPreview img:hover {transform: scale(1.05); }
+        #carPreview img:hover {transform: scale(1.05);}
+        #carPreview img.flip-horizontal:hover {transform: scaleX(-1) scale(1.05);}
         #carContainer {position: relative; width: 100%; display: flex; justify-content: center; }
         #viewControls { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.6); padding: 6px 14px; border-radius: 12px; z-index: 10;}
         #viewControls span {font-size: 14px;}
-        .preview-stage {
-            width: min(760px, 95%);
-            min-height: 500px;
-            background: rgba(12,20,40,0.55);
-            border-radius: 24px;
-            padding: 28px;
-            box-shadow: 0 0 50px rgba(79,144,240,0.2), 0 20px 40px rgba(0,0,0,0.45);
-        }
-        .preview-meta { color: rgba(175,200,245,0.78); margin-bottom: 14px; font-size: 0.9rem; }
-        .car-shell {
-            width: 100%;
-            min-height: 360px;
-            border-radius: 18px;
-            background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.18), transparent 50%), linear-gradient(145deg, #273252 0%, #121a33 100%);
-            display: grid;
-            grid-template-columns: 1fr 220px;
-            gap: 18px;
-            padding: 20px;
-            align-items: center;
-        }
-        .paint-panel {
-            height: 280px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.18);
-            background: linear-gradient(155deg, rgba(255,255,255,0.2), rgba(0,0,0,0.15));
-            position: relative;
-            overflow: hidden;
-        }
-        .paint-panel::after {
-            content: "";
-            position: absolute;
-            inset: 10px;
-            border-radius: 10px;
-            border: 1px dashed rgba(255,255,255,0.28);
-        }
-        .rim-panel {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 280px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.14);
-        }
-        .rim-panel img {
-            width: 180px;
-            height: 180px;
-            object-fit: contain;
-            background: rgba(255,255,255,0.92);
-            border-radius: 12px;
-            padding: 10px;
-        }
-        .preview-empty {
-            color: rgba(175,200,245,0.72);
-            text-align: center;
-            padding: 40px 20px;
-            border: 1px dashed rgba(79,144,240,0.3);
-            border-radius: 12px;
-        }
+        .flip-horizontal {transform: scaleX(-1);}
+
 </style>
 </head>
 
@@ -132,7 +76,6 @@
                 </select>
             </div>
 
-            
             <div class="form-row">
                 <label for="carRims">Car Rims</label>
                 <select id="carRims">
@@ -143,8 +86,6 @@
                     <option value="offRoadBlack">Offroad Black</option>
                 </select>
             </div>
-
-            
 
             <div id="extraOptions"></div>
             <a href="#" onclick="addExtraOption(); return false;">+ More Options</a>
@@ -161,7 +102,8 @@
                 <button id="saveBtn">Save Configuration</button>
                 <button onclick="window.location.href='/Sprint2-Charles/SavedConfigurations.html?userId=' + localStorage.getItem('userId')">View Saved Configurations</button>
                 <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + localStorage.getItem('userId')">Back to Dashboard</button>
-                <button type="button" onclick="toggleView()" id="viewBtn">Front View</button>
+                <button type="button" onclick="prevView()"> Left </button>
+                <button type="button" onclick="nextView()"> Right </button>
             </div>
             <!-- <div class="form-row"> -->
                 
@@ -180,8 +122,6 @@
             </div>
 
 
-
-
 </div>
 
 <!-- <footer>
@@ -196,8 +136,14 @@ const userId = localStorage.getItem("userId");
 const baseCarEl = document.getElementById("baseCar");
 const saveResultEl = document.getElementById("saveResult");
 
+let editCar = JSON.parse(localStorage.getItem("editCar"));
+let editingCarId = editCar ? editCar.CarID : null;
+const params = new URLSearchParams(window.location.search);
+const isEditMode = params.get("edit") === "true";
+
 let allParts = [];
 
+let viewIndex = 1;
 let currentView = "front";
 
 function getCarImage(baseCar, color, rims, view) {
@@ -239,7 +185,6 @@ function updateSummary() {
             partNames.push(opt.dataset.name);
         }
     });
-    
     
     const baseParts = [];
 
@@ -298,7 +243,6 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
             });
         }
     }
-
     
     const rimsValue = document.getElementById("carRims").value;
     if (rimsValue) {
@@ -329,8 +273,14 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     const uniquePartIds = [...new Set(chosenParts.map(p => String(p.PartID)))];
     const total = Number(document.getElementById("sumTotal").textContent);
     try {
-        const res = await fetch(`${API_BASE}/cars`, {
-            method: "POST",
+        const url = editingCarId
+            ? `${API_BASE}/cars/${editingCarId}`
+            : `${API_BASE}/cars`;
+
+            const method = editingCarId ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+            method,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 userId,
@@ -338,43 +288,38 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
                 color,
                 rims,
                 partIds: uniquePartIds,
-                partId: uniquePartIds[0] || null,
                 totalPrice: total
             })
-        });
+            });
+
         const data = await res.json();
         console.log(data);
 
         if (!res.ok) {
             if (res.status === 404) {
-                saveResultEl.textContent = "Save route not found (Cannot POST /cars). Restart backend server so latest routes load.";
+                saveResultEl.textContent = `Route not found (${method} ${url})`;
             } else {
                 saveResultEl.textContent = data.message || "Could not save configuration.";
             }
             saveResultEl.style.color = "red";
             return;
         }
-        
+
        const baseCar = baseCarEl.value;
 
         const imageName = rims
             ? `${baseCar}_${color}_${rims}.png`
             : `${baseCar}_${color}_basic.png`;
 
-        // document.getElementById("carPreview").innerHTML = `
-        //     <img src="/Sprint4-Alberto/car-images/${imageName}" 
-        //         style="width:800px; max-width:100%; background:white; padding:10px;"
-        // `;
-
         const imageUrl = getCarImage(baseCar, color, rims || "basic", "front");
 
-        document.getElementById("carPreview").innerHTML = `
-            <img src="${imageUrl}" 
-                style="width:800px; max-width:100%; background:white; padding:10px;">
-        `;
-
+        updateView();
         saveResultEl.textContent = "Configuration saved successfully.";
         saveResultEl.style.color = "green";
+        if (editingCarId) {
+            localStorage.removeItem("editCar");
+            editingCarId = null; 
+        }
         } catch (e) {
             console.error(e);
             saveResultEl.textContent = "Server error while saving configuration.";
@@ -433,61 +378,9 @@ function addExtraOption() {/*Adds a removable extra option but the same part can
     refreshAllDropdowns();
 }
 
-
-
-
-function updateCarPreview() {
-    const baseCar = document.getElementById("baseCar").value;
-    const color = document.getElementById("carColor").value;
-    const rims = document.getElementById("carRims").value;
-        const preview = document.getElementById("carPreview");
-        const previewMeta = document.getElementById("previewMeta");
-
-        if (!baseCar) {
-                previewMeta.textContent = "Select model, color, and rims to preview your build.";
-                preview.innerHTML = `<div class="preview-empty">Your custom vehicle preview will appear here.</div>`;
-                return;
-        }
-
-        const paintColors = {
-                white: "linear-gradient(145deg, #fafafa 0%, #d9d9d9 100%)",
-                black: "linear-gradient(145deg, #2d2d32 0%, #0f0f12 100%)",
-                purple: "linear-gradient(145deg, #7c5cff 0%, #3e2b8f 100%)",
-                green: "linear-gradient(145deg, #57ff9d 0%, #1f8650 100%)"
-        };
-        const paintBg = paintColors[color] || "linear-gradient(145deg, #34406b 0%, #1b2546 100%)";
-
-        const rimImage = rims ? `/Sprint4-Alberto/car-rims/${rims}.png` : "";
-        const viewLabel = currentView === "front" ? "Front" : "Back";
-        previewMeta.textContent = `${baseCar} | ${color || "no color"} | ${rims || "no rims"} | ${viewLabel} view`;
-
-//     document.getElementById("carPreview").innerHTML = `
-//     <img src="/Sprint4-Alberto/car-images/${imageName}" 
-//          style="width:800px; max-width:100%; background:white; padding:10px;">
-// `;
-    const carImgUrl = getCarImage(baseCar, color, rims, currentView);
-    preview.innerHTML = "";
-    const img = document.createElement("img");
-    img.src = carImgUrl;
-    img.alt = `${baseCar} ${color || "white"} ${rims || "basic"} ${currentView} view`;
-    img.style.width = "800px";
-    img.style.maxWidth = "100%";
-    img.style.background = "white";
-    img.style.padding = "10px";
-    img.onerror = () => {
-        if (img.dataset.fallbackTried !== "1") {
-            img.dataset.fallbackTried = "1";
-            img.src = getCarImage(baseCar, "white", "basic", currentView);
-            return;
-        }
-        preview.innerHTML = `<div class="preview-empty">Preview image unavailable for this selection.</div>`;
-    };
-    preview.appendChild(img);
-}
-
-document.getElementById("baseCar").addEventListener("change", updateCarPreview); /*these three will update the car preview when their values change*/
-document.getElementById("carColor").addEventListener("change", updateCarPreview);
-document.getElementById("carRims").addEventListener("change", updateCarPreview);
+document.getElementById("baseCar").addEventListener("change", updateView); /*these three will update the car preview when their values change*/
+document.getElementById("carColor").addEventListener("change", updateView);
+document.getElementById("carRims").addEventListener("change", updateView);
 
 function getSelectedPartIds() {
     const selects = document.querySelectorAll("#extraOptions select");
@@ -560,17 +453,84 @@ function getSelectedCategories() {
     return categories;
 }
 
-function toggleView() {
-    currentView = currentView === "front" ? "back" : "front";
-    document.getElementById("viewBtn").innerText =
-        currentView === "front" ? "Front View" : "Back View";
-    updateCarPreview();
+function nextView() {
+    viewIndex++;
+    updateView();
+}
+
+function prevView() {
+    viewIndex--;
+    updateView();
+}
+
+function updateView() {
+    let flipped = false;
+    
+    if (viewIndex > 6) viewIndex = 1;
+    if (viewIndex < 1) viewIndex = 6;
+    if (viewIndex === 1) currentView = "front";
+    if (viewIndex === 2) currentView = "left";
+    if (viewIndex === 3) { currentView = "back"; flipped = true;}
+    if (viewIndex === 4) currentView = "back";
+    if (viewIndex === 5) { currentView = "left"; flipped = true; }
+    if (viewIndex === 6) { currentView = "front"; flipped = true; }
+
+    const baseCar = document.getElementById("baseCar").value;
+    const color = document.getElementById("carColor").value;
+    const rims = document.getElementById("carRims").value;
+
+    if (!baseCar || !color) return;
+
+    const carImgUrl = getCarImage(baseCar, color, rims || "basic", currentView);
+    document.getElementById("carPreview").innerHTML = `
+        <img src="${carImgUrl}" style="width:800px; max-width:100%; background:white; padding:10px; transform: ${flipped ? "scaleX(-1)" : "scaleX(1)"};">`;
 }
 
 async function initPage() { /* run once at the start of page creation */
     await loadParts();
+    if (!isEditMode) {
+        localStorage.removeItem("editCar");
+    }
+
+    if (editCar && isEditMode) {
+        document.getElementById("baseCar").value = editCar.BaseCar;
+        const paint = editCar.Parts?.find(p => p.Name.toLowerCase().includes("paint"));
+        const rims = editCar.Parts?.find(p => p.Name.toLowerCase().includes("rim"));
+
+        if (paint) {
+            if (paint.Name.toLowerCase().includes("purple")) document.getElementById("carColor").value = "purple";
+            else if (paint.Name.toLowerCase().includes("green")) document.getElementById("carColor").value = "green";
+            else if (paint.Name.toLowerCase().includes("black")) document.getElementById("carColor").value = "black";
+            else document.getElementById("carColor").value = "white";
+        }
+
+        if (rims) {
+            if (rims.Name.toLowerCase().includes("black")) document.getElementById("carRims").value = "blackSport";
+            else if (rims.Name.toLowerCase().includes("silver")) document.getElementById("carRims").value = "greySport";
+            else if (rims.Name.toLowerCase().includes("bronze")) document.getElementById("carRims").value = "bronzeOffRoad";
+            else document.getElementById("carRims").value = "offRoadBlack";
+        }
+        const extraParts = editCar.Parts?.filter(p => {
+        const name = p.Name.toLowerCase();
+        return !name.includes("paint") && !name.includes("rim");    
+        });
+
+        if (extraParts && extraParts.length > 0) {
+            extraParts.forEach(part => {
+                addExtraOption();
+                const selects = document.querySelectorAll("#extraOptions  select");
+                const lastSelect = selects[selects.length - 1];
+                lastSelect.value = String(part.PartID);
+            });
+            updateSummary();
+        }
+            document.getElementById("saveBtn").textContent = "Update Configuratoin";
+            updateSummary();
+            updateView();
+        }
+
     updateSummary();
-    updateCarPreview();
+    updateView();
 }
 
 initPage();
