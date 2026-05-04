@@ -21,7 +21,7 @@
         .nav-btn { padding: 8px 20px; background: rgba(79,144,240,0.1); border: 1px solid rgba(79,144,240,0.3); border-radius: 50px; color: rgba(175,200,245,0.8); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s ease; }
         .nav-btn:hover { background: rgba(79,144,240,0.2); color: #fff; }
         
-        .dashboard-container { position: relative; z-index: 1; width: 100%; padding: 40px 24px; min-height: calc(100vh - 66px); display: flex; flex-direction: column; }
+        .dashboard-container { position: relative; z-index: 1; width: 100%; padding: 40px 24px 56px; }
         .welcome-section { margin-bottom: 48px; }
         .welcome-section h1 { font-family: 'Orbitron', monospace; font-size: 2.2rem; font-weight: 900; margin-bottom: 8px; }
         .welcome-section p { color: rgba(175,200,245,0.6); font-size: 1.05rem; }
@@ -34,11 +34,18 @@
         .nav-card p { font-size: 0.8rem; color: rgba(175,200,245,0.6); }
         
         .content-section { background: rgba(12,20,40,0.45); border: none; border-radius: 20px; padding: 32px; margin-bottom: 24px; width: 100%; box-shadow: 0 0 30px rgba(79,144,240,0.12), 0 8px 16px rgba(0,0,0,0.3); }
-        .content-section:last-child { margin-bottom: 0; flex: 1; }
         .content-section h2 { font-family: 'Orbitron', monospace; font-size: 1.4rem; font-weight: 900; margin-bottom: 16px; }
         .content-section p { color: rgba(175,200,245,0.7); line-height: 1.6; }
         .view-btn { display: inline-block; margin-top: 16px; padding: 10px 28px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; border-radius: 50px; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(79,144,240,0.4), 0 4px 12px rgba(79,144,240,0.25); }
         .view-btn:hover { transform: translateY(-3px); box-shadow: 0 0 25px rgba(79,144,240,0.6), 0 8px 16px rgba(79,144,240,0.35); }
+
+        .offer-section { margin-top: 8px; background: rgba(9,16,34,0.58); border: 1px solid rgba(79,144,240,0.22); border-radius: 22px; padding: 24px; box-shadow: 0 0 40px rgba(79,144,240,0.12), inset 0 0 0 1px rgba(79,144,240,0.08); }
+        .offer-title { font-family: 'Orbitron', monospace; font-weight: 800; font-size: 0.9rem; letter-spacing: 2px; color: rgba(130,171,237,0.85); text-transform: uppercase; text-align: center; margin-bottom: 18px; }
+        .offer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+        .offer-card { background: rgba(8,18,42,0.6); border: 1px solid rgba(79,144,240,0.26); border-radius: 16px; padding: 18px; min-height: 170px; }
+        .offer-icon { width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 12px; background: rgba(79,144,240,0.15); border: 1px solid rgba(79,144,240,0.35); }
+        .offer-card h3 { font-size: 1.05rem; margin-bottom: 8px; font-weight: 700; }
+        .offer-card p { color: rgba(175,200,245,0.68); font-size: 0.95rem; line-height: 1.45; }
         
         @media (max-width: 768px) { .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); } }
         @media (max-width: 480px) { .dashboard-grid { grid-template-columns: 1fr 1fr; } nav { padding: 0 20px; } }
@@ -110,6 +117,32 @@
             <h2>👤 Account Information</h2>
             <p id="accountInfo">Loading your profile...</p>
         </div>
+
+        <section class="offer-section">
+            <div class="offer-title">What We Offer</div>
+            <div class="offer-grid">
+                <article class="offer-card">
+                    <div class="offer-icon">🔧</div>
+                    <h3>Parts Catalog</h3>
+                    <p>Search and compare thousands of parts by category and price to build exactly what you want.</p>
+                </article>
+                <article class="offer-card">
+                    <div class="offer-icon">🔄</div>
+                    <h3>Trade Marketplace</h3>
+                    <p>Post offers, negotiate with other builders, and find rare parts for your next custom project.</p>
+                </article>
+                <article class="offer-card">
+                    <div class="offer-icon">🚙</div>
+                    <h3>Vehicle Builder</h3>
+                    <p>Mix paint, rims, and upgrades into one configuration, then save and edit your build anytime.</p>
+                </article>
+                <article class="offer-card">
+                    <div class="offer-icon">📁</div>
+                    <h3>Saved Builds</h3>
+                    <p>Keep your designs organized and return to previous configurations without losing progress.</p>
+                </article>
+            </div>
+        </section>
     </div>
     
     <script>
