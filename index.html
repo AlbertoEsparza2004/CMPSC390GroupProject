@@ -263,6 +263,9 @@
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 14px;
         }
+        @media (max-width: 900px) {
+            .features-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
 
         .feature-card {
             position: relative;
@@ -403,26 +406,46 @@
 
     <section class="features-section">
         <p class="features-eyebrow">What We Offer</p>
-        <div class="features-grid">
+        <div class="features-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
             <div class="feature-card">
                 <div class="feature-icon">&#x1F529;</div>
                 <h3>Parts Catalog</h3>
-                <p>Search thousands of automotive parts. Filter by category, compatibility, and price to find exactly what your build needs.</p>
+                <p>Search and compare thousands of parts by category, compatibility, and price to build exactly what you want.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">&#x1F504;</div>
                 <h3>Trade Marketplace</h3>
-                <p>List your spare parts and make offers on other listings. Real-time trade negotiation between builders.</p>
+                <p>Post offers, negotiate with other builders, and find rare parts for your next custom project.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">&#x1F697;</div>
                 <h3>Vehicle Builder</h3>
-                <p>Configure custom vehicle builds from the ground up. Mix and match parts, save configs, and describe your vision.</p>
+                <p>Mix paint, rims, and upgrades into one configuration, then save and edit your build anytime.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">&#x1F4C1;</div>
                 <h3>Saved Builds</h3>
-                <p>Store unlimited vehicle configurations and pick up right where you left off, any time.</p>
+                <p>Keep your designs organized and return to previous configurations without losing progress.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#x1F4AC;</div>
+                <h3>Reviews &amp; Discussions</h3>
+                <p>Share part feedback, ask questions, and swap build ideas with the Legacy Auto community.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#x1F91D;</div>
+                <h3>Trusted Partners</h3>
+                <p>Connect with our repair and customization partners including Maaco, Crash Champions, and Fox Factory.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#x1F477;</div>
+                <h3>Employee Opportunities</h3>
+                <p>Join the Legacy Auto team. Employees get access to exclusive tools, dashboards, and customer management features.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#x1F4CA;</div>
+                <h3>Manager Dashboard</h3>
+                <p>Oversee inventory, review customer activity, and manage the platform from a dedicated manager portal.</p>
             </div>
         </div>
     </section>
