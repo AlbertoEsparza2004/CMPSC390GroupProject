@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders - LegacyAuto</title>
+  <link rel="stylesheet" href="/global-ui.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #07090f; color: #fff; min-height: 100vh; }
+    .page-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse at 18% 35%, rgba(79,144,240,0.13) 0%, transparent 50%),
+        radial-gradient(ellipse at 82% 70%, rgba(212,168,67,0.07) 0%, transparent 45%),
+        linear-gradient(160deg, #0c1428 0%, #07090f 100%);
+    }
+    .container {
+      position: relative; z-index: 1;
+      width: min(1080px, calc(100% - 30px));
+      margin: 20px auto;
+      border-radius: 24px;
+      background: rgba(10,16,33,0.72);
+      border: 1px solid rgba(79,144,240,0.14);
+      box-shadow: 0 26px 70px rgba(0,0,0,0.34), 0 0 60px rgba(79,144,240,0.08);
+      padding: 24px;
+    }
+    h1 { font-family: 'Orbitron', monospace; font-size: 1.8rem; margin-bottom: 6px; }
+    .sub { color: rgba(175,200,245,0.7); margin-bottom: 16px; }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    button {
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(79,144,240,0.3);
+      background: rgba(79,144,240,0.12);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.primary { background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .panel { border: 1px solid rgba(79,144,240,0.16); border-radius: 14px; background: rgba(79,144,240,0.05); padding: 14px; }
+    .panel h2 { font-family: 'Orbitron', monospace; font-size: 0.95rem; margin-bottom: 10px; }
+
+    .order { border: 1px solid rgba(79,144,240,0.14); border-radius: 12px; padding: 12px; margin-bottom: 10px; background: rgba(7,13,28,0.72); }
+    .order-title { font-weight: 700; margin-bottom: 5px; }
+    .order-meta { color: rgba(175,200,245,0.72); font-size: 0.84rem; margin-bottom: 6px; }
+    .items { color: rgba(175,200,245,0.8); font-size: 0.86rem; }
+
+    .empty { color: rgba(175,200,245,0.62); font-size: 0.9rem; }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-bg"></div>
+  <div class="container">
+    <h1>Your Orders</h1>
+    <p class="sub">Access current and previous orders in one place.</p>
+
+    <div class="actions">
+      <button class="primary" onclick="goToCart()">Go to Cart / Checkout</button>
+      <button onclick="goToSavedBuilds()">Go to Saved Builds</button>
+      <button onclick="goToDashboard()">Back to Dashboard</button>
+      <button onclick="reloadOrders()">Refresh</button>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Current Orders</h2>
+        <div id="currentOrders">Loading current orders...</div>
+      </section>
+
+      <section class="panel">
+        <h2>Previous Orders</h2>
+        <div id="previousOrders">Loading previous orders...</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const userIdFromQuery = params.get("userId");
+    const userIdFromStorage = localStorage.getItem("userId");
+    const currentUserId = Number(userIdFromQuery || userIdFromStorage);
+
+    if (!Number.isInteger(currentUserId) || currentUserId <= 0) {
+      window.location.replace("/Sprint2Alberto/CustomerSingInPage.html");
+    }
+
+    if (userIdFromQuery && userIdFromQuery !== userIdFromStorage) {
+      localStorage.setItem("userId", userIdFromQuery);
+    }
+
+    function goToCart() {
+      window.location.href = "/Sprint2-Charles/CheckoutPage.html?userId=" + encodeURIComponent(currentUserId);
+    }
+
+    function goToSavedBuilds() {
+      window.location.href = "/Sprint2-Charles/SavedConfigurations.html?userId=" + encodeURIComponent(currentUserId);
+    }
+
+    function goToDashboard() {
+      window.location.href = "/Sprint2-Charles/CustomerDashboard.html?userId=" + encodeURIComponent(currentUserId);
+    }
+
+    function formatOrder(order, isCurrent) {
+      const wrap = document.createElement("div");
+      wrap.className = "order";
+
+      const itemSummary = Array.isArray(order.Items) && order.Items.length > 0
+        ? order.Items.map((it) => `${it.Name || ("Part #" + it.PartID)} x${Number(it.Quantity || 0)}`).join(", ")
+        : "Vehicle/custom build order";
+
+      const createdAt = order.CreatedAt ? new Date(order.CreatedAt).toLocaleString() : "";
+
+      wrap.innerHTML = `
+        <div class="order-title">Order #${order.OrderID} - $${Number(order.TotalAmount || 0).toFixed(2)}</div>
+        <div class="order-meta">Status: ${order.Status || "PAID_SIMULATED"} | Placed: ${createdAt}</div>
+        <div class="items">Items: ${itemSummary}</div>
+      `;
+
+      if (isCurrent) {
+        const actions = document.createElement("div");
+        actions.style.marginTop = "8px";
+        actions.style.display = "flex";
+        actions.style.gap = "8px";
+
+        const completeBtn = document.createElement("button");
+        completeBtn.textContent = "Mark Completed";
+        completeBtn.onclick = () => updateOrderStatus(order.OrderID, "FULFILLED");
+
+        const cancelBtn = document.createElement("button");
+        cancelBtn.textContent = "Cancel";
+        cancelBtn.onclick = () => updateOrderStatus(order.OrderID, "CANCELLED");
+
+        actions.appendChild(completeBtn);
+        actions.appendChild(cancelBtn);
+        wrap.appendChild(actions);
+      }
+
+      return wrap;
+    }
+
+    function renderOrders(targetId, orders, isCurrent) {
+      const target = document.getElementById(targetId);
+      target.innerHTML = "";
+
+      if (!Array.isArray(orders) || orders.length === 0) {
+        target.innerHTML = "<p class='empty'>No orders in this section.</p>";
+        return;
+      }
+
+      orders.forEach((order) => target.appendChild(formatOrder(order, isCurrent)));
+    }
+
+    function loadCurrentOrders() {
+      return fetch("/orders/" + encodeURIComponent(currentUserId) + "?scope=current")
+        .then((res) => {
+          if (!res.ok) throw new Error("Could not load current orders");
+          return res.json();
+        });
+    }
+
+    function loadPreviousOrders() {
+      return fetch("/orders/" + encodeURIComponent(currentUserId) + "?scope=previous")
+        .then((res) => {
+          if (!res.ok) throw new Error("Could not load previous orders");
+          return res.json();
+        });
+    }
+
+    function updateOrderStatus(orderId, status) {
+      fetch("/orders/" + encodeURIComponent(orderId) + "/status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: currentUserId, status })
+      })
+        .then((res) => res.json().then((body) => ({ ok: res.ok, body })))
+        .then(({ ok, body }) => {
+          if (!ok) {
+            throw new Error(body.message || "Failed to update order");
+          }
+          reloadOrders();
+        })
+        .catch((err) => {
+          alert(err.message || "Failed to update order status");
+        });
+    }
+
+    function reloadOrders() {
+      Promise.all([loadCurrentOrders(), loadPreviousOrders()])
+        .then(([current, previous]) => {
+          renderOrders("currentOrders", current, true);
+          renderOrders("previousOrders", previous, false);
+        })
+        .catch((err) => {
+          document.getElementById("currentOrders").innerHTML = "<p class='empty'>Unable to load current orders.</p>";
+          document.getElementById("previousOrders").innerHTML = "<p class='empty'>Unable to load previous orders.</p>";
+          console.error(err);
+        });
+    }
+
+    reloadOrders();
+  </script>
+</body>
+</html>

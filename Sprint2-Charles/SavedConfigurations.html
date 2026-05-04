@@ -21,6 +21,7 @@
     .car strong { color: #fff; }
     .car { color: rgba(175,200,245,0.8); }
     .car-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .quick-links { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
     button { padding: 10px 20px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(79,144,240,0.3); }
     button:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(79,144,240,0.5); }
     .page-action { margin-top: 10px; }
@@ -36,6 +37,11 @@
 <div class="container">
 
   <h2>Saved Vehicle Configurations</h2>
+
+  <div class="quick-links">
+    <button onclick="window.location.href='/Sprint2-Charles/CheckoutPage.html?userId=' + localStorage.getItem('userId')">Cart / Checkout</button>
+    <button onclick="window.location.href='/Sprint2-Charles/OrdersPage.html?userId=' + localStorage.getItem('userId')">Current + Previous Orders</button>
+  </div>
 
   <div id="carsList">
     Loading configurations...
@@ -70,6 +76,30 @@ async function updateBuildStatus(carId, buildStatus) {
     const errText = await response.text();
     throw new Error(errText || "Status update failed");
   }
+}
+
+async function purchaseCarBuild(carId) {
+  const shippingAddress = window.prompt("Shipping address for this vehicle build:", "");
+  if (shippingAddress === null) {
+    return;
+  }
+
+  const response = await fetch(`${API_BASE}/cars/${carId}/purchase`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId,
+      shippingAddress,
+      paymentMethod: "SIMULATED_CAR_PURCHASE"
+    })
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(errText || "Car purchase failed");
+  }
+
+  return response.json();
 }
 
 async function loadCars() {
@@ -167,14 +197,15 @@ async function loadCars() {
       });
 
       const buyBtn = document.createElement("button");
-      buyBtn.textContent = "Mark as Bought";
+      buyBtn.textContent = "Buy This Build";
       buyBtn.addEventListener("click", async () => {
         try {
-          await updateBuildStatus(c.CarID, "BOUGHT");
+          await purchaseCarBuild(c.CarID);
           await loadCars();
+          alert("Build purchased successfully. It is now in your orders and bought builds.");
         } catch (buyErr) {
           console.error(buyErr);
-          alert("Could not move configuration to bought builds right now.");
+          alert("Could not complete build purchase right now.");
         }
       });
 

@@ -161,6 +161,7 @@
 
         <div class="actions">
           <button class="secondary" onclick="goBackToParts()">Back to Parts</button>
+          <button class="secondary" onclick="goToOrders()">Go to Orders</button>
           <button id="placeOrderBtn" onclick="placeOrder()">Place Order</button>
         </div>
         <p class="message" id="checkoutMessage"></p>
@@ -189,6 +190,10 @@
 
     function goBackToParts() {
       window.location.href = "/Sprint2-Charles/PartsPage.html?userId=" + encodeURIComponent(currentUserId);
+    }
+
+    function goToOrders() {
+      window.location.href = "/Sprint2-Charles/OrdersPage.html?userId=" + encodeURIComponent(currentUserId);
     }
 
     function renderCart(items, totalAmount) {

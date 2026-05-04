@@ -611,20 +611,35 @@ app.post("/checkout", async (req, res) => {
 
 app.get("/orders/:userId", async (req, res) => {
   const userId = Number(req.params.userId);
+  const scope = String(req.query.scope || "all").toLowerCase();
 
   if (!Number.isInteger(userId) || userId <= 0) {
     return res.status(400).json({ message: "Valid userId is required" });
   }
 
   try {
+    const currentStatuses = ["PAID_SIMULATED", "PROCESSING"];
+    const previousStatuses = ["FULFILLED", "CANCELLED"];
+
+    let statusFilter = [];
+    if (scope === "current") {
+      statusFilter = currentStatuses;
+    } else if (scope === "previous") {
+      statusFilter = previousStatuses;
+    }
+
+    const whereClause = statusFilter.length
+      ? `WHERE UserID = ? AND Status IN (${statusFilter.map(() => "?").join(", ")})`
+      : "WHERE UserID = ?";
+
     const orders = await queryAsync(
       `
         SELECT OrderID, UserID, TotalAmount, Status, ShippingAddress, PaymentMethod, CreatedAt
         FROM CustomerOrders
-        WHERE UserID = ?
+        ${whereClause}
         ORDER BY CreatedAt DESC
       `,
-      [userId]
+      [userId, ...statusFilter]
     );
 
     if (!orders || orders.length === 0) {
@@ -670,6 +685,141 @@ app.get("/orders/:userId", async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Database error" });
+  }
+});
+
+app.patch("/orders/:orderId/status", async (req, res) => {
+  const orderId = Number(req.params.orderId);
+  const userId = Number((req.body && req.body.userId) || req.query.userId);
+  const status = String((req.body && req.body.status) || "").toUpperCase();
+  const allowedStatuses = new Set(["PROCESSING", "FULFILLED", "CANCELLED"]);
+
+  if (!Number.isInteger(orderId) || orderId <= 0 || !Number.isInteger(userId) || userId <= 0 || !allowedStatuses.has(status)) {
+    return res.status(400).json({ message: "Valid orderId, userId, and status are required" });
+  }
+
+  try {
+    const result = await queryAsync(
+      "UPDATE CustomerOrders SET Status = ? WHERE OrderID = ? AND UserID = ?",
+      [status, orderId, userId]
+    );
+
+    if (!result || result.affectedRows === 0) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    return res.json({ message: `Order marked as ${status.toLowerCase()}` });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Database error" });
+  }
+});
+
+app.post("/cars/:carId/purchase", async (req, res) => {
+  const carId = Number(req.params.carId);
+  const userId = Number(req.body.userId);
+  const shippingAddress = String(req.body.shippingAddress || "").trim() || null;
+  const paymentMethod = String(req.body.paymentMethod || "SIMULATED_CAR_PURCHASE").trim() || "SIMULATED_CAR_PURCHASE";
+
+  if (!Number.isInteger(carId) || carId <= 0 || !Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ message: "Valid carId and userId are required" });
+  }
+
+  try {
+    await beginTransactionAsync();
+
+    const carRows = await queryAsync(
+      `
+        SELECT CarID, UserID, BaseCar, TotalPrice, BuildStatus
+        FROM Customized_car
+        WHERE CarID = ? AND UserID = ?
+        FOR UPDATE
+      `,
+      [carId, userId]
+    );
+
+    if (!carRows || carRows.length === 0) {
+      await rollbackAsync();
+      return res.status(404).json({ message: "Configuration not found" });
+    }
+
+    const car = carRows[0];
+    const currentStatus = String(car.BuildStatus || "ACTIVE").toUpperCase();
+    if (currentStatus === "BOUGHT") {
+      await rollbackAsync();
+      return res.status(400).json({ message: "This configuration is already bought" });
+    }
+
+    const partRows = await queryAsync(
+      `
+        SELECT p.PartID, p.Name, p.Price, p.Stock
+        FROM Customized_car_parts ccp
+        JOIN Parts p ON p.PartID = ccp.PartID
+        WHERE ccp.CarID = ?
+        FOR UPDATE
+      `,
+      [carId]
+    );
+
+    for (const part of (partRows || [])) {
+      const stock = Number(part.Stock || 0);
+      if (stock < 1) {
+        await rollbackAsync();
+        return res.status(400).json({ message: `Part out of stock: ${part.Name || part.PartID}` });
+      }
+    }
+
+    const totalAmount = Number(car.TotalPrice || 0);
+    const orderResult = await queryAsync(
+      `
+        INSERT INTO CustomerOrders (UserID, TotalAmount, Status, ShippingAddress, PaymentMethod)
+        VALUES (?, ?, 'PAID_SIMULATED', ?, ?)
+      `,
+      [userId, totalAmount, shippingAddress, paymentMethod]
+    );
+
+    const orderId = Number(orderResult.insertId);
+
+    if (Array.isArray(partRows) && partRows.length > 0) {
+      const orderItemValues = partRows.map((part) => {
+        const unitPrice = Number(part.Price || 0);
+        return [orderId, Number(part.PartID), 1, unitPrice, unitPrice];
+      });
+
+      await queryAsync(
+        "INSERT INTO CustomerOrderItems (OrderID, PartID, Quantity, UnitPrice, LineTotal) VALUES ?",
+        [orderItemValues]
+      );
+
+      for (const part of partRows) {
+        await queryAsync(
+          `
+            UPDATE Parts
+            SET Stock = Stock - 1,
+                Availability = CASE WHEN (Stock - 1) <= 0 THEN 'Out of Stock' ELSE 'Available' END
+            WHERE PartID = ? AND Stock >= 1
+          `,
+          [Number(part.PartID)]
+        );
+      }
+    }
+
+    await queryAsync(
+      "UPDATE Customized_car SET BuildStatus = 'BOUGHT' WHERE CarID = ? AND UserID = ?",
+      [carId, userId]
+    );
+
+    await commitAsync();
+    return res.json({
+      message: "Car purchase completed",
+      orderId,
+      totalAmount,
+      status: "PAID_SIMULATED"
+    });
+  } catch (err) {
+    console.error(err);
+    await rollbackAsync();
+    return res.status(500).json({ message: "Could not complete car purchase" });
   }
 });
 
