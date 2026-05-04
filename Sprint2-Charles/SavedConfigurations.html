@@ -121,7 +121,7 @@ async function loadCars() {
 
       let rimsValue = "basic";
       if (rimsName.toLowerCase().includes("black")) rimsValue = "blackSport";
-      else if (rimsName.toLowerCase().includes("silver")) rimsValue = "greySport";
+      else if (rimsName.toLowerCase().includes("grey") || rimsName.toLowerCase().includes("silver")) rimsValue = "greySport";
       else if (rimsName.toLowerCase().includes("bronze")) rimsValue = "bronzeOffRoad";
       else if (rimsName.toLowerCase().includes("offroad")) rimsValue = "offRoadBlack";
 

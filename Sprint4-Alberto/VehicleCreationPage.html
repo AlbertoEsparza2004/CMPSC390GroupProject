@@ -172,7 +172,9 @@ function updateSummary() {
     const rimsValue = document.getElementById("carRims").value;
     if (rimsValue) {
         const rimsPart = allParts.find(p =>
-            p.Category?.toLowerCase() === "wheel" && p.Image?.toLowerCase().includes(rimsValue.toLowerCase())
+            ["wheel", "rims"].includes((p.Category || "").toLowerCase()) &&
+            ((p.Image || "").toLowerCase().includes(rimsValue.toLowerCase()) ||
+             (p.Name || "").toLowerCase().includes(rimsValue.toLowerCase()))
         );
         if (rimsPart) { total += Number(rimsPart.Price);}
     }
@@ -247,8 +249,9 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     const rimsValue = document.getElementById("carRims").value;
     if (rimsValue) {
         const rimsPart = allParts.find(p =>
-            p.Category?.toLowerCase() === "wheel" &&
-            p.Image?.toLowerCase().includes(rimsValue.toLowerCase())
+            ["wheel", "rims"].includes((p.Category || "").toLowerCase()) &&
+            (((p.Image || "").toLowerCase().includes(rimsValue.toLowerCase())) ||
+             ((p.Name || "").toLowerCase().includes(rimsValue.toLowerCase())))
         );
         if (rimsPart) {
             chosenParts.push({
@@ -513,10 +516,12 @@ async function initPage() { /* run once at the start of page creation */
         }
 
         if (rims) {
-            if (rims.Name.toLowerCase().includes("black")) document.getElementById("carRims").value = "blackSport";
-            else if (rims.Name.toLowerCase().includes("silver")) document.getElementById("carRims").value = "greySport";
-            else if (rims.Name.toLowerCase().includes("bronze")) document.getElementById("carRims").value = "bronzeOffRoad";
-            else document.getElementById("carRims").value = "offRoadBlack";
+            const rimName = (rims.Name || "").toLowerCase();
+            const rimImage = (rims.Image || "").toLowerCase();
+            if (rimImage.includes("blacksport") || rimName.includes("sport black")) document.getElementById("carRims").value = "blackSport";
+            else if (rimImage.includes("greysport") || rimName.includes("grey") || rimName.includes("silver")) document.getElementById("carRims").value = "greySport";
+            else if (rimImage.includes("bronzeoffroad") || rimName.includes("bronze")) document.getElementById("carRims").value = "bronzeOffRoad";
+            else if (rimImage.includes("offroadblack") || rimName.includes("offroad black")) document.getElementById("carRims").value = "offRoadBlack";
         }
         const extraParts = editCar.Parts?.filter((p) => {
         const category = (p.Category || "").toLowerCase();
