@@ -239,7 +239,7 @@ function enrichCarsWithParts(cars, callback) {
       return callback(null, hydratedCars);
     }
 
-    const partSql = "SELECT PartID, Name FROM Parts WHERE PartID IN (?)";
+    const partSql = "SELECT PartID, Name, Category FROM Parts WHERE PartID IN (?)";
     db.query(partSql, [primaryPartIds], (partsErr, partRows) => {
       if (partsErr) {
         console.error(partsErr);
@@ -248,15 +248,20 @@ function enrichCarsWithParts(cars, callback) {
 
       const partMap = new Map();
       (partRows || []).forEach((part) => {
-        partMap.set(Number(part.PartID), part.Name || `Part ${part.PartID}`);
+        partMap.set(Number(part.PartID), {
+          Name: part.Name || `Part ${part.PartID}`,
+          Category: part.Category || ""
+        });
       });
 
       hydratedCars.forEach((car) => {
         const pid = Number(car.PartID);
+        const mappedPart = partMap.get(pid);
         if (Number.isInteger(pid) && pid > 0) {
           car.Parts = [{
             PartID: pid,
-            Name: partMap.get(pid) || `Part ${pid}`
+            Name: (mappedPart && mappedPart.Name) || `Part ${pid}`,
+            Category: (mappedPart && mappedPart.Category) || ""
           }];
         }
       });
@@ -274,7 +279,7 @@ function enrichCarsWithParts(cars, callback) {
   }
 
   const partsSql = `
-    SELECT ccp.CarID, p.PartID, p.Name
+    SELECT ccp.CarID, p.PartID, p.Name, p.Category
     FROM Customized_car_parts ccp
     JOIN Parts p ON p.PartID = ccp.PartID
     WHERE ccp.CarID IN (?)
@@ -297,7 +302,8 @@ function enrichCarsWithParts(cars, callback) {
 
       car.Parts.push({
         PartID: Number(row.PartID),
-        Name: row.Name || `Part ${row.PartID}`
+        Name: row.Name || `Part ${row.PartID}`,
+        Category: row.Category || ""
       });
     });
 
@@ -307,7 +313,8 @@ function enrichCarsWithParts(cars, callback) {
         if (Number.isInteger(pid) && pid > 0) {
           car.Parts = [{
             PartID: pid,
-            Name: `Part ${pid}`
+            Name: `Part ${pid}`,
+            Category: ""
           }];
         }
       }

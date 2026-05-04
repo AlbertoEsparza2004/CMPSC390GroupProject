@@ -100,8 +100,16 @@ async function loadCars() {
       //   "<strong>Vehicle:</strong> " + c.BaseCar +
       //   "<br><strong>Total Price:</strong> $" + c.TotalPrice +
       //   "<br><strong>Parts:</strong> " + partsText;
-      const paint = c.Parts?.find(p => p.Name.toLowerCase().includes("paint"));
-      const rims = c.Parts?.find(p => p.Name.toLowerCase().includes("rim"));
+      const paint = c.Parts?.find((p) => {
+        const category = (p.Category || "").toLowerCase();
+        const name = (p.Name || "").toLowerCase();
+        return category === "paint" || name.includes("paint");
+      });
+      const rims = c.Parts?.find((p) => {
+        const category = (p.Category || "").toLowerCase();
+        const name = (p.Name || "").toLowerCase();
+        return category === "wheel" || category === "rims" || name.includes("rim");
+      });
 
       const paintName = paint ? paint.Name.replace(" Paint", "") : "No Color";
       const rimsName = rims ? rims.Name : "Stock Rims";

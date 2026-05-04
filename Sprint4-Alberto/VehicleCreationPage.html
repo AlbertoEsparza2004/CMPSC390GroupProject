@@ -494,8 +494,16 @@ async function initPage() { /* run once at the start of page creation */
 
     if (editCar && isEditMode) {
         document.getElementById("baseCar").value = editCar.BaseCar;
-        const paint = editCar.Parts?.find(p => p.Name.toLowerCase().includes("paint"));
-        const rims = editCar.Parts?.find(p => p.Name.toLowerCase().includes("rim"));
+        const paint = editCar.Parts?.find((p) => {
+            const category = (p.Category || "").toLowerCase();
+            const name = (p.Name || "").toLowerCase();
+            return category === "paint" || name.includes("paint");
+        });
+        const rims = editCar.Parts?.find((p) => {
+            const category = (p.Category || "").toLowerCase();
+            const name = (p.Name || "").toLowerCase();
+            return category === "wheel" || category === "rims" || name.includes("rim");
+        });
 
         if (paint) {
             if (paint.Name.toLowerCase().includes("purple")) document.getElementById("carColor").value = "purple";
@@ -510,9 +518,10 @@ async function initPage() { /* run once at the start of page creation */
             else if (rims.Name.toLowerCase().includes("bronze")) document.getElementById("carRims").value = "bronzeOffRoad";
             else document.getElementById("carRims").value = "offRoadBlack";
         }
-        const extraParts = editCar.Parts?.filter(p => {
-        const name = p.Name.toLowerCase();
-        return !name.includes("paint") && !name.includes("rim");    
+        const extraParts = editCar.Parts?.filter((p) => {
+        const category = (p.Category || "").toLowerCase();
+        const name = (p.Name || "").toLowerCase();
+        return category !== "paint" && category !== "wheel" && category !== "rims" && !name.includes("paint") && !name.includes("rim");
         });
 
         if (extraParts && extraParts.length > 0) {
