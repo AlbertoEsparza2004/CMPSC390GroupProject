@@ -54,6 +54,120 @@ function ensurePartsReviewOwnershipSchema() {
 
 ensurePartsReviewOwnershipSchema();
 
+function ensureCheckoutSchema() {
+  const statements = [
+    `
+      CREATE TABLE IF NOT EXISTS ShoppingCartItems (
+        CartItemID INT NOT NULL AUTO_INCREMENT,
+        UserID INT NOT NULL,
+        PartID INT NOT NULL,
+        Quantity INT NOT NULL DEFAULT 1,
+        UnitPrice DECIMAL(10,2) NOT NULL DEFAULT 0,
+        CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (CartItemID),
+        UNIQUE KEY uq_cart_user_part (UserID, PartID),
+        KEY idx_cart_user (UserID),
+        KEY idx_cart_part (PartID),
+        CONSTRAINT fk_cart_user FOREIGN KEY (UserID) REFERENCES \`User\`(UserID),
+        CONSTRAINT fk_cart_part FOREIGN KEY (PartID) REFERENCES Parts(PartID)
+      )
+    `,
+    `
+      CREATE TABLE IF NOT EXISTS CustomerOrders (
+        OrderID INT NOT NULL AUTO_INCREMENT,
+        UserID INT NOT NULL,
+        TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0,
+        Status VARCHAR(30) NOT NULL DEFAULT 'PAID_SIMULATED',
+        ShippingAddress VARCHAR(255) NULL,
+        PaymentMethod VARCHAR(50) NOT NULL DEFAULT 'SIMULATED',
+        CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (OrderID),
+        KEY idx_orders_user (UserID),
+        CONSTRAINT fk_orders_user FOREIGN KEY (UserID) REFERENCES \`User\`(UserID)
+      )
+    `,
+    `
+      CREATE TABLE IF NOT EXISTS CustomerOrderItems (
+        OrderItemID INT NOT NULL AUTO_INCREMENT,
+        OrderID INT NOT NULL,
+        PartID INT NOT NULL,
+        Quantity INT NOT NULL DEFAULT 1,
+        UnitPrice DECIMAL(10,2) NOT NULL DEFAULT 0,
+        LineTotal DECIMAL(10,2) NOT NULL DEFAULT 0,
+        CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (OrderItemID),
+        KEY idx_orderitems_order (OrderID),
+        KEY idx_orderitems_part (PartID),
+        CONSTRAINT fk_orderitems_order FOREIGN KEY (OrderID) REFERENCES CustomerOrders(OrderID) ON DELETE CASCADE,
+        CONSTRAINT fk_orderitems_part FOREIGN KEY (PartID) REFERENCES Parts(PartID)
+      )
+    `
+  ];
+
+  const runNext = (idx) => {
+    if (idx >= statements.length) {
+      console.log("Checkout schema is ready.");
+      return;
+    }
+
+    db.query(statements[idx], (err) => {
+      if (err) {
+        console.error("Failed to ensure checkout schema:", err);
+        return;
+      }
+
+      runNext(idx + 1);
+    });
+  };
+
+  runNext(0);
+}
+
+ensureCheckoutSchema();
+
+function queryAsync(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.query(sql, params, (err, results) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(results);
+    });
+  });
+}
+
+function beginTransactionAsync() {
+  return new Promise((resolve, reject) => {
+    db.beginTransaction((err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+function commitAsync() {
+  return new Promise((resolve, reject) => {
+    db.commit((err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+function rollbackAsync() {
+  return new Promise((resolve) => {
+    db.rollback(() => resolve());
+  });
+}
+
 /* Root route */
 app.get("/", (req, res) => {
   res.send("CMPSC390 Backend API is running (Charles - Backend).");
@@ -205,6 +319,358 @@ app.get("/api/parts", (req, res) => {
     }
     res.json(results);
   });
+});
+
+// ==========================================
+// SHOPPING CART & CHECKOUT ROUTES
+// ==========================================
+
+app.get("/cart/:userId", async (req, res) => {
+  const userId = Number(req.params.userId);
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ message: "Valid userId is required" });
+  }
+
+  try {
+    const rows = await queryAsync(
+      `
+        SELECT
+          sci.CartItemID,
+          sci.UserID,
+          sci.PartID,
+          sci.Quantity,
+          sci.UnitPrice,
+          p.Name,
+          p.Image,
+          p.Category,
+          p.Stock,
+          p.Availability
+        FROM ShoppingCartItems sci
+        JOIN Parts p ON p.PartID = sci.PartID
+        WHERE sci.UserID = ?
+        ORDER BY sci.CreatedAt DESC
+      `,
+      [userId]
+    );
+
+    const items = (rows || []).map((row) => {
+      const quantity = Number(row.Quantity || 0);
+      const unitPrice = Number(row.UnitPrice || 0);
+      return {
+        ...row,
+        Quantity: quantity,
+        UnitPrice: unitPrice,
+        LineTotal: Number((quantity * unitPrice).toFixed(2))
+      };
+    });
+
+    const totalAmount = Number(
+      items.reduce((sum, item) => sum + Number(item.LineTotal || 0), 0).toFixed(2)
+    );
+
+    return res.json({ items, totalAmount });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Database error" });
+  }
+});
+
+app.post("/cart", async (req, res) => {
+  const userId = Number(req.body.userId);
+  const partId = Number(req.body.partId);
+  const quantity = Math.max(1, Number(req.body.quantity) || 1);
+
+  if (!Number.isInteger(userId) || userId <= 0 || !Number.isInteger(partId) || partId <= 0) {
+    return res.status(400).json({ message: "Valid userId and partId are required" });
+  }
+
+  try {
+    const partRows = await queryAsync("SELECT PartID, Stock, Price FROM Parts WHERE PartID = ?", [partId]);
+    if (!partRows || partRows.length === 0) {
+      return res.status(404).json({ message: "Part not found" });
+    }
+
+    const part = partRows[0];
+    const stock = Number(part.Stock || 0);
+    const unitPrice = Number(part.Price || 0);
+
+    if (stock <= 0) {
+      return res.status(400).json({ message: "Part is out of stock" });
+    }
+
+    const existingRows = await queryAsync(
+      "SELECT CartItemID, Quantity FROM ShoppingCartItems WHERE UserID = ? AND PartID = ?",
+      [userId, partId]
+    );
+
+    const existingQuantity = existingRows && existingRows.length > 0
+      ? Number(existingRows[0].Quantity || 0)
+      : 0;
+    const nextQuantity = existingQuantity + quantity;
+
+    if (nextQuantity > stock) {
+      return res.status(400).json({ message: `Only ${stock} in stock for this part` });
+    }
+
+    if (existingRows && existingRows.length > 0) {
+      await queryAsync(
+        "UPDATE ShoppingCartItems SET Quantity = ?, UnitPrice = ? WHERE CartItemID = ?",
+        [nextQuantity, unitPrice, existingRows[0].CartItemID]
+      );
+    } else {
+      await queryAsync(
+        "INSERT INTO ShoppingCartItems (UserID, PartID, Quantity, UnitPrice) VALUES (?, ?, ?, ?)",
+        [userId, partId, quantity, unitPrice]
+      );
+    }
+
+    return res.json({ message: "Item added to cart" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Database error" });
+  }
+});
+
+app.put("/cart/:cartItemId", async (req, res) => {
+  const cartItemId = Number(req.params.cartItemId);
+  const userId = Number(req.body.userId);
+  const quantity = Number(req.body.quantity);
+
+  if (!Number.isInteger(cartItemId) || cartItemId <= 0 || !Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ message: "Valid cartItemId and userId are required" });
+  }
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    return res.status(400).json({ message: "Quantity must be at least 1" });
+  }
+
+  try {
+    const rows = await queryAsync(
+      `
+        SELECT sci.CartItemID, sci.PartID, p.Stock, p.Price
+        FROM ShoppingCartItems sci
+        JOIN Parts p ON p.PartID = sci.PartID
+        WHERE sci.CartItemID = ? AND sci.UserID = ?
+      `,
+      [cartItemId, userId]
+    );
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+
+    const stock = Number(rows[0].Stock || 0);
+    if (quantity > stock) {
+      return res.status(400).json({ message: `Only ${stock} in stock for this part` });
+    }
+
+    const unitPrice = Number(rows[0].Price || 0);
+    await queryAsync(
+      "UPDATE ShoppingCartItems SET Quantity = ?, UnitPrice = ? WHERE CartItemID = ? AND UserID = ?",
+      [quantity, unitPrice, cartItemId, userId]
+    );
+
+    return res.json({ message: "Cart item updated" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Database error" });
+  }
+});
+
+app.delete("/cart/:cartItemId", async (req, res) => {
+  const cartItemId = Number(req.params.cartItemId);
+  const userId = Number((req.body && req.body.userId) || req.query.userId);
+
+  if (!Number.isInteger(cartItemId) || cartItemId <= 0 || !Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ message: "Valid cartItemId and userId are required" });
+  }
+
+  try {
+    const result = await queryAsync(
+      "DELETE FROM ShoppingCartItems WHERE CartItemID = ? AND UserID = ?",
+      [cartItemId, userId]
+    );
+
+    if (!result || result.affectedRows === 0) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+
+    return res.json({ message: "Cart item removed" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Database error" });
+  }
+});
+
+app.post("/checkout", async (req, res) => {
+  const userId = Number(req.body.userId);
+  const shippingAddress = String(req.body.shippingAddress || "").trim() || null;
+  const paymentMethod = String(req.body.paymentMethod || "SIMULATED").trim() || "SIMULATED";
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ message: "Valid userId is required" });
+  }
+
+  try {
+    await beginTransactionAsync();
+
+    const cartItems = await queryAsync(
+      `
+        SELECT
+          sci.CartItemID,
+          sci.PartID,
+          sci.Quantity,
+          p.Name,
+          p.Stock,
+          p.Price
+        FROM ShoppingCartItems sci
+        JOIN Parts p ON p.PartID = sci.PartID
+        WHERE sci.UserID = ?
+        FOR UPDATE
+      `,
+      [userId]
+    );
+
+    if (!cartItems || cartItems.length === 0) {
+      await rollbackAsync();
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+    for (const item of cartItems) {
+      const stock = Number(item.Stock || 0);
+      const qty = Number(item.Quantity || 0);
+      if (qty < 1 || qty > stock) {
+        await rollbackAsync();
+        return res.status(400).json({ message: `Insufficient stock for ${item.Name || `Part ${item.PartID}`}` });
+      }
+    }
+
+    const totalAmount = Number(
+      cartItems.reduce((sum, item) => sum + (Number(item.Quantity || 0) * Number(item.Price || 0)), 0).toFixed(2)
+    );
+
+    const orderResult = await queryAsync(
+      `
+        INSERT INTO CustomerOrders (UserID, TotalAmount, Status, ShippingAddress, PaymentMethod)
+        VALUES (?, ?, 'PAID_SIMULATED', ?, ?)
+      `,
+      [userId, totalAmount, shippingAddress, paymentMethod]
+    );
+
+    const orderId = orderResult.insertId;
+
+    const orderItemValues = cartItems.map((item) => {
+      const qty = Number(item.Quantity || 0);
+      const unitPrice = Number(item.Price || 0);
+      return [orderId, Number(item.PartID), qty, unitPrice, Number((qty * unitPrice).toFixed(2))];
+    });
+
+    await queryAsync(
+      "INSERT INTO CustomerOrderItems (OrderID, PartID, Quantity, UnitPrice, LineTotal) VALUES ?",
+      [orderItemValues]
+    );
+
+    for (const item of cartItems) {
+      const qty = Number(item.Quantity || 0);
+      const partId = Number(item.PartID);
+
+      const updateResult = await queryAsync(
+        `
+          UPDATE Parts
+          SET Stock = Stock - ?,
+              Availability = CASE WHEN (Stock - ?) <= 0 THEN 'Out of Stock' ELSE 'Available' END
+          WHERE PartID = ? AND Stock >= ?
+        `,
+        [qty, qty, partId, qty]
+      );
+
+      if (!updateResult || updateResult.affectedRows === 0) {
+        await rollbackAsync();
+        return res.status(400).json({ message: "Stock changed during checkout. Please refresh and try again." });
+      }
+    }
+
+    await queryAsync("DELETE FROM ShoppingCartItems WHERE UserID = ?", [userId]);
+
+    await commitAsync();
+
+    return res.json({
+      message: "Checkout completed",
+      orderId,
+      totalAmount,
+      itemCount: cartItems.length,
+      status: "PAID_SIMULATED"
+    });
+  } catch (err) {
+    console.error(err);
+    await rollbackAsync();
+    return res.status(500).json({ message: "Checkout failed due to database error" });
+  }
+});
+
+app.get("/orders/:userId", async (req, res) => {
+  const userId = Number(req.params.userId);
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ message: "Valid userId is required" });
+  }
+
+  try {
+    const orders = await queryAsync(
+      `
+        SELECT OrderID, UserID, TotalAmount, Status, ShippingAddress, PaymentMethod, CreatedAt
+        FROM CustomerOrders
+        WHERE UserID = ?
+        ORDER BY CreatedAt DESC
+      `,
+      [userId]
+    );
+
+    if (!orders || orders.length === 0) {
+      return res.json([]);
+    }
+
+    const orderIds = orders.map((order) => Number(order.OrderID));
+    const items = await queryAsync(
+      `
+        SELECT
+          coi.OrderItemID,
+          coi.OrderID,
+          coi.PartID,
+          coi.Quantity,
+          coi.UnitPrice,
+          coi.LineTotal,
+          p.Name,
+          p.Image,
+          p.Category
+        FROM CustomerOrderItems coi
+        JOIN Parts p ON p.PartID = coi.PartID
+        WHERE coi.OrderID IN (?)
+        ORDER BY coi.OrderID DESC, coi.OrderItemID ASC
+      `,
+      [orderIds]
+    );
+
+    const itemsByOrderId = new Map();
+    (items || []).forEach((item) => {
+      const key = Number(item.OrderID);
+      if (!itemsByOrderId.has(key)) {
+        itemsByOrderId.set(key, []);
+      }
+      itemsByOrderId.get(key).push(item);
+    });
+
+    const hydratedOrders = orders.map((order) => ({
+      ...order,
+      Items: itemsByOrderId.get(Number(order.OrderID)) || []
+    }));
+
+    return res.json(hydratedOrders);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Database error" });
+  }
 });
 
 // ==========================================

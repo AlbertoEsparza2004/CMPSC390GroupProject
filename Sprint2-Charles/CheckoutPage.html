@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - LegacyAuto</title>
+  <link rel="stylesheet" href="/global-ui.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #07090f; color: #fff; min-height: 100vh; overflow-x: hidden; }
+    .page-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse at 18% 35%, rgba(79,144,240,0.13) 0%, transparent 50%),
+        radial-gradient(ellipse at 82% 70%, rgba(212,168,67,0.07) 0%, transparent 45%),
+        radial-gradient(ellipse at 55% 5%, rgba(79,144,240,0.06) 0%, transparent 40%),
+        linear-gradient(160deg, #0c1428 0%, #07090f 100%);
+    }
+    .page-bg::after {
+      content: ""; position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(79,144,240,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(79,144,240,0.04) 1px, transparent 1px);
+      background-size: 80px 80px;
+    }
+
+    .container {
+      position: relative; z-index: 1;
+      width: min(1100px, 100% - 40px);
+      margin: 28px auto;
+      border-radius: 24px;
+      background: rgba(10,16,33,0.72);
+      border: 1px solid rgba(79,144,240,0.14);
+      box-shadow: 0 26px 70px rgba(0,0,0,0.34), 0 0 60px rgba(79,144,240,0.08);
+      padding: 28px;
+    }
+
+    h1 { font-family: 'Orbitron', monospace; font-size: 1.9rem; margin-bottom: 8px; }
+    .sub { color: rgba(175,200,245,0.7); margin-bottom: 20px; }
+
+    .layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 18px; }
+    .card {
+      border-radius: 18px;
+      background: rgba(79,144,240,0.06);
+      border: 1px solid rgba(79,144,240,0.14);
+      padding: 18px;
+    }
+
+    .card h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      margin-bottom: 14px;
+      color: rgba(203,224,255,0.95);
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(79,144,240,0.12);
+      color: rgba(175,200,245,0.86);
+      font-size: 0.92rem;
+    }
+
+    .cart-item:last-child { border-bottom: none; }
+
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 0.86rem; color: rgba(175,200,245,0.8); margin-bottom: 6px; }
+    .field input, .field select {
+      width: 100%;
+      border: 1px solid rgba(79,144,240,0.3);
+      background: rgba(8,13,28,0.9);
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+    }
+
+    .total {
+      font-size: 1rem;
+      color: #d8e8ff;
+      margin: 14px 0 8px;
+      font-weight: 700;
+    }
+
+    button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: 600;
+      background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%);
+      box-shadow: 0 0 15px rgba(79,144,240,0.3);
+      transition: all 0.22s ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(79,144,240,0.45);
+    }
+
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .secondary {
+      background: rgba(255,255,255,0.08);
+      box-shadow: none;
+      margin-right: 10px;
+    }
+
+    .actions { margin-top: 14px; }
+    .message { margin-top: 10px; min-height: 22px; color: rgba(175,200,245,0.9); }
+
+    .order-card {
+      margin-top: 10px;
+      border: 1px solid rgba(79,144,240,0.16);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(79,144,240,0.04);
+      color: rgba(175,200,245,0.85);
+    }
+
+    .order-title { font-weight: 700; margin-bottom: 6px; color: #d9e9ff; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .container { width: calc(100% - 24px); margin: 14px auto; padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-bg"></div>
+
+  <div class="container">
+    <h1>Checkout</h1>
+    <p class="sub">Review your cart, enter shipping details, and place your order.</p>
+
+    <div class="layout">
+      <section class="card">
+        <h2>Order Summary</h2>
+        <div id="cartItems">Loading cart...</div>
+        <div class="total">Total: $<span id="totalAmount">0.00</span></div>
+      </section>
+
+      <section class="card">
+        <h2>Checkout Details</h2>
+        <div class="field">
+          <label for="shippingAddress">Shipping Address</label>
+          <input id="shippingAddress" type="text" placeholder="123 Main St, City, State ZIP">
+        </div>
+        <div class="field">
+          <label for="paymentMethod">Payment Method</label>
+          <select id="paymentMethod">
+            <option value="SIMULATED_CARD">Simulated Card</option>
+            <option value="SIMULATED_PAYPAL">Simulated PayPal</option>
+            <option value="SIMULATED_APPLE_PAY">Simulated Apple Pay</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button class="secondary" onclick="goBackToParts()">Back to Parts</button>
+          <button id="placeOrderBtn" onclick="placeOrder()">Place Order</button>
+        </div>
+        <p class="message" id="checkoutMessage"></p>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top: 18px;">
+      <h2>Recent Orders</h2>
+      <div id="ordersList">Loading orders...</div>
+    </section>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const userIdFromQuery = params.get("userId");
+    const userIdFromStorage = localStorage.getItem("userId");
+    const currentUserId = Number(userIdFromQuery || userIdFromStorage);
+
+    if (!Number.isInteger(currentUserId) || currentUserId <= 0) {
+      window.location.replace("/Sprint2Alberto/CustomerSingInPage.html");
+    }
+
+    if (userIdFromQuery && userIdFromQuery !== userIdFromStorage) {
+      localStorage.setItem("userId", userIdFromQuery);
+    }
+
+    function goBackToParts() {
+      window.location.href = "/Sprint2-Charles/PartsPage.html?userId=" + encodeURIComponent(currentUserId);
+    }
+
+    function renderCart(items, totalAmount) {
+      const container = document.getElementById("cartItems");
+      container.innerHTML = "";
+
+      if (!Array.isArray(items) || items.length === 0) {
+        container.innerHTML = "<p style='color:rgba(175,200,245,0.75);'>Your cart is empty.</p>";
+        document.getElementById("placeOrderBtn").disabled = true;
+      } else {
+        items.forEach((item) => {
+          const line = document.createElement("div");
+          line.className = "cart-item";
+          line.innerHTML = `<span>${item.Name || ("Part #" + item.PartID)} x${Number(item.Quantity || 0)}</span><span>$${Number(item.LineTotal || 0).toFixed(2)}</span>`;
+          container.appendChild(line);
+        });
+        document.getElementById("placeOrderBtn").disabled = false;
+      }
+
+      document.getElementById("totalAmount").textContent = Number(totalAmount || 0).toFixed(2);
+    }
+
+    function loadCart() {
+      fetch("/cart/" + encodeURIComponent(currentUserId))
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to load cart");
+          return res.json();
+        })
+        .then((data) => {
+          renderCart(data.items || [], data.totalAmount || 0);
+        })
+        .catch(() => {
+          document.getElementById("cartItems").innerHTML = "<p style='color:#ff8b8b;'>Unable to load cart.</p>";
+          document.getElementById("placeOrderBtn").disabled = true;
+        });
+    }
+
+    function loadOrders() {
+      fetch("/orders/" + encodeURIComponent(currentUserId))
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to load orders");
+          return res.json();
+        })
+        .then((orders) => {
+          const container = document.getElementById("ordersList");
+          container.innerHTML = "";
+
+          if (!Array.isArray(orders) || orders.length === 0) {
+            container.innerHTML = "<p style='color:rgba(175,200,245,0.75);'>No orders yet.</p>";
+            return;
+          }
+
+          orders.slice(0, 5).forEach((order) => {
+            const el = document.createElement("div");
+            el.className = "order-card";
+            const created = order.CreatedAt ? new Date(order.CreatedAt).toLocaleString() : "";
+            const itemSummary = Array.isArray(order.Items) && order.Items.length > 0
+              ? order.Items.map((it) => `${it.Name || ("Part #" + it.PartID)} x${Number(it.Quantity || 0)}`).join(", ")
+              : "No items";
+
+            el.innerHTML = `
+              <div class="order-title">Order #${order.OrderID} - $${Number(order.TotalAmount || 0).toFixed(2)}</div>
+              <div>Status: ${order.Status || "PAID_SIMULATED"}</div>
+              <div>Placed: ${created}</div>
+              <div style="margin-top:6px;">Items: ${itemSummary}</div>
+            `;
+            container.appendChild(el);
+          });
+        })
+        .catch(() => {
+          document.getElementById("ordersList").innerHTML = "<p style='color:#ff8b8b;'>Unable to load order history.</p>";
+        });
+    }
+
+    function placeOrder() {
+      const shippingAddress = document.getElementById("shippingAddress").value.trim();
+      const paymentMethod = document.getElementById("paymentMethod").value;
+      const messageEl = document.getElementById("checkoutMessage");
+
+      messageEl.textContent = "Processing checkout...";
+
+      fetch("/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: currentUserId,
+          shippingAddress,
+          paymentMethod
+        })
+      })
+        .then((res) => res.json().then((body) => ({ ok: res.ok, body })))
+        .then(({ ok, body }) => {
+          if (!ok) {
+            throw new Error(body.message || "Checkout failed");
+          }
+          messageEl.textContent = "Order placed successfully. Order #" + body.orderId + " (simulated payment).";
+          document.getElementById("shippingAddress").value = "";
+          loadCart();
+          loadOrders();
+        })
+        .catch((err) => {
+          messageEl.textContent = err.message || "Checkout failed.";
+        });
+    }
+
+    loadCart();
+    loadOrders();
+  </script>
+</body>
+</html>

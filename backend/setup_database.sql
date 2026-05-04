@@ -157,6 +157,59 @@ CREATE TABLE Bookmarks (
 );
 
 -- ========================
+-- CHECKOUT TABLES
+-- ========================
+
+CREATE TABLE ShoppingCartItems (
+    CartItemID INT NOT NULL AUTO_INCREMENT,
+    UserID     INT NOT NULL,
+    PartID     INT NOT NULL,
+    Quantity   INT NOT NULL DEFAULT 1,
+    UnitPrice  DECIMAL(10,2) NOT NULL DEFAULT 0,
+    CreatedAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (CartItemID),
+    UNIQUE KEY uq_cart_user_part (UserID, PartID),
+    KEY idx_cart_user (UserID),
+    KEY idx_cart_part (PartID),
+    CONSTRAINT fk_cart_user
+        FOREIGN KEY (UserID) REFERENCES `User`(UserID),
+    CONSTRAINT fk_cart_part
+        FOREIGN KEY (PartID) REFERENCES Parts(PartID)
+);
+
+CREATE TABLE CustomerOrders (
+    OrderID          INT NOT NULL AUTO_INCREMENT,
+    UserID           INT NOT NULL,
+    TotalAmount      DECIMAL(10,2) NOT NULL DEFAULT 0,
+    Status           VARCHAR(30) NOT NULL DEFAULT 'PAID_SIMULATED',
+    ShippingAddress  VARCHAR(255) NULL,
+    PaymentMethod    VARCHAR(50) NOT NULL DEFAULT 'SIMULATED',
+    CreatedAt        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (OrderID),
+    KEY idx_orders_user (UserID),
+    CONSTRAINT fk_orders_user
+        FOREIGN KEY (UserID) REFERENCES `User`(UserID)
+);
+
+CREATE TABLE CustomerOrderItems (
+    OrderItemID INT NOT NULL AUTO_INCREMENT,
+    OrderID     INT NOT NULL,
+    PartID      INT NOT NULL,
+    Quantity    INT NOT NULL DEFAULT 1,
+    UnitPrice   DECIMAL(10,2) NOT NULL DEFAULT 0,
+    LineTotal   DECIMAL(10,2) NOT NULL DEFAULT 0,
+    CreatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (OrderItemID),
+    KEY idx_orderitems_order (OrderID),
+    KEY idx_orderitems_part (PartID),
+    CONSTRAINT fk_orderitems_order
+        FOREIGN KEY (OrderID) REFERENCES CustomerOrders(OrderID) ON DELETE CASCADE,
+    CONSTRAINT fk_orderitems_part
+        FOREIGN KEY (PartID) REFERENCES Parts(PartID)
+);
+
+-- ========================
 -- EMPLOYEE TABLES
 -- ========================
 
@@ -367,4 +420,7 @@ SELECT COUNT(*) AS ReviewCount FROM partsreviews;
 SELECT COUNT(*) AS DiscussionCount FROM Discussions;
 SELECT COUNT(*) AS ReplyCount FROM DiscussionReplies;
 SELECT COUNT(*) AS BookmarkCount FROM Bookmarks;
+SELECT COUNT(*) AS CartItemCount FROM ShoppingCartItems;
+SELECT COUNT(*) AS OrderCount FROM CustomerOrders;
+SELECT COUNT(*) AS OrderItemCount FROM CustomerOrderItems;
 SELECT * FROM `User`;

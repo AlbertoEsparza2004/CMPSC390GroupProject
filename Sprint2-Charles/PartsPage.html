@@ -71,9 +71,10 @@
   <h5>Select the parts you want to modify your dream car</h5>
   <div id="partsContainer">Loading parts...</div>
 
-  <h2>Cart (Going to Car)</h2>
+  <h2>Shopping Cart</h2>
   <div id="cartContainer"></div>
   <p><strong>Total: $<span id="cartTotal">0.00</span></strong></p>
+  <button id="checkoutBtn" onclick="goToCheckout()">Proceed to Checkout</button>
 
   <div class="top-actions">
     <button onclick="window.location.href='/Sprint2-Charles/CustomerDashboard.html?userId=' + currentUserId">Back to Dashboard</button>
@@ -87,12 +88,16 @@ Parts Trading & Vehicle Customization Platform
 <script>
 let parts = [];
 let allParts = [];
-let cart = [];
+let cartItems = [];
 let currentPartId = null;
 const params = new URLSearchParams(window.location.search);
 const userIdFromQuery = params.get("userId");
 const userIdFromStorage = localStorage.getItem("userId");
 const currentUserId = Number(userIdFromQuery || userIdFromStorage);
+
+if (!Number.isInteger(currentUserId) || currentUserId <= 0) {
+  window.location.replace("/Sprint2Alberto/CustomerSingInPage.html");
+}
 
 if (userIdFromQuery && userIdFromQuery !== userIdFromStorage) {
   localStorage.setItem("userId", userIdFromQuery);
@@ -100,17 +105,14 @@ if (userIdFromQuery && userIdFromQuery !== userIdFromStorage) {
 
 function getSelectedCategories() {
   const selected = [];
-
   if (document.getElementById("bufferCheckbox").checked) selected.push("buffer");
   if (document.getElementById("paintCheckbox").checked) selected.push("paint");
   if (document.getElementById("engineCheckbox").checked) selected.push("engine");
   if (document.getElementById("wheelCheckbox").checked) selected.push("wheel");
-  // Rims are represented in data as wheel category.
   if (document.getElementById("rimsCheckbox").checked) selected.push("wheel");
   if (document.getElementById("hornCheckbox").checked) selected.push("horn");
   if (document.getElementById("suspensionCheckbox").checked) selected.push("suspension");
   if (document.getElementById("exhaustsystemCheckbox").checked) selected.push("exhaust system");
-
   return [...new Set(selected)];
 }
 
@@ -121,45 +123,8 @@ function applyFilters() {
   parts = allParts.filter((part) => {
     const category = String(part.Category || "").toLowerCase();
     const stock = Number(part.Stock || 0);
-
-    const categoryMatch =
-      selectedCategories.length === 0 || selectedCategories.includes(category);
+    const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(category);
     const stockMatch = !inStockOnly || stock > 0;
-
-    return categoryMatch && stockMatch;
-  });
-
-  displayParts();
-}
-
-function getSelectedCategories() {
-  const selected = [];
-
-  if (document.getElementById("bufferCheckbox").checked) selected.push("buffer");
-  if (document.getElementById("paintCheckbox").checked) selected.push("paint");
-  if (document.getElementById("engineCheckbox").checked) selected.push("engine");
-  if (document.getElementById("wheelCheckbox").checked) selected.push("wheel");
-  // Rims are represented in data as wheel category.
-  if (document.getElementById("rimsCheckbox").checked) selected.push("wheel");
-  if (document.getElementById("hornCheckbox").checked) selected.push("horn");
-  if (document.getElementById("suspensionCheckbox").checked) selected.push("suspension");
-  if (document.getElementById("exhaustsystemCheckbox").checked) selected.push("exhaust system");
-
-  return [...new Set(selected)];
-}
-
-function applyFilters() {
-  const selectedCategories = getSelectedCategories();
-  const inStockOnly = document.getElementById("inStockCheckbox").checked;
-
-  parts = allParts.filter((part) => {
-    const category = String(part.Category || "").toLowerCase();
-    const stock = Number(part.Stock || 0);
-
-    const categoryMatch =
-      selectedCategories.length === 0 || selectedCategories.includes(category);
-    const stockMatch = !inStockOnly || stock > 0;
-
     return categoryMatch && stockMatch;
   });
 
@@ -197,7 +162,6 @@ function buildImageCandidates(part) {
 
   if (raw) {
     candidates.push(raw);
-    // Handle known case mismatch that can fail on Linux hosts.
     if (raw.includes("/Sprint4-Alberto/car-rims/OffRoadBlack.png")) {
       candidates.push("/Sprint4-Alberto/car-rims/offRoadBlack.png");
     }
@@ -231,7 +195,7 @@ function displayParts() {
   const container = document.getElementById("partsContainer");
   container.innerHTML = "";
 
-  parts.forEach(part => {
+  parts.forEach((part) => {
     const div = document.createElement("div");
     div.className = "part";
 
@@ -286,50 +250,145 @@ function displayParts() {
     div.appendChild(info);
     div.appendChild(button);
     div.appendChild(reviewBtn);
-
     container.appendChild(div);
   });
 }
 
+function loadCart() {
+  fetch("/cart/" + encodeURIComponent(currentUserId))
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to load cart");
+      return res.json();
+    })
+    .then((data) => {
+      cartItems = Array.isArray(data.items) ? data.items : [];
+      displayCart(Number(data.totalAmount || 0));
+    })
+    .catch(() => {
+      document.getElementById("cartContainer").innerText = "Unable to load cart.";
+      document.getElementById("cartTotal").textContent = "0.00";
+      document.getElementById("checkoutBtn").disabled = true;
+    });
+}
+
 function addToCart(part) {
-  const exists = cart.find(item => item.PartID === part.PartID);
-  if (!exists) cart.push(part);
-  displayCart();
+  fetch("/cart", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: currentUserId, partId: Number(part.PartID), quantity: 1 })
+  })
+    .then((res) => res.json().then((body) => ({ ok: res.ok, body })))
+    .then(({ ok, body }) => {
+      if (!ok) {
+        throw new Error(body.message || "Unable to add item");
+      }
+      loadCart();
+      fetchParts();
+    })
+    .catch((err) => {
+      alert(err.message || "Unable to add item to cart");
+    });
 }
 
-function removeFromCart(partId) {
-  cart = cart.filter(item => item.PartID !== partId);
-  displayCart();
+function updateCartItemQuantity(cartItemId, nextQuantity) {
+  if (nextQuantity < 1) {
+    removeFromCart(cartItemId);
+    return;
+  }
+
+  fetch("/cart/" + encodeURIComponent(cartItemId), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: currentUserId, quantity: nextQuantity })
+  })
+    .then((res) => res.json().then((body) => ({ ok: res.ok, body })))
+    .then(({ ok, body }) => {
+      if (!ok) {
+        throw new Error(body.message || "Unable to update quantity");
+      }
+      loadCart();
+      fetchParts();
+    })
+    .catch((err) => {
+      alert(err.message || "Unable to update quantity");
+    });
 }
 
-function displayCart() {
+function removeFromCart(cartItemId) {
+  fetch("/cart/" + encodeURIComponent(cartItemId), {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: currentUserId })
+  })
+    .then((res) => res.json().then((body) => ({ ok: res.ok, body })))
+    .then(({ ok, body }) => {
+      if (!ok) {
+        throw new Error(body.message || "Unable to remove item");
+      }
+      loadCart();
+      fetchParts();
+    })
+    .catch((err) => {
+      alert(err.message || "Unable to remove item");
+    });
+}
+
+function displayCart(totalAmount) {
   const container = document.getElementById("cartContainer");
   container.innerHTML = "";
 
-  let total = 0;
+  if (cartItems.length === 0) {
+    container.innerHTML = "<p style='color:rgba(175,200,245,0.7);'>Your cart is empty.</p>";
+  }
 
-  cart.forEach(item => {
+  cartItems.forEach((item) => {
     const div = document.createElement("div");
     div.className = "cart-item";
 
     const label = document.createElement("span");
-    label.textContent = (item.Name || ("Part #" + item.PartID)) + " ($" + Number(item.Price || 0).toFixed(2) + ")";
-    total += Number(item.Price || 0);
+    label.textContent = (item.Name || ("Part #" + item.PartID)) +
+      " x" + Number(item.Quantity || 0) +
+      " ($" + Number(item.UnitPrice || 0).toFixed(2) + " each)";
+
+    const actions = document.createElement("div");
+    actions.style.display = "flex";
+    actions.style.gap = "8px";
+
+    const decBtn = document.createElement("button");
+    decBtn.textContent = "-";
+    decBtn.style.padding = "6px 10px";
+    decBtn.onclick = () => updateCartItemQuantity(Number(item.CartItemID), Number(item.Quantity || 0) - 1);
+
+    const incBtn = document.createElement("button");
+    incBtn.textContent = "+";
+    incBtn.style.padding = "6px 10px";
+    incBtn.onclick = () => updateCartItemQuantity(Number(item.CartItemID), Number(item.Quantity || 0) + 1);
 
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "Remove";
-    removeBtn.onclick = () => removeFromCart(item.PartID);
+    removeBtn.style.padding = "6px 12px";
+    removeBtn.onclick = () => removeFromCart(Number(item.CartItemID));
+
+    actions.appendChild(decBtn);
+    actions.appendChild(incBtn);
+    actions.appendChild(removeBtn);
 
     div.appendChild(label);
-    div.appendChild(removeBtn);
+    div.appendChild(actions);
     container.appendChild(div);
   });
 
-  document.getElementById("cartTotal").textContent = total.toFixed(2);
+  document.getElementById("cartTotal").textContent = Number(totalAmount || 0).toFixed(2);
+  document.getElementById("checkoutBtn").disabled = cartItems.length === 0;
 }
 
-document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.addEventListener("change", applyFilters));
+function goToCheckout() {
+  window.location.href = "/Sprint2-Charles/CheckoutPage.html?userId=" + encodeURIComponent(currentUserId);
+}
+
+document.querySelectorAll("input[type=checkbox]").forEach((cb) => cb.addEventListener("change", applyFilters));
 fetchParts();
+loadCart();
 
 function openReviews(partId, partName) {
   currentPartId = partId;
@@ -344,8 +403,8 @@ function closeReviews() {
 
 function loadReviews(partId) {
   fetch("/api/partsreviews/" + partId)
-    .then(res => res.json())
-    .then(data => {
+    .then((res) => res.json())
+    .then((data) => {
       const list = document.getElementById("reviewsList");
       list.innerHTML = "";
 
@@ -354,7 +413,7 @@ function loadReviews(partId) {
         return;
       }
 
-      data.forEach(r => {
+      data.forEach((r) => {
         const div = document.createElement("div");
         div.className = "review-entry";
         const date = r.posted ? new Date(r.posted).toLocaleDateString() : "";
@@ -388,15 +447,15 @@ function submitReview() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ PartID: currentPartId, rating, comment, userId: currentUserId })
   })
-  .then(res => {
-    if (!res.ok) throw new Error("Bad response");
-    return res.json();
-  })
-  .then(() => {
-    document.getElementById("commentInput").value = "";
-    loadReviews(currentPartId);
-  })
-  .catch(() => alert("Failed to submit review."));
+    .then((res) => {
+      if (!res.ok) throw new Error("Bad response");
+      return res.json();
+    })
+    .then(() => {
+      document.getElementById("commentInput").value = "";
+      loadReviews(currentPartId);
+    })
+    .catch(() => alert("Failed to submit review."));
 }
 
 function deleteReview(reviewId) {
@@ -405,14 +464,14 @@ function deleteReview(reviewId) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ userId: currentUserId })
   })
-  .then(res => {
-    if (!res.ok) throw new Error("Bad response");
-    return res.json();
-  })
-  .then(() => {
-    loadReviews(currentPartId);
-  })
-  .catch(() => alert("Failed to delete review."));
+    .then((res) => {
+      if (!res.ok) throw new Error("Bad response");
+      return res.json();
+    })
+    .then(() => {
+      loadReviews(currentPartId);
+    })
+    .catch(() => alert("Failed to delete review."));
 }
 </script>
 
