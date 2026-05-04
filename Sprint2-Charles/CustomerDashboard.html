@@ -42,7 +42,7 @@
         .nav-btn:hover { background: rgba(79,144,240,0.2); color: #fff; }
 
         /* ── page layout ── */
-        .dashboard-container { position: relative; z-index: 1; width: min(1080px, 100% - 48px); margin: 0 auto; padding-top: 86px; padding-bottom: 48px; display: flex; flex-direction: column; gap: 20px; }
+        .dashboard-container { position: relative; z-index: 1; width: min(1080px, 100% - 48px); margin: 0 auto; padding-top: 86px; padding-bottom: 48px; display: flex; flex-direction: column; gap: 20px; min-height: 100vh; }
 
         /* ── section cards — identical to .features-section in index.html ── */
         .dash-card {
@@ -52,6 +52,7 @@
             border: 1px solid rgba(79,144,240,0.14);
             box-shadow: 0 26px 70px rgba(0,0,0,0.34), 0 0 60px rgba(79,144,240,0.08);
             padding: 32px;
+            flex: 1;
         }
 
         /* ── welcome ── */
