@@ -185,7 +185,7 @@ CREATE TABLE CustomerOrders (
     OrderNumber      VARCHAR(30) NULL,
     UserID           INT NOT NULL,
     TotalAmount      DECIMAL(10,2) NOT NULL DEFAULT 0,
-    Status           VARCHAR(30) NOT NULL DEFAULT 'PAID_SIMULATED',
+        Status           VARCHAR(30) NOT NULL DEFAULT 'ORDER_PLACED',
     ShippingAddress  VARCHAR(255) NULL,
     PaymentMethod    VARCHAR(50) NOT NULL DEFAULT 'SIMULATED',
     CreatedAt        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

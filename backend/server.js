@@ -88,7 +88,7 @@ function ensureCheckoutSchema() {
         OrderNumber VARCHAR(30) NULL,
         UserID INT NOT NULL,
         TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0,
-        Status VARCHAR(30) NOT NULL DEFAULT 'PAID_SIMULATED',
+        Status VARCHAR(30) NOT NULL DEFAULT 'ORDER_PLACED',
         ShippingAddress VARCHAR(255) NULL,
         PaymentMethod VARCHAR(50) NOT NULL DEFAULT 'SIMULATED',
         BaseVehicleLabel VARCHAR(100) NULL,
@@ -575,7 +575,7 @@ app.post("/checkout", async (req, res) => {
     const orderResult = await queryAsync(
       `
         INSERT INTO CustomerOrders (UserID, TotalAmount, Status, ShippingAddress, PaymentMethod)
-        VALUES (?, ?, 'PAID_SIMULATED', ?, ?)
+        VALUES (?, ?, 'ORDER_PLACED', ?, ?)
       `,
       [userId, totalAmount, shippingAddress, paymentMethod]
     );
@@ -666,7 +666,7 @@ app.post("/checkout", async (req, res) => {
       orderNumber,
       totalAmount,
       itemCount: cartItems.length,
-      status: "PAID_SIMULATED"
+      status: "ORDER_PLACED"
     });
   } catch (err) {
     console.error(err);
@@ -684,7 +684,7 @@ app.get("/orders/:userId", async (req, res) => {
   }
 
   try {
-    const currentStatuses = ["PAID_SIMULATED", "PROCESSING"];
+    const currentStatuses = ["ORDER_PLACED", "PAID_SIMULATED", "PROCESSING"];
     const previousStatuses = ["FULFILLED", "CANCELLED"];
 
     let statusFilter = [];
@@ -998,7 +998,7 @@ app.post("/cars/:carId/purchase", async (req, res) => {
     const orderResult = await queryAsync(
       `
         INSERT INTO CustomerOrders (UserID, TotalAmount, Status, ShippingAddress, PaymentMethod)
-        VALUES (?, ?, 'PAID_SIMULATED', ?, ?)
+        VALUES (?, ?, 'ORDER_PLACED', ?, ?)
       `,
       [userId, totalAmount, shippingAddress, paymentMethod]
     );
@@ -1049,7 +1049,7 @@ app.post("/cars/:carId/purchase", async (req, res) => {
       orderId,
       orderNumber: carOrderNumber,
       totalAmount,
-      status: "PAID_SIMULATED"
+      status: "ORDER_PLACED"
     });
   } catch (err) {
     console.error(err);

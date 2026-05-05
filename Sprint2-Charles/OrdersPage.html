@@ -111,6 +111,17 @@
       window.location.href = "/Sprint2-Charles/CustomerDashboard.html?userId=" + encodeURIComponent(currentUserId);
     }
 
+    function formatOrderStatus(status) {
+      const normalized = String(status || "").trim().toUpperCase();
+      if (!normalized || normalized === "PAID_SIMULATED" || normalized === "ORDER_PLACED") {
+        return "Order Placed";
+      }
+      return normalized
+        .split("_")
+        .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+        .join(" ");
+    }
+
     function formatOrder(order, isCurrent) {
       const wrap = document.createElement("div");
       wrap.className = "order";
@@ -123,7 +134,7 @@
 
       wrap.innerHTML = `
         <div class="order-title">${order.OrderNumber || ('Order #' + order.OrderID)} — $${Number(order.TotalAmount || 0).toFixed(2)}</div>
-        <div class="order-meta">Status: ${order.Status || "PAID_SIMULATED"} | Placed: ${createdAt}</div>
+        <div class="order-meta">Status: ${formatOrderStatus(order.Status)} | Placed: ${createdAt}</div>
         <div class="items">Items: ${itemSummary}</div>
       `;
 

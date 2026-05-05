@@ -286,6 +286,17 @@
         .catch(() => { /* silently ignore */ });
     }
 
+    function formatOrderStatus(status) {
+      const normalized = String(status || "").trim().toUpperCase();
+      if (!normalized || normalized === "PAID_SIMULATED" || normalized === "ORDER_PLACED") {
+        return "Order Placed";
+      }
+      return normalized
+        .split("_")
+        .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+        .join(" ");
+    }
+
     function loadOrders() {
       fetch("/orders/" + encodeURIComponent(currentUserId))
         .then((res) => {
@@ -311,7 +322,7 @@
 
             el.innerHTML = `
               <div class="order-title">${order.OrderNumber || ('Order #' + order.OrderID)} — $${Number(order.TotalAmount || 0).toFixed(2)}</div>
-              <div>Status: ${order.Status || "PAID_SIMULATED"}</div>
+              <div>Status: ${formatOrderStatus(order.Status)}</div>
               <div>Placed: ${created}</div>
               <div style="margin-top:6px;">Items: ${itemSummary}</div>
             `;
