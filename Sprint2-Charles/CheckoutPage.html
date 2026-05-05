@@ -107,10 +107,9 @@
     .secondary {
       background: rgba(255,255,255,0.08);
       box-shadow: none;
-      margin-right: 10px;
     }
 
-    .actions { margin-top: 14px; }
+    .actions { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 12px; }
     .message { margin-top: 10px; min-height: 22px; color: rgba(175,200,245,0.9); }
 
     .order-card {
@@ -259,7 +258,7 @@
               : "No items";
 
             el.innerHTML = `
-              <div class="order-title">Order #${order.OrderID} - $${Number(order.TotalAmount || 0).toFixed(2)}</div>
+              <div class="order-title">${order.OrderNumber || ('Order #' + order.OrderID)} — $${Number(order.TotalAmount || 0).toFixed(2)}</div>
               <div>Status: ${order.Status || "PAID_SIMULATED"}</div>
               <div>Placed: ${created}</div>
               <div style="margin-top:6px;">Items: ${itemSummary}</div>
@@ -304,7 +303,7 @@
           if (!ok) {
             throw new Error(body.message || "Checkout failed");
           }
-          messageEl.textContent = "Order placed successfully. Order #" + body.orderId + " (simulated payment).";
+          messageEl.textContent = "Order placed! " + (body.orderNumber || ("#" + body.orderId)) + " confirmed (simulated payment).";
           document.getElementById("buyerName").value = "";
           document.getElementById("shippingAddress").value = "";
           document.getElementById("buyerPhone").value = "";

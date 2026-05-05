@@ -122,7 +122,7 @@
       const createdAt = order.CreatedAt ? new Date(order.CreatedAt).toLocaleString() : "";
 
       wrap.innerHTML = `
-        <div class="order-title">Order #${order.OrderID} - $${Number(order.TotalAmount || 0).toFixed(2)}</div>
+        <div class="order-title">${order.OrderNumber || ('Order #' + order.OrderID)} — $${Number(order.TotalAmount || 0).toFixed(2)}</div>
         <div class="order-meta">Status: ${order.Status || "PAID_SIMULATED"} | Placed: ${createdAt}</div>
         <div class="items">Items: ${itemSummary}</div>
       `;

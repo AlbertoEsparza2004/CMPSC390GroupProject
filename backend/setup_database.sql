@@ -180,6 +180,7 @@ CREATE TABLE ShoppingCartItems (
 
 CREATE TABLE CustomerOrders (
     OrderID          INT NOT NULL AUTO_INCREMENT,
+    OrderNumber      VARCHAR(30) NULL,
     UserID           INT NOT NULL,
     TotalAmount      DECIMAL(10,2) NOT NULL DEFAULT 0,
     Status           VARCHAR(30) NOT NULL DEFAULT 'PAID_SIMULATED',
@@ -187,6 +188,7 @@ CREATE TABLE CustomerOrders (
     PaymentMethod    VARCHAR(50) NOT NULL DEFAULT 'SIMULATED',
     CreatedAt        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (OrderID),
+    UNIQUE KEY uq_order_number (OrderNumber),
     KEY idx_orders_user (UserID),
     CONSTRAINT fk_orders_user
         FOREIGN KEY (UserID) REFERENCES `User`(UserID)

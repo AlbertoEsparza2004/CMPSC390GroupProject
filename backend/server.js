@@ -76,6 +76,7 @@ function ensureCheckoutSchema() {
     `
       CREATE TABLE IF NOT EXISTS CustomerOrders (
         OrderID INT NOT NULL AUTO_INCREMENT,
+        OrderNumber VARCHAR(30) NULL,
         UserID INT NOT NULL,
         TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0,
         Status VARCHAR(30) NOT NULL DEFAULT 'PAID_SIMULATED',
@@ -83,6 +84,7 @@ function ensureCheckoutSchema() {
         PaymentMethod VARCHAR(50) NOT NULL DEFAULT 'SIMULATED',
         CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (OrderID),
+        UNIQUE KEY uq_order_number (OrderNumber),
         KEY idx_orders_user (UserID),
         CONSTRAINT fk_orders_user FOREIGN KEY (UserID) REFERENCES \`User\`(UserID)
       )
@@ -560,7 +562,12 @@ app.post("/checkout", async (req, res) => {
 
     const orderId = orderResult.insertId;
 
-    const orderItemValues = cartItems.map((item) => {
+    const year = new Date().getFullYear();
+    const orderNumber = `LA-${year}-${String(orderId).padStart(5, '0')}`;
+    await queryAsync(
+      "UPDATE CustomerOrders SET OrderNumber = ? WHERE OrderID = ?",
+      [orderNumber, orderId]
+    );
       const qty = Number(item.Quantity || 0);
       const unitPrice = Number(item.Price || 0);
       return [orderId, Number(item.PartID), qty, unitPrice, Number((qty * unitPrice).toFixed(2))];
@@ -598,6 +605,7 @@ app.post("/checkout", async (req, res) => {
     return res.json({
       message: "Checkout completed",
       orderId,
+      orderNumber,
       totalAmount,
       itemCount: cartItems.length,
       status: "PAID_SIMULATED"
@@ -634,7 +642,7 @@ app.get("/orders/:userId", async (req, res) => {
 
     const orders = await queryAsync(
       `
-        SELECT OrderID, UserID, TotalAmount, Status, ShippingAddress, PaymentMethod, CreatedAt
+        SELECT OrderID, OrderNumber, UserID, TotalAmount, Status, ShippingAddress, PaymentMethod, CreatedAt
         FROM CustomerOrders
         ${whereClause}
         ORDER BY CreatedAt DESC
@@ -780,7 +788,12 @@ app.post("/cars/:carId/purchase", async (req, res) => {
 
     const orderId = Number(orderResult.insertId);
 
-    if (Array.isArray(partRows) && partRows.length > 0) {
+    const carYear = new Date().getFullYear();
+    const carOrderNumber = `LA-${carYear}-${String(orderId).padStart(5, '0')}`;
+    await queryAsync(
+      "UPDATE CustomerOrders SET OrderNumber = ? WHERE OrderID = ?",
+      [carOrderNumber, orderId]
+    );
       const orderItemValues = partRows.map((part) => {
         const unitPrice = Number(part.Price || 0);
         return [orderId, Number(part.PartID), 1, unitPrice, unitPrice];
@@ -813,6 +826,7 @@ app.post("/cars/:carId/purchase", async (req, res) => {
     return res.json({
       message: "Car purchase completed",
       orderId,
+      orderNumber: carOrderNumber,
       totalAmount,
       status: "PAID_SIMULATED"
     });
