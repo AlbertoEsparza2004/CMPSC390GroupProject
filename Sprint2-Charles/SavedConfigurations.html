@@ -25,6 +25,44 @@
     button { padding: 10px 20px; background: linear-gradient(135deg, #4f90f0 0%, #6faeff 100%); border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(79,144,240,0.3); }
     button:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(79,144,240,0.5); }
     .page-action { margin-top: 10px; }
+
+    /* Purchase modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: rgba(10,16,33,0.97);
+      border: 1px solid rgba(79,144,240,0.22);
+      border-radius: 20px;
+      padding: 32px 36px;
+      width: min(480px, calc(100% - 32px));
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    }
+    .modal h3 { font-family: 'Orbitron', monospace; font-size: 1.1rem; margin-bottom: 20px; color: #d8eaff; }
+    .modal .field { margin-bottom: 14px; }
+    .modal .field label { display: block; font-size: 0.85rem; color: rgba(175,200,245,0.8); margin-bottom: 6px; }
+    .modal .field input {
+      width: 100%;
+      background: rgba(8,13,28,0.9);
+      border: 1px solid rgba(79,144,240,0.3);
+      border-radius: 10px;
+      color: #fff;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .modal .field input:focus { outline: none; border-color: rgba(79,144,240,0.6); }
+    .modal-error { color: #f87171; font-size: 0.85rem; margin-bottom: 12px; min-height: 18px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .modal-actions button.cancel-btn {
+      background: rgba(255,255,255,0.08);
+      box-shadow: none;
+      border: 1px solid rgba(79,144,240,0.2);
+    }
+
     footer { position: relative; z-index: 1; text-align: center; padding: 32px 24px; border-top: 1px solid rgba(79,144,240,0.1); color: rgba(175,200,245,0.6); font-size: 0.85rem; margin-top: auto; }
   </style>
 
@@ -33,6 +71,34 @@
 <body>
 <div class="page-bg"></div>
 <header>LEGACY<span>AUTO</span></header>
+
+<!-- Purchase modal -->
+<div class="modal-overlay" id="purchaseModal">
+  <div class="modal">
+    <h3>Purchase Build</h3>
+    <div class="field">
+      <label for="buyerName">Full Name</label>
+      <input id="buyerName" type="text" placeholder="John Doe">
+    </div>
+    <div class="field">
+      <label for="buyerAddress">Shipping Address</label>
+      <input id="buyerAddress" type="text" placeholder="123 Main St, City, State ZIP">
+    </div>
+    <div class="field">
+      <label for="buyerPhone">Phone Number</label>
+      <input id="buyerPhone" type="tel" placeholder="(555) 555-5555">
+    </div>
+    <div class="field">
+      <label for="buyerEmail">Email Address</label>
+      <input id="buyerEmail" type="email" placeholder="you@example.com">
+    </div>
+    <p class="modal-error" id="modalError"></p>
+    <div class="modal-actions">
+      <button class="cancel-btn" onclick="closePurchaseModal()">Cancel</button>
+      <button id="confirmPurchaseBtn">Confirm Purchase</button>
+    </div>
+  </div>
+</div>
 
 <div class="container">
 
@@ -77,29 +143,68 @@ async function updateBuildStatus(carId, buildStatus) {
   }
 }
 
-async function purchaseCarBuild(carId) {
-  const shippingAddress = window.prompt("Shipping address for this vehicle build:", "");
-  if (shippingAddress === null) {
+let _pendingPurchaseCarId = null;
+
+function openPurchaseModal(carId) {
+  _pendingPurchaseCarId = carId;
+  document.getElementById('buyerName').value = '';
+  document.getElementById('buyerAddress').value = '';
+  document.getElementById('buyerPhone').value = '';
+  document.getElementById('buyerEmail').value = '';
+  document.getElementById('modalError').textContent = '';
+  document.getElementById('purchaseModal').classList.add('open');
+}
+
+function closePurchaseModal() {
+  _pendingPurchaseCarId = null;
+  document.getElementById('purchaseModal').classList.remove('open');
+}
+
+document.getElementById('confirmPurchaseBtn').addEventListener('click', async () => {
+  const name = document.getElementById('buyerName').value.trim();
+  const address = document.getElementById('buyerAddress').value.trim();
+  const phone = document.getElementById('buyerPhone').value.trim();
+  const email = document.getElementById('buyerEmail').value.trim();
+  const errorEl = document.getElementById('modalError');
+
+  if (!name || !address || !phone || !email) {
+    errorEl.textContent = 'All fields are required.';
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errorEl.textContent = 'Please enter a valid email address.';
     return;
   }
 
-  const response = await fetch(`${API_BASE}/cars/${carId}/purchase`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userId,
-      shippingAddress,
-      paymentMethod: "SIMULATED_CAR_PURCHASE"
-    })
-  });
+  const btn = document.getElementById('confirmPurchaseBtn');
+  btn.disabled = true;
+  errorEl.textContent = '';
 
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(errText || "Car purchase failed");
+  try {
+    const response = await fetch(`${API_BASE}/cars/${_pendingPurchaseCarId}/purchase`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId,
+        shippingAddress: `${name} | ${address} | ${phone} | ${email}`,
+        paymentMethod: 'SIMULATED_CAR_PURCHASE'
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(errText || 'Purchase failed');
+    }
+
+    closePurchaseModal();
+    await loadCars();
+    alert('Build added to your orders successfully!');
+  } catch (err) {
+    errorEl.textContent = err.message || 'Could not complete purchase.';
+  } finally {
+    btn.disabled = false;
   }
-
-  return response.json();
-}
+});
 
 async function loadCars() {
 
@@ -196,16 +301,9 @@ async function loadCars() {
       });
 
       const buyBtn = document.createElement("button");
-      buyBtn.textContent = "Buy This Build";
-      buyBtn.addEventListener("click", async () => {
-        try {
-          await purchaseCarBuild(c.CarID);
-          await loadCars();
-          alert("Build purchased successfully. It is now in your orders and bought builds.");
-        } catch (buyErr) {
-          console.error(buyErr);
-          alert("Could not complete build purchase right now.");
-        }
+      buyBtn.textContent = "Add to Cart";
+      buyBtn.addEventListener("click", () => {
+        openPurchaseModal(c.CarID);
       });
 
       const editBtn = document.createElement("button");

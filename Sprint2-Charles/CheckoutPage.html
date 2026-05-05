@@ -147,16 +147,20 @@
       <section class="card">
         <h2>Checkout Details</h2>
         <div class="field">
+          <label for="buyerName">Full Name</label>
+          <input id="buyerName" type="text" placeholder="John Doe">
+        </div>
+        <div class="field">
           <label for="shippingAddress">Shipping Address</label>
           <input id="shippingAddress" type="text" placeholder="123 Main St, City, State ZIP">
         </div>
         <div class="field">
-          <label for="paymentMethod">Payment Method</label>
-          <select id="paymentMethod">
-            <option value="SIMULATED_CARD">Simulated Card</option>
-            <option value="SIMULATED_PAYPAL">Simulated PayPal</option>
-            <option value="SIMULATED_APPLE_PAY">Simulated Apple Pay</option>
-          </select>
+          <label for="buyerPhone">Phone Number</label>
+          <input id="buyerPhone" type="tel" placeholder="(555) 555-5555">
+        </div>
+        <div class="field">
+          <label for="buyerEmail">Email Address</label>
+          <input id="buyerEmail" type="email" placeholder="you@example.com">
         </div>
 
         <div class="actions">
@@ -269,9 +273,20 @@
     }
 
     function placeOrder() {
+      const name = document.getElementById("buyerName").value.trim();
       const shippingAddress = document.getElementById("shippingAddress").value.trim();
-      const paymentMethod = document.getElementById("paymentMethod").value;
+      const phone = document.getElementById("buyerPhone").value.trim();
+      const email = document.getElementById("buyerEmail").value.trim();
       const messageEl = document.getElementById("checkoutMessage");
+
+      if (!name || !shippingAddress || !phone || !email) {
+        messageEl.textContent = "Please fill in all fields before placing your order.";
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        messageEl.textContent = "Please enter a valid email address.";
+        return;
+      }
 
       messageEl.textContent = "Processing checkout...";
 
@@ -280,8 +295,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: currentUserId,
-          shippingAddress,
-          paymentMethod
+          shippingAddress: `${name} | ${shippingAddress} | ${phone} | ${email}`,
+          paymentMethod: "SIMULATED"
         })
       })
         .then((res) => res.json().then((body) => ({ ok: res.ok, body })))
@@ -290,7 +305,10 @@
             throw new Error(body.message || "Checkout failed");
           }
           messageEl.textContent = "Order placed successfully. Order #" + body.orderId + " (simulated payment).";
+          document.getElementById("buyerName").value = "";
           document.getElementById("shippingAddress").value = "";
+          document.getElementById("buyerPhone").value = "";
+          document.getElementById("buyerEmail").value = "";
           loadCart();
           loadOrders();
         })
