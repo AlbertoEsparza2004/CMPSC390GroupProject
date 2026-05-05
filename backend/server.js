@@ -343,13 +343,13 @@ app.get("/cart/:userId", async (req, res) => {
           sci.PartID,
           sci.Quantity,
           sci.UnitPrice,
-          p.Name,
+          COALESCE(p.Name, sci.Description) AS Name,
           p.Image,
           p.Category,
           p.Stock,
           p.Availability
         FROM ShoppingCartItems sci
-        JOIN Parts p ON p.PartID = sci.PartID
+        LEFT JOIN Parts p ON p.PartID = sci.PartID
         WHERE sci.UserID = ?
         ORDER BY sci.CreatedAt DESC
       `,
@@ -523,11 +523,12 @@ app.post("/checkout", async (req, res) => {
           sci.CartItemID,
           sci.PartID,
           sci.Quantity,
-          p.Name,
+          sci.UnitPrice,
+          COALESCE(p.Name, sci.Description) AS Name,
           p.Stock,
           p.Price
         FROM ShoppingCartItems sci
-        JOIN Parts p ON p.PartID = sci.PartID
+        LEFT JOIN Parts p ON p.PartID = sci.PartID
         WHERE sci.UserID = ?
         FOR UPDATE
       `,
@@ -539,7 +540,9 @@ app.post("/checkout", async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
+    // Only validate stock for real part items
     for (const item of cartItems) {
+      if (!item.PartID) continue;
       const stock = Number(item.Stock || 0);
       const qty = Number(item.Quantity || 0);
       if (qty < 1 || qty > stock) {
@@ -549,7 +552,7 @@ app.post("/checkout", async (req, res) => {
     }
 
     const totalAmount = Number(
-      cartItems.reduce((sum, item) => sum + (Number(item.Quantity || 0) * Number(item.Price || 0)), 0).toFixed(2)
+      cartItems.reduce((sum, item) => sum + (Number(item.Quantity || 0) * Number(item.UnitPrice || item.Price || 0)), 0).toFixed(2)
     );
 
     const orderResult = await queryAsync(
@@ -571,18 +574,22 @@ app.post("/checkout", async (req, res) => {
       );
     } catch (_) { /* OrderNumber column may not exist yet — non-fatal */ }
 
-    const orderItemValues = cartItems.map((item) => {
-      const qty = Number(item.Quantity || 0);
-      const unitPrice = Number(item.Price || 0);
-      return [orderId, Number(item.PartID), qty, unitPrice, Number((qty * unitPrice).toFixed(2))];
-    });
-
-    await queryAsync(
-      "INSERT INTO CustomerOrderItems (OrderID, PartID, Quantity, UnitPrice, LineTotal) VALUES ?",
-      [orderItemValues]
-    );
+    // Only include real part rows in order items
+    const partCartItems = cartItems.filter(item => item.PartID);
+    if (partCartItems.length > 0) {
+      const orderItemValues = partCartItems.map((item) => {
+        const qty = Number(item.Quantity || 0);
+        const unitPrice = Number(item.UnitPrice || item.Price || 0);
+        return [orderId, Number(item.PartID), qty, unitPrice, Number((qty * unitPrice).toFixed(2))];
+      });
+      await queryAsync(
+        "INSERT INTO CustomerOrderItems (OrderID, PartID, Quantity, UnitPrice, LineTotal) VALUES ?",
+        [orderItemValues]
+      );
+    }
 
     for (const item of cartItems) {
+      if (!item.PartID) continue; // skip base car rows
       const qty = Number(item.Quantity || 0);
       const partId = Number(item.PartID);
 
@@ -740,7 +747,7 @@ app.post("/cars/:carId/add-to-cart", async (req, res) => {
 
     const carRows = await queryAsync(
       `
-        SELECT CarID
+        SELECT CarID, BaseCar, TotalPrice
         FROM Customized_car
         WHERE CarID = ? AND UserID = ?
         FOR UPDATE
@@ -752,6 +759,8 @@ app.post("/cars/:carId/add-to-cart", async (req, res) => {
       await rollbackAsync();
       return res.status(404).json({ message: "Configuration not found" });
     }
+
+    const car = carRows[0];
 
     const partRows = await queryAsync(
       `
@@ -769,15 +778,27 @@ app.post("/cars/:carId/add-to-cart", async (req, res) => {
       return res.status(400).json({ message: "This build has no parts to add" });
     }
 
-    for (const part of partRows) {
-      const stock = Number(part.Stock || 0);
-      if (stock < 1) {
-        await rollbackAsync();
-        return res.status(400).json({ message: `Part out of stock: ${part.Name || part.PartID}` });
-      }
-    }
+    // Calculate base car price = TotalPrice - sum of part prices
+    const partsPriceSum = partRows.reduce((sum, p) => sum + Number(p.Price || 0), 0);
+    const baseCarPrice = Math.max(0, Number(car.TotalPrice || 0) - partsPriceSum);
+    const baseCarLabel = `Base Vehicle (${car.BaseCar || 'Custom Build'})`;
 
     let addedCount = 0;
+
+    // Insert base car price as a description-only cart item
+    if (baseCarPrice > 0) {
+      const existingBase = await queryAsync(
+        "SELECT CartItemID FROM ShoppingCartItems WHERE UserID = ? AND PartID IS NULL AND Description = ?",
+        [userId, baseCarLabel]
+      );
+      if (!existingBase || existingBase.length === 0) {
+        await queryAsync(
+          "INSERT INTO ShoppingCartItems (UserID, PartID, Description, Quantity, UnitPrice) VALUES (?, NULL, ?, 1, ?)",
+          [userId, baseCarLabel, baseCarPrice]
+        );
+        addedCount += 1;
+      }
+    }
 
     for (const part of partRows) {
       const partId = Number(part.PartID);
