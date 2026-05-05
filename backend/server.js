@@ -725,6 +725,100 @@ app.patch("/orders/:orderId/status", async (req, res) => {
   }
 });
 
+app.post("/cars/:carId/add-to-cart", async (req, res) => {
+  const carId = Number(req.params.carId);
+  const userId = Number(req.body.userId);
+
+  if (!Number.isInteger(carId) || carId <= 0 || !Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ message: "Valid carId and userId are required" });
+  }
+
+  try {
+    await beginTransactionAsync();
+
+    const carRows = await queryAsync(
+      `
+        SELECT CarID
+        FROM Customized_car
+        WHERE CarID = ? AND UserID = ?
+        FOR UPDATE
+      `,
+      [carId, userId]
+    );
+
+    if (!carRows || carRows.length === 0) {
+      await rollbackAsync();
+      return res.status(404).json({ message: "Configuration not found" });
+    }
+
+    const partRows = await queryAsync(
+      `
+        SELECT p.PartID, p.Name, p.Stock, p.Price
+        FROM Customized_car_parts ccp
+        JOIN Parts p ON p.PartID = ccp.PartID
+        WHERE ccp.CarID = ?
+        FOR UPDATE
+      `,
+      [carId]
+    );
+
+    if (!Array.isArray(partRows) || partRows.length === 0) {
+      await rollbackAsync();
+      return res.status(400).json({ message: "This build has no parts to add" });
+    }
+
+    for (const part of partRows) {
+      const stock = Number(part.Stock || 0);
+      if (stock < 1) {
+        await rollbackAsync();
+        return res.status(400).json({ message: `Part out of stock: ${part.Name || part.PartID}` });
+      }
+    }
+
+    let addedCount = 0;
+
+    for (const part of partRows) {
+      const partId = Number(part.PartID);
+      const unitPrice = Number(part.Price || 0);
+      const stock = Number(part.Stock || 0);
+
+      const existingRows = await queryAsync(
+        "SELECT CartItemID, Quantity FROM ShoppingCartItems WHERE UserID = ? AND PartID = ?",
+        [userId, partId]
+      );
+
+      if (existingRows && existingRows.length > 0) {
+        const existingQty = Number(existingRows[0].Quantity || 0);
+        const nextQty = existingQty + 1;
+
+        if (nextQty > stock) {
+          await rollbackAsync();
+          return res.status(400).json({ message: `Only ${stock} in stock for part ${part.Name || partId}` });
+        }
+
+        await queryAsync(
+          "UPDATE ShoppingCartItems SET Quantity = ?, UnitPrice = ? WHERE CartItemID = ?",
+          [nextQty, unitPrice, Number(existingRows[0].CartItemID)]
+        );
+      } else {
+        await queryAsync(
+          "INSERT INTO ShoppingCartItems (UserID, PartID, Quantity, UnitPrice) VALUES (?, ?, 1, ?)",
+          [userId, partId, unitPrice]
+        );
+      }
+
+      addedCount += 1;
+    }
+
+    await commitAsync();
+    return res.json({ message: `Added ${addedCount} build part(s) to cart`, addedCount });
+  } catch (err) {
+    console.error(err);
+    await rollbackAsync();
+    return res.status(500).json({ message: "Could not add build to cart" });
+  }
+});
+
 app.post("/cars/:carId/purchase", async (req, res) => {
   const carId = Number(req.params.carId);
   const userId = Number(req.body.userId);

@@ -26,45 +26,6 @@
     button:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(79,144,240,0.5); }
     .page-action { margin-top: 10px; }
 
-    /* Purchase modal */
-    .modal-overlay {
-      display: none !important; position: fixed !important; inset: 0; z-index: 1000;
-      background: rgba(0,0,0,0.72); backdrop-filter: blur(6px);
-      align-items: center; justify-content: center;
-    }
-    .modal-overlay.open { display: flex !important; }
-    .modal {
-      background: rgba(10,16,33,0.98);
-      border: 1px solid rgba(79,144,240,0.28);
-      border-radius: 20px;
-      padding: 32px 36px;
-      width: min(480px, calc(100% - 32px));
-      box-shadow: 0 24px 60px rgba(0,0,0,0.7);
-    }
-    .modal h3 { font-family: 'Orbitron', monospace !important; font-size: 1.1rem !important; margin-bottom: 20px !important; color: #d8eaff !important; display: block !important; }
-    .modal .mfield { margin-bottom: 14px; display: block; }
-    .modal .mfield label { display: block !important; font-size: 0.85rem !important; color: rgba(175,200,245,0.85) !important; margin-bottom: 6px !important; width: 100% !important; }
-    .modal .mfield input {
-      display: block !important;
-      width: 100% !important;
-      background: rgba(8,13,28,0.9) !important;
-      border: 1px solid rgba(79,144,240,0.3) !important;
-      border-radius: 10px !important;
-      color: #fff !important;
-      padding: 10px 12px !important;
-      font-size: 0.9rem !important;
-      font-family: 'Inter', sans-serif !important;
-      box-sizing: border-box !important;
-    }
-    .modal .mfield input:focus { outline: none !important; border-color: rgba(79,144,240,0.65) !important; }
-    .modal-error { display: block !important; color: #f87171 !important; font-size: 0.85rem !important; margin-bottom: 12px; min-height: 18px; }
-    .modal-actions { display: flex !important; gap: 10px; justify-content: flex-end; margin-top: 4px; }
-    .cancel-btn {
-      background: rgba(255,255,255,0.08) !important;
-      box-shadow: none !important;
-      border: 1px solid rgba(79,144,240,0.25) !important;
-    }
-
     footer { position: relative; z-index: 1; text-align: center; padding: 32px 24px; border-top: 1px solid rgba(79,144,240,0.1); color: rgba(175,200,245,0.6); font-size: 0.85rem; margin-top: auto; }
   </style>
 
@@ -73,37 +34,6 @@
 <body>
 <div class="page-bg"></div>
 <header>LEGACY<span>AUTO</span></header>
-
-<!-- Purchase modal -->
-<div id="purchaseModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:9999; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); align-items:center; justify-content:center;">
-  <div style="background:#0a1021; border:1px solid rgba(79,144,240,0.3); border-radius:20px; padding:36px 40px; width:460px; max-width:calc(100vw - 32px); box-shadow:0 24px 60px rgba(0,0,0,0.8); font-family:'Inter',sans-serif;">
-    <h3 style="font-family:'Orbitron',monospace; font-size:1.1rem; color:#d8eaff; margin:0 0 24px 0; font-weight:700;">Purchase Build</h3>
-
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:0.85rem; color:rgba(175,200,245,0.85); margin-bottom:6px; width:100%;">Full Name</label>
-      <input id="buyerName" type="text" placeholder="John Doe" style="display:block; width:100%; background:rgba(8,13,28,0.9); border:1px solid rgba(79,144,240,0.35); border-radius:10px; color:#fff; padding:11px 13px; font-size:0.9rem; font-family:'Inter',sans-serif; box-sizing:border-box; outline:none; max-width:100%;">
-    </div>
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:0.85rem; color:rgba(175,200,245,0.85); margin-bottom:6px; width:100%;">Shipping Address</label>
-      <input id="buyerAddress" type="text" placeholder="123 Main St, City, State ZIP" style="display:block; width:100%; background:rgba(8,13,28,0.9); border:1px solid rgba(79,144,240,0.35); border-radius:10px; color:#fff; padding:11px 13px; font-size:0.9rem; font-family:'Inter',sans-serif; box-sizing:border-box; outline:none; max-width:100%;">
-    </div>
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:0.85rem; color:rgba(175,200,245,0.85); margin-bottom:6px; width:100%;">Phone Number</label>
-      <input id="buyerPhone" type="tel" placeholder="(555) 555-5555" style="display:block; width:100%; background:rgba(8,13,28,0.9); border:1px solid rgba(79,144,240,0.35); border-radius:10px; color:#fff; padding:11px 13px; font-size:0.9rem; font-family:'Inter',sans-serif; box-sizing:border-box; outline:none; max-width:100%;">
-    </div>
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:0.85rem; color:rgba(175,200,245,0.85); margin-bottom:6px; width:100%;">Email Address</label>
-      <input id="buyerEmail" type="email" placeholder="you@example.com" style="display:block; width:100%; background:rgba(8,13,28,0.9); border:1px solid rgba(79,144,240,0.35); border-radius:10px; color:#fff; padding:11px 13px; font-size:0.9rem; font-family:'Inter',sans-serif; box-sizing:border-box; outline:none; max-width:100%;">
-    </div>
-
-    <p id="modalError" style="color:#f87171; font-size:0.85rem; margin:0 0 14px 0; min-height:18px;"></p>
-
-    <div style="display:flex; gap:12px; justify-content:flex-end;">
-      <button onclick="closePurchaseModal()" style="background:rgba(255,255,255,0.09); box-shadow:none; border:1px solid rgba(79,144,240,0.25);">Cancel</button>
-      <button id="confirmPurchaseBtn">Confirm Purchase</button>
-    </div>
-  </div>
-</div>
 
 <div class="container">
 
@@ -148,69 +78,19 @@ async function updateBuildStatus(carId, buildStatus) {
   }
 }
 
-let _pendingPurchaseCarId = null;
+async function addBuildToCart(carId) {
+  const response = await fetch(`${API_BASE}/cars/${carId}/add-to-cart`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId })
+  });
 
-function openPurchaseModal(carId) {
-  _pendingPurchaseCarId = carId;
-  document.getElementById('buyerName').value = '';
-  document.getElementById('buyerAddress').value = '';
-  document.getElementById('buyerPhone').value = '';
-  document.getElementById('buyerEmail').value = '';
-  document.getElementById('modalError').textContent = '';
-  const overlay = document.getElementById('purchaseModal');
-  overlay.style.display = 'flex';
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.message || 'Could not add build to cart.');
+  }
+  return payload;
 }
-
-function closePurchaseModal() {
-  _pendingPurchaseCarId = null;
-  document.getElementById('purchaseModal').style.display = 'none';
-}
-
-document.getElementById('confirmPurchaseBtn').addEventListener('click', async () => {
-  const name = document.getElementById('buyerName').value.trim();
-  const address = document.getElementById('buyerAddress').value.trim();
-  const phone = document.getElementById('buyerPhone').value.trim();
-  const email = document.getElementById('buyerEmail').value.trim();
-  const errorEl = document.getElementById('modalError');
-
-  if (!name || !address || !phone || !email) {
-    errorEl.textContent = 'All fields are required.';
-    return;
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errorEl.textContent = 'Please enter a valid email address.';
-    return;
-  }
-
-  const btn = document.getElementById('confirmPurchaseBtn');
-  btn.disabled = true;
-  errorEl.textContent = '';
-
-  try {
-    const response = await fetch(`${API_BASE}/cars/${_pendingPurchaseCarId}/purchase`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId,
-        shippingAddress: `${name} | ${address} | ${phone} | ${email}`,
-        paymentMethod: 'SIMULATED_CAR_PURCHASE'
-      })
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(errText || 'Purchase failed');
-    }
-
-    closePurchaseModal();
-    await loadCars();
-    alert('Build added to your orders successfully!');
-  } catch (err) {
-    errorEl.textContent = err.message || 'Could not complete purchase.';
-  } finally {
-    btn.disabled = false;
-  }
-});
 
 async function loadCars() {
 
@@ -308,8 +188,14 @@ async function loadCars() {
 
       const buyBtn = document.createElement("button");
       buyBtn.textContent = "Add to Cart";
-      buyBtn.addEventListener("click", () => {
-        openPurchaseModal(c.CarID);
+      buyBtn.addEventListener("click", async () => {
+        try {
+          const result = await addBuildToCart(c.CarID);
+          alert(result.message || "Build parts added to cart.");
+        } catch (cartErr) {
+          console.error(cartErr);
+          alert(cartErr.message || "Could not add build to cart right now.");
+        }
       });
 
       const editBtn = document.createElement("button");
