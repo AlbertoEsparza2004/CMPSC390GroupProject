@@ -695,9 +695,42 @@ app.get("/orders/:userId", async (req, res) => {
       itemsByOrderId.get(key).push(item);
     });
 
+    const partsTotalByOrderId = new Map();
+    (items || []).forEach((item) => {
+      const key = Number(item.OrderID);
+      const current = Number(partsTotalByOrderId.get(key) || 0);
+      const lineTotal = Number(item.LineTotal || 0);
+      partsTotalByOrderId.set(key, Number((current + lineTotal).toFixed(2)));
+    });
+
     const hydratedOrders = orders.map((order) => ({
       ...order,
-      Items: itemsByOrderId.get(Number(order.OrderID)) || []
+      Items: (() => {
+        const orderId = Number(order.OrderID);
+        const orderItems = itemsByOrderId.get(orderId) || [];
+        const orderTotal = Number(order.TotalAmount || 0);
+        const partsTotal = Number(partsTotalByOrderId.get(orderId) || 0);
+        const baseVehicleAmount = Number((orderTotal - partsTotal).toFixed(2));
+
+        if (baseVehicleAmount > 0.009) {
+          return [
+            {
+              OrderItemID: null,
+              OrderID: orderId,
+              PartID: null,
+              Quantity: 1,
+              UnitPrice: baseVehicleAmount,
+              LineTotal: baseVehicleAmount,
+              Name: "Base Vehicle",
+              Image: null,
+              Category: "Vehicle"
+            },
+            ...orderItems
+          ];
+        }
+
+        return orderItems;
+      })()
     }));
 
     return res.json(hydratedOrders);
