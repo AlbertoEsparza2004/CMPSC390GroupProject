@@ -564,10 +564,12 @@ app.post("/checkout", async (req, res) => {
 
     const year = new Date().getFullYear();
     const orderNumber = `LA-${year}-${String(orderId).padStart(5, '0')}`;
-    await queryAsync(
-      "UPDATE CustomerOrders SET OrderNumber = ? WHERE OrderID = ?",
-      [orderNumber, orderId]
-    );
+    try {
+      await queryAsync(
+        "UPDATE CustomerOrders SET OrderNumber = ? WHERE OrderID = ?",
+        [orderNumber, orderId]
+      );
+    } catch (_) { /* OrderNumber column may not exist yet — non-fatal */ }
 
     const orderItemValues = cartItems.map((item) => {
       const qty = Number(item.Quantity || 0);
@@ -886,10 +888,12 @@ app.post("/cars/:carId/purchase", async (req, res) => {
 
     const carYear = new Date().getFullYear();
     const carOrderNumber = `LA-${carYear}-${String(orderId).padStart(5, '0')}`;
-    await queryAsync(
-      "UPDATE CustomerOrders SET OrderNumber = ? WHERE OrderID = ?",
-      [carOrderNumber, orderId]
-    );
+    try {
+      await queryAsync(
+        "UPDATE CustomerOrders SET OrderNumber = ? WHERE OrderID = ?",
+        [carOrderNumber, orderId]
+      );
+    } catch (_) { /* OrderNumber column may not exist yet — non-fatal */ }
 
     if (Array.isArray(partRows) && partRows.length > 0) {
       const orderItemValues = partRows.map((part) => {

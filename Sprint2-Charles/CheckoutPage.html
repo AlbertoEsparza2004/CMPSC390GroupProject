@@ -57,6 +57,7 @@
     .cart-item {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       gap: 16px;
       padding: 10px 0;
       border-bottom: 1px solid rgba(79,144,240,0.12);
@@ -65,6 +66,25 @@
     }
 
     .cart-item:last-child { border-bottom: none; }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(248,113,113,0.7);
+      font-size: 1.05rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      box-shadow: none;
+      transition: color 0.18s ease, background 0.18s ease;
+      flex-shrink: 0;
+    }
+    .delete-btn:hover {
+      color: #f87171;
+      background: rgba(248,113,113,0.1);
+      transform: none;
+      box-shadow: none;
+    }
 
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 0.86rem; color: rgba(175,200,245,0.8); margin-bottom: 6px; }
@@ -210,7 +230,23 @@
         items.forEach((item) => {
           const line = document.createElement("div");
           line.className = "cart-item";
-          line.innerHTML = `<span>${item.Name || ("Part #" + item.PartID)} x${Number(item.Quantity || 0)}</span><span>$${Number(item.LineTotal || 0).toFixed(2)}</span>`;
+
+          const label = document.createElement("span");
+          label.textContent = `${item.Name || ("Part #" + item.PartID)} x${Number(item.Quantity || 0)}`;
+
+          const price = document.createElement("span");
+          price.style.marginLeft = "auto";
+          price.textContent = `$${Number(item.LineTotal || 0).toFixed(2)}`;
+
+          const trash = document.createElement("button");
+          trash.className = "delete-btn";
+          trash.title = "Remove from cart";
+          trash.innerHTML = "&#128465;";
+          trash.addEventListener("click", () => removeCartItem(item.CartItemID));
+
+          line.appendChild(label);
+          line.appendChild(price);
+          line.appendChild(trash);
           container.appendChild(line);
         });
         document.getElementById("placeOrderBtn").disabled = false;
@@ -232,6 +268,17 @@
           document.getElementById("cartItems").innerHTML = "<p style='color:#ff8b8b;'>Unable to load cart.</p>";
           document.getElementById("placeOrderBtn").disabled = true;
         });
+    }
+
+    function removeCartItem(cartItemId) {
+      fetch("/cart/" + encodeURIComponent(cartItemId), {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: currentUserId })
+      })
+        .then((res) => { if (!res.ok) throw new Error(); })
+        .then(() => loadCart())
+        .catch(() => { /* silently ignore */ });
     }
 
     function loadOrders() {
