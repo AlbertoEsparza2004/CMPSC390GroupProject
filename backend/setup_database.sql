@@ -202,6 +202,7 @@ CREATE TABLE CustomerOrderItems (
     UnitPrice   DECIMAL(10,2) NOT NULL DEFAULT 0,
     LineTotal   DECIMAL(10,2) NOT NULL DEFAULT 0,
     CreatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    BaseVehicleLabel VARCHAR(100) NULL,
     PRIMARY KEY (OrderItemID),
     KEY idx_orderitems_order (OrderID),
     KEY idx_orderitems_part (PartID),

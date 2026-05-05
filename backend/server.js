@@ -82,12 +82,17 @@ function ensureCheckoutSchema() {
         Status VARCHAR(30) NOT NULL DEFAULT 'PAID_SIMULATED',
         ShippingAddress VARCHAR(255) NULL,
         PaymentMethod VARCHAR(50) NOT NULL DEFAULT 'SIMULATED',
+        BaseVehicleLabel VARCHAR(100) NULL,
         CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (OrderID),
         UNIQUE KEY uq_order_number (OrderNumber),
         KEY idx_orders_user (UserID),
         CONSTRAINT fk_orders_user FOREIGN KEY (UserID) REFERENCES \`User\`(UserID)
       )
+    `,
+    `
+      ALTER TABLE CustomerOrders
+      ADD COLUMN IF NOT EXISTS BaseVehicleLabel VARCHAR(100) NULL AFTER PaymentMethod
     `,
     `
       CREATE TABLE IF NOT EXISTS CustomerOrderItems (
@@ -554,6 +559,7 @@ app.post("/checkout", async (req, res) => {
     const totalAmount = Number(
       cartItems.reduce((sum, item) => sum + (Number(item.Quantity || 0) * Number(item.UnitPrice || item.Price || 0)), 0).toFixed(2)
     );
+    const baseVehicleLabel = String((cartItems.find((item) => !item.PartID)?.Name || "")).trim() || null;
 
     const orderResult = await queryAsync(
       `
@@ -573,6 +579,15 @@ app.post("/checkout", async (req, res) => {
         [orderNumber, orderId]
       );
     } catch (_) { /* OrderNumber column may not exist yet — non-fatal */ }
+
+    if (baseVehicleLabel) {
+      try {
+        await queryAsync(
+          "UPDATE CustomerOrders SET BaseVehicleLabel = ? WHERE OrderID = ?",
+          [baseVehicleLabel, orderId]
+        );
+      } catch (_) { /* BaseVehicleLabel column may not exist yet — non-fatal */ }
+    }
 
     // Only include real part rows in order items
     const partCartItems = cartItems.filter(item => item.PartID);
@@ -651,15 +666,32 @@ app.get("/orders/:userId", async (req, res) => {
       ? `WHERE UserID = ? AND Status IN (${statusFilter.map(() => "?").join(", ")})`
       : "WHERE UserID = ?";
 
-    const orders = await queryAsync(
-      `
-        SELECT OrderID, OrderNumber, UserID, TotalAmount, Status, ShippingAddress, PaymentMethod, CreatedAt
-        FROM CustomerOrders
-        ${whereClause}
-        ORDER BY CreatedAt DESC
-      `,
-      [userId, ...statusFilter]
-    );
+    let orders;
+    try {
+      orders = await queryAsync(
+        `
+          SELECT OrderID, OrderNumber, UserID, TotalAmount, Status, ShippingAddress, PaymentMethod, BaseVehicleLabel, CreatedAt
+          FROM CustomerOrders
+          ${whereClause}
+          ORDER BY CreatedAt DESC
+        `,
+        [userId, ...statusFilter]
+      );
+    } catch (err) {
+      if (err && err.code === "ER_BAD_FIELD_ERROR") {
+        orders = await queryAsync(
+          `
+            SELECT OrderID, OrderNumber, UserID, TotalAmount, Status, ShippingAddress, PaymentMethod, CreatedAt
+            FROM CustomerOrders
+            ${whereClause}
+            ORDER BY CreatedAt DESC
+          `,
+          [userId, ...statusFilter]
+        );
+      } else {
+        throw err;
+      }
+    }
 
     if (!orders || orders.length === 0) {
       return res.json([]);
@@ -713,6 +745,7 @@ app.get("/orders/:userId", async (req, res) => {
         const baseVehicleAmount = Number((orderTotal - partsTotal).toFixed(2));
 
         if (baseVehicleAmount > 0.009) {
+          const label = String(order.BaseVehicleLabel || "").trim() || "Base Vehicle";
           return [
             {
               OrderItemID: null,
@@ -721,7 +754,7 @@ app.get("/orders/:userId", async (req, res) => {
               Quantity: 1,
               UnitPrice: baseVehicleAmount,
               LineTotal: baseVehicleAmount,
-              Name: "Base Vehicle",
+              Name: label,
               Image: null,
               Category: "Vehicle"
             },
