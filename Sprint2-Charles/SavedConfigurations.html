@@ -28,39 +28,41 @@
 
     /* Purchase modal */
     .modal-overlay {
-      display: none; position: fixed; inset: 0; z-index: 100;
-      background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+      display: none !important; position: fixed !important; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.72); backdrop-filter: blur(6px);
       align-items: center; justify-content: center;
     }
-    .modal-overlay.open { display: flex; }
+    .modal-overlay.open { display: flex !important; }
     .modal {
-      background: rgba(10,16,33,0.97);
-      border: 1px solid rgba(79,144,240,0.22);
+      background: rgba(10,16,33,0.98);
+      border: 1px solid rgba(79,144,240,0.28);
       border-radius: 20px;
       padding: 32px 36px;
       width: min(480px, calc(100% - 32px));
-      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.7);
     }
-    .modal h3 { font-family: 'Orbitron', monospace; font-size: 1.1rem; margin-bottom: 20px; color: #d8eaff; }
-    .modal .field { margin-bottom: 14px; }
-    .modal .field label { display: block; font-size: 0.85rem; color: rgba(175,200,245,0.8); margin-bottom: 6px; }
-    .modal .field input {
-      width: 100%;
-      background: rgba(8,13,28,0.9);
-      border: 1px solid rgba(79,144,240,0.3);
-      border-radius: 10px;
-      color: #fff;
-      padding: 10px 12px;
-      font-size: 0.9rem;
-      font-family: 'Inter', sans-serif;
+    .modal h3 { font-family: 'Orbitron', monospace !important; font-size: 1.1rem !important; margin-bottom: 20px !important; color: #d8eaff !important; display: block !important; }
+    .modal .mfield { margin-bottom: 14px; display: block; }
+    .modal .mfield label { display: block !important; font-size: 0.85rem !important; color: rgba(175,200,245,0.85) !important; margin-bottom: 6px !important; width: 100% !important; }
+    .modal .mfield input {
+      display: block !important;
+      width: 100% !important;
+      background: rgba(8,13,28,0.9) !important;
+      border: 1px solid rgba(79,144,240,0.3) !important;
+      border-radius: 10px !important;
+      color: #fff !important;
+      padding: 10px 12px !important;
+      font-size: 0.9rem !important;
+      font-family: 'Inter', sans-serif !important;
+      box-sizing: border-box !important;
     }
-    .modal .field input:focus { outline: none; border-color: rgba(79,144,240,0.6); }
-    .modal-error { color: #f87171; font-size: 0.85rem; margin-bottom: 12px; min-height: 18px; }
-    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-    .modal-actions button.cancel-btn {
-      background: rgba(255,255,255,0.08);
-      box-shadow: none;
-      border: 1px solid rgba(79,144,240,0.2);
+    .modal .mfield input:focus { outline: none !important; border-color: rgba(79,144,240,0.65) !important; }
+    .modal-error { display: block !important; color: #f87171 !important; font-size: 0.85rem !important; margin-bottom: 12px; min-height: 18px; }
+    .modal-actions { display: flex !important; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+    .cancel-btn {
+      background: rgba(255,255,255,0.08) !important;
+      box-shadow: none !important;
+      border: 1px solid rgba(79,144,240,0.25) !important;
     }
 
     footer { position: relative; z-index: 1; text-align: center; padding: 32px 24px; border-top: 1px solid rgba(79,144,240,0.1); color: rgba(175,200,245,0.6); font-size: 0.85rem; margin-top: auto; }
@@ -76,19 +78,19 @@
 <div class="modal-overlay" id="purchaseModal">
   <div class="modal">
     <h3>Purchase Build</h3>
-    <div class="field">
+    <div class="mfield">
       <label for="buyerName">Full Name</label>
       <input id="buyerName" type="text" placeholder="John Doe">
     </div>
-    <div class="field">
+    <div class="mfield">
       <label for="buyerAddress">Shipping Address</label>
       <input id="buyerAddress" type="text" placeholder="123 Main St, City, State ZIP">
     </div>
-    <div class="field">
+    <div class="mfield">
       <label for="buyerPhone">Phone Number</label>
       <input id="buyerPhone" type="tel" placeholder="(555) 555-5555">
     </div>
-    <div class="field">
+    <div class="mfield">
       <label for="buyerEmail">Email Address</label>
       <input id="buyerEmail" type="email" placeholder="you@example.com">
     </div>
