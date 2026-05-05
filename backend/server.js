@@ -568,6 +568,8 @@ app.post("/checkout", async (req, res) => {
       "UPDATE CustomerOrders SET OrderNumber = ? WHERE OrderID = ?",
       [orderNumber, orderId]
     );
+
+    const orderItemValues = cartItems.map((item) => {
       const qty = Number(item.Quantity || 0);
       const unitPrice = Number(item.Price || 0);
       return [orderId, Number(item.PartID), qty, unitPrice, Number((qty * unitPrice).toFixed(2))];
@@ -794,6 +796,8 @@ app.post("/cars/:carId/purchase", async (req, res) => {
       "UPDATE CustomerOrders SET OrderNumber = ? WHERE OrderID = ?",
       [carOrderNumber, orderId]
     );
+
+    if (Array.isArray(partRows) && partRows.length > 0) {
       const orderItemValues = partRows.map((part) => {
         const unitPrice = Number(part.Price || 0);
         return [orderId, Number(part.PartID), 1, unitPrice, unitPrice];
