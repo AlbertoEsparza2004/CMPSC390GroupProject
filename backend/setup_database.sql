@@ -165,6 +165,7 @@ CREATE TABLE ShoppingCartItems (
     UserID      INT NOT NULL,
     PartID      INT NULL,
     Description VARCHAR(255) NULL,
+    SourceCarID INT NULL,
     Quantity    INT NOT NULL DEFAULT 1,
     UnitPrice   DECIMAL(10,2) NOT NULL DEFAULT 0,
     CreatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -172,6 +173,7 @@ CREATE TABLE ShoppingCartItems (
     PRIMARY KEY (CartItemID),
     KEY idx_cart_user (UserID),
     KEY idx_cart_part (PartID),
+    KEY idx_cart_source_car (SourceCarID),
     CONSTRAINT fk_cart_user
         FOREIGN KEY (UserID) REFERENCES `User`(UserID),
     CONSTRAINT fk_cart_part

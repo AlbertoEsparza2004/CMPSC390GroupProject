@@ -60,18 +60,27 @@ function ensureCheckoutSchema() {
       CREATE TABLE IF NOT EXISTS ShoppingCartItems (
         CartItemID INT NOT NULL AUTO_INCREMENT,
         UserID INT NOT NULL,
-        PartID INT NOT NULL,
+        PartID INT NULL,
+        Description VARCHAR(255) NULL,
+        SourceCarID INT NULL,
         Quantity INT NOT NULL DEFAULT 1,
         UnitPrice DECIMAL(10,2) NOT NULL DEFAULT 0,
         CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (CartItemID),
-        UNIQUE KEY uq_cart_user_part (UserID, PartID),
         KEY idx_cart_user (UserID),
         KEY idx_cart_part (PartID),
         CONSTRAINT fk_cart_user FOREIGN KEY (UserID) REFERENCES \`User\`(UserID),
         CONSTRAINT fk_cart_part FOREIGN KEY (PartID) REFERENCES Parts(PartID)
       )
+    `,
+    `
+      ALTER TABLE ShoppingCartItems
+      ADD COLUMN IF NOT EXISTS Description VARCHAR(255) NULL AFTER PartID
+    `,
+    `
+      ALTER TABLE ShoppingCartItems
+      ADD COLUMN IF NOT EXISTS SourceCarID INT NULL AFTER Description
     `,
     `
       CREATE TABLE IF NOT EXISTS CustomerOrders (
@@ -346,6 +355,7 @@ app.get("/cart/:userId", async (req, res) => {
           sci.CartItemID,
           sci.UserID,
           sci.PartID,
+          sci.SourceCarID,
           sci.Quantity,
           sci.UnitPrice,
           COALESCE(p.Name, sci.Description) AS Name,
@@ -407,7 +417,7 @@ app.post("/cart", async (req, res) => {
     }
 
     const existingRows = await queryAsync(
-      "SELECT CartItemID, Quantity FROM ShoppingCartItems WHERE UserID = ? AND PartID = ?",
+      "SELECT CartItemID, Quantity FROM ShoppingCartItems WHERE UserID = ? AND PartID = ? AND SourceCarID IS NULL",
       [userId, partId]
     );
 
@@ -427,7 +437,7 @@ app.post("/cart", async (req, res) => {
       );
     } else {
       await queryAsync(
-        "INSERT INTO ShoppingCartItems (UserID, PartID, Quantity, UnitPrice) VALUES (?, ?, ?, ?)",
+        "INSERT INTO ShoppingCartItems (UserID, PartID, SourceCarID, Quantity, UnitPrice) VALUES (?, ?, NULL, ?, ?)",
         [userId, partId, quantity, unitPrice]
       );
     }
@@ -527,6 +537,7 @@ app.post("/checkout", async (req, res) => {
         SELECT
           sci.CartItemID,
           sci.PartID,
+          sci.SourceCarID,
           sci.Quantity,
           sci.UnitPrice,
           COALESCE(p.Name, sci.Description) AS Name,
@@ -622,6 +633,27 @@ app.post("/checkout", async (req, res) => {
         await rollbackAsync();
         return res.status(400).json({ message: "Stock changed during checkout. Please refresh and try again." });
       }
+    }
+
+    const purchasedCarIds = [
+      ...new Set(
+        cartItems
+          .map((item) => Number(item.SourceCarID))
+          .filter((id) => Number.isInteger(id) && id > 0)
+      )
+    ];
+
+    if (purchasedCarIds.length > 0) {
+      await queryAsync(
+        `
+          UPDATE Customized_car
+          SET BuildStatus = 'BOUGHT'
+          WHERE UserID = ?
+            AND CarID IN (?)
+            AND (BuildStatus IS NULL OR UPPER(BuildStatus) <> 'BOUGHT')
+        `,
+        [userId, purchasedCarIds]
+      );
     }
 
     await queryAsync("DELETE FROM ShoppingCartItems WHERE UserID = ?", [userId]);
@@ -854,13 +886,13 @@ app.post("/cars/:carId/add-to-cart", async (req, res) => {
     // Insert base car price as a description-only cart item
     if (baseCarPrice > 0) {
       const existingBase = await queryAsync(
-        "SELECT CartItemID FROM ShoppingCartItems WHERE UserID = ? AND PartID IS NULL AND Description = ?",
-        [userId, baseCarLabel]
+        "SELECT CartItemID FROM ShoppingCartItems WHERE UserID = ? AND PartID IS NULL AND Description = ? AND SourceCarID = ?",
+        [userId, baseCarLabel, carId]
       );
       if (!existingBase || existingBase.length === 0) {
         await queryAsync(
-          "INSERT INTO ShoppingCartItems (UserID, PartID, Description, Quantity, UnitPrice) VALUES (?, NULL, ?, 1, ?)",
-          [userId, baseCarLabel, baseCarPrice]
+          "INSERT INTO ShoppingCartItems (UserID, PartID, Description, SourceCarID, Quantity, UnitPrice) VALUES (?, NULL, ?, ?, 1, ?)",
+          [userId, baseCarLabel, carId, baseCarPrice]
         );
         addedCount += 1;
       }
@@ -872,8 +904,8 @@ app.post("/cars/:carId/add-to-cart", async (req, res) => {
       const stock = Number(part.Stock || 0);
 
       const existingRows = await queryAsync(
-        "SELECT CartItemID, Quantity FROM ShoppingCartItems WHERE UserID = ? AND PartID = ?",
-        [userId, partId]
+        "SELECT CartItemID, Quantity FROM ShoppingCartItems WHERE UserID = ? AND PartID = ? AND SourceCarID = ?",
+        [userId, partId, carId]
       );
 
       if (existingRows && existingRows.length > 0) {
@@ -891,8 +923,8 @@ app.post("/cars/:carId/add-to-cart", async (req, res) => {
         );
       } else {
         await queryAsync(
-          "INSERT INTO ShoppingCartItems (UserID, PartID, Quantity, UnitPrice) VALUES (?, ?, 1, ?)",
-          [userId, partId, unitPrice]
+          "INSERT INTO ShoppingCartItems (UserID, PartID, SourceCarID, Quantity, UnitPrice) VALUES (?, ?, ?, 1, ?)",
+          [userId, partId, carId, unitPrice]
         );
       }
 
