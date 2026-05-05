@@ -161,15 +161,15 @@ CREATE TABLE Bookmarks (
 -- ========================
 
 CREATE TABLE ShoppingCartItems (
-    CartItemID INT NOT NULL AUTO_INCREMENT,
-    UserID     INT NOT NULL,
-    PartID     INT NOT NULL,
-    Quantity   INT NOT NULL DEFAULT 1,
-    UnitPrice  DECIMAL(10,2) NOT NULL DEFAULT 0,
-    CreatedAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CartItemID  INT NOT NULL AUTO_INCREMENT,
+    UserID      INT NOT NULL,
+    PartID      INT NULL,
+    Description VARCHAR(255) NULL,
+    Quantity    INT NOT NULL DEFAULT 1,
+    UnitPrice   DECIMAL(10,2) NOT NULL DEFAULT 0,
+    CreatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (CartItemID),
-    UNIQUE KEY uq_cart_user_part (UserID, PartID),
     KEY idx_cart_user (UserID),
     KEY idx_cart_part (PartID),
     CONSTRAINT fk_cart_user
