@@ -75,28 +75,31 @@
 <header>LEGACY<span>AUTO</span></header>
 
 <!-- Purchase modal -->
-<div class="modal-overlay" id="purchaseModal">
-  <div class="modal">
-    <h3>Purchase Build</h3>
-    <div class="mfield">
-      <label for="buyerName">Full Name</label>
-      <input id="buyerName" type="text" placeholder="John Doe">
+<div id="purchaseModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:9999; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+  <div style="background:#0a1021; border:1px solid rgba(79,144,240,0.3); border-radius:20px; padding:36px 40px; width:460px; max-width:calc(100vw - 32px); box-shadow:0 24px 60px rgba(0,0,0,0.8); font-family:'Inter',sans-serif;">
+    <h3 style="font-family:'Orbitron',monospace; font-size:1.1rem; color:#d8eaff; margin:0 0 24px 0; font-weight:700;">Purchase Build</h3>
+
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:0.85rem; color:rgba(175,200,245,0.85); margin-bottom:6px; width:100%;">Full Name</label>
+      <input id="buyerName" type="text" placeholder="John Doe" style="display:block; width:100%; background:rgba(8,13,28,0.9); border:1px solid rgba(79,144,240,0.35); border-radius:10px; color:#fff; padding:11px 13px; font-size:0.9rem; font-family:'Inter',sans-serif; box-sizing:border-box; outline:none; max-width:100%;">
     </div>
-    <div class="mfield">
-      <label for="buyerAddress">Shipping Address</label>
-      <input id="buyerAddress" type="text" placeholder="123 Main St, City, State ZIP">
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:0.85rem; color:rgba(175,200,245,0.85); margin-bottom:6px; width:100%;">Shipping Address</label>
+      <input id="buyerAddress" type="text" placeholder="123 Main St, City, State ZIP" style="display:block; width:100%; background:rgba(8,13,28,0.9); border:1px solid rgba(79,144,240,0.35); border-radius:10px; color:#fff; padding:11px 13px; font-size:0.9rem; font-family:'Inter',sans-serif; box-sizing:border-box; outline:none; max-width:100%;">
     </div>
-    <div class="mfield">
-      <label for="buyerPhone">Phone Number</label>
-      <input id="buyerPhone" type="tel" placeholder="(555) 555-5555">
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:0.85rem; color:rgba(175,200,245,0.85); margin-bottom:6px; width:100%;">Phone Number</label>
+      <input id="buyerPhone" type="tel" placeholder="(555) 555-5555" style="display:block; width:100%; background:rgba(8,13,28,0.9); border:1px solid rgba(79,144,240,0.35); border-radius:10px; color:#fff; padding:11px 13px; font-size:0.9rem; font-family:'Inter',sans-serif; box-sizing:border-box; outline:none; max-width:100%;">
     </div>
-    <div class="mfield">
-      <label for="buyerEmail">Email Address</label>
-      <input id="buyerEmail" type="email" placeholder="you@example.com">
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:0.85rem; color:rgba(175,200,245,0.85); margin-bottom:6px; width:100%;">Email Address</label>
+      <input id="buyerEmail" type="email" placeholder="you@example.com" style="display:block; width:100%; background:rgba(8,13,28,0.9); border:1px solid rgba(79,144,240,0.35); border-radius:10px; color:#fff; padding:11px 13px; font-size:0.9rem; font-family:'Inter',sans-serif; box-sizing:border-box; outline:none; max-width:100%;">
     </div>
-    <p class="modal-error" id="modalError"></p>
-    <div class="modal-actions">
-      <button class="cancel-btn" onclick="closePurchaseModal()">Cancel</button>
+
+    <p id="modalError" style="color:#f87171; font-size:0.85rem; margin:0 0 14px 0; min-height:18px;"></p>
+
+    <div style="display:flex; gap:12px; justify-content:flex-end;">
+      <button onclick="closePurchaseModal()" style="background:rgba(255,255,255,0.09); box-shadow:none; border:1px solid rgba(79,144,240,0.25);">Cancel</button>
       <button id="confirmPurchaseBtn">Confirm Purchase</button>
     </div>
   </div>
@@ -154,12 +157,13 @@ function openPurchaseModal(carId) {
   document.getElementById('buyerPhone').value = '';
   document.getElementById('buyerEmail').value = '';
   document.getElementById('modalError').textContent = '';
-  document.getElementById('purchaseModal').classList.add('open');
+  const overlay = document.getElementById('purchaseModal');
+  overlay.style.display = 'flex';
 }
 
 function closePurchaseModal() {
   _pendingPurchaseCarId = null;
-  document.getElementById('purchaseModal').classList.remove('open');
+  document.getElementById('purchaseModal').style.display = 'none';
 }
 
 document.getElementById('confirmPurchaseBtn').addEventListener('click', async () => {
